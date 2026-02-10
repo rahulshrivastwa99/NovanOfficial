@@ -1,0 +1,13 @@
+<svg width="500" height="500" viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#BF953F" />
+      <stop offset="25%" stop-color="#FCF6BA" />
+      <stop offset="50%" stop-color="#BF953F" />
+      <stop offset="75%" stop-color="#FBF5B7" />
+      <stop offset="100%" stop-color="#AA771C" />
+    </linearGradient>
+  </defs>
+  <rect width="500" height="500" fill="#1a1a1a" rx="50" ry="50"/>
+  <text x="50%" y="55%" font-family="'Playfair Display', 'Didot', 'Bodoni MT', 'Times New Roman', serif" font-style="italic" font-weight="bold" font-size="350" fill="url(#gold)" text-anchor="middle" dominant-baseline="middle">N</text>
+</svg>
