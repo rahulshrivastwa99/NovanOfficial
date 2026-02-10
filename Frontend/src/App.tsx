@@ -14,12 +14,19 @@ import Checkout from "./pages/Checkout";
 import Profile from "./pages/Profile";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
+import Wishlist from "./pages/Wishlist";
+import Orders from "./pages/Orders";
 import AdminLayout from "./components/AdminLayout";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminProducts from "./pages/admin/Products";
 import AdminOrders from "./pages/admin/Orders";
 import AddProduct from "./pages/admin/AddProduct";
 import NotFound from "./pages/NotFound";
+
+import AuthModal from "./components/AuthModal";
+import CartDrawer from "./components/CartDrawer";
+
+import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +41,9 @@ const App = () => {
           <Sonner />
           {loading && <Preloader onComplete={() => setLoading(false)} />}
           <BrowserRouter>
+            <ScrollToTop />
+            <AuthModal />
+            <CartDrawer />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/shop" element={<Shop />} />
@@ -42,6 +52,8 @@ const App = () => {
               <Route path="/profile" element={<Profile />} />
               <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />
+              <Route path="/wishlist" element={<Wishlist />} />
+              <Route path="/orders" element={<Orders />} />
               <Route path="/admin" element={<AdminLayout />}>
                 <Route path="dashboard" element={<AdminDashboard />} />
                 <Route path="products" element={<AdminProducts />} />

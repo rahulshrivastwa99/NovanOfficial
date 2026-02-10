@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAppSelector, useAppDispatch } from '@/store';
 import { clearCart } from '@/store/cartSlice';
+import { placeOrder } from '@/store/orderSlice';
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -21,9 +22,28 @@ const Checkout = () => {
 
   const handlePlaceOrder = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Create order object
+    const newOrder = {
+      id: Math.random().toString(36).substr(2, 9),
+      date: new Date().toISOString(),
+      status: 'Processing' as const,
+      total: total,
+      items: items.map(item => ({
+        productId: item.productId,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        image: item.image,
+        size: item.size,
+        color: item.color
+      }))
+    };
+
+    dispatch(placeOrder(newOrder));
     dispatch(clearCart());
     toast.success('Order placed successfully!');
-    navigate('/profile');
+    navigate('/orders');
   };
 
   return (

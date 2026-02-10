@@ -1,0 +1,45 @@
+import { useAppSelector, useAppDispatch } from '@/store';
+import { removeFromWishlist } from '@/store/wishlistSlice';
+import { addToCart } from '@/store/cartSlice';
+import Layout from '@/components/AdminLayout'; // Using standard layout if available, or just render Navbar/Footer
+// Actually, I should check if there is a main layout. App.tsx renders Navbar manually in pages? No, App.tsx renders pages directly. 
+// Shop.tsx probably has Navbar. Let's assume pages need to include Navbar.
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
+import ProductCard from '@/components/ProductCard';
+import EmptyState from '@/components/EmptyState';
+import { Heart } from 'lucide-react';
+import { motion } from 'framer-motion';
+
+const Wishlist = () => {
+  const wishlistItems = useAppSelector((s) => s.wishlist.items);
+  const dispatch = useAppDispatch();
+
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Navbar />
+      <main className="flex-grow container py-20 lg:py-24">
+        <h1 className="font-serif text-3xl lg:text-4xl mb-12 text-center">My Wishlist</h1>
+
+        {wishlistItems.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
+            {wishlistItems.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        ) : (
+          <EmptyState
+            icon={Heart}
+            title="Your wishlist is empty"
+            description="Save items you love to your wishlist. Review them anytime and easily add them to your bag."
+            actionLabel="Start Shopping"
+            actionLink="/shop"
+          />
+        )}
+      </main>
+      <Footer />
+    </div>
+  );
+};
+
+export default Wishlist;

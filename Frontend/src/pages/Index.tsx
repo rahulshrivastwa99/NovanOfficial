@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
-import heroImage from '@/assets/hero.jpg';
+import hero1Image from '@/assets/hero1.jpeg';  
 import categoryMen from '@/assets/category-men.jpg';
 import categoryWomen from '@/assets/category-women.jpg';
 import categoryAccessories from '@/assets/category-accessories.jpg';
@@ -9,8 +9,6 @@ import { products } from '@/data/products';
 import ProductCard from '@/components/ProductCard';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import CartDrawer from '@/components/CartDrawer';
-import AuthModal from '@/components/AuthModal';
 
 const bestSellers = products.filter((p) => p.isBestSeller);
 
@@ -24,16 +22,14 @@ const Index = () => {
   return (
     <>
       <Navbar />
-      <CartDrawer />
-      <AuthModal />
 
       <main>
         {/* Hero */}
         <section className="relative h-screen flex items-center justify-center overflow-hidden">
           <img
-            src={heroImage}
+            src={hero1Image}
             alt="Novan hero"
-            className="absolute inset-0 w-full h-full object-cover"
+            className="absolute inset-0 w-full h-full object-cover object-top"
           />
           <div className="absolute inset-0 bg-foreground/30" />
           <div className="relative z-10 text-center text-primary-foreground px-4">
@@ -43,7 +39,7 @@ const Index = () => {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="font-serif text-4xl md:text-6xl lg:text-7xl font-light tracking-wide mb-6"
             >
-              TIMELESS ELEGANCE
+              ELEVATE YOUR STYLE
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: 20 }}

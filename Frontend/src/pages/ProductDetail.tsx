@@ -8,8 +8,6 @@ import { addToCart, openCart } from '@/store/cartSlice';
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import CartDrawer from '@/components/CartDrawer';
-import AuthModal from '@/components/AuthModal';
 
 const mockReviews = [
   { id: 1, name: 'Sarah M.', rating: 5, text: 'Absolutely beautiful quality. The fabric is luxurious and the fit is perfect.' },
@@ -59,8 +57,6 @@ const ProductDetail = () => {
   return (
     <>
       <Navbar />
-      <CartDrawer />
-      <AuthModal />
 
       <main className="pt-20 lg:pt-24 min-h-screen">
         <div className="container py-8">
