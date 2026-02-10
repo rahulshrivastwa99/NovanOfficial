@@ -197,7 +197,7 @@ const Navbar = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="fixed inset-0 z-[60] bg-foreground/30"
+              className="fixed inset-0 z-[90] bg-foreground/30"
               onClick={() => setMobileOpen(false)}
             />
             <motion.div
@@ -205,7 +205,7 @@ const Navbar = () => {
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ duration: 0.4, ease: [0.76, 0, 0.24, 1] }}
-              className="fixed top-0 left-0 bottom-0 z-[70] w-[80%] max-w-sm bg-background flex flex-col"
+              className="fixed top-0 left-0 bottom-0 z-[90] w-[80%] max-w-sm bg-background flex flex-col"
             >
               <div className="flex items-center justify-between px-6 py-5 border-b border-border">
                 <span className="font-serif text-lg tracking-[0.3em] font-bold">NOVAN.</span>
@@ -217,14 +217,14 @@ const Navbar = () => {
                 {mobileLinks.map((link, i) => (
                   <motion.div
                     key={link.to}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 + i * 0.05 }}
                   >
                     <Link
                       to={link.to}
                       onClick={() => setMobileOpen(false)}
-                      className="font-serif text-2xl tracking-wider font-semibold text-foreground hover:text-foreground/70 transition-colors"
+                      className="font-serif text-2xl tracking-[0.15em] font-medium text-foreground hover:text-foreground/60 transition-colors uppercase block"
                     >
                       {link.label}
                     </Link>
@@ -233,19 +233,19 @@ const Navbar = () => {
                 
                 {isLoggedIn && (
                    <motion.div
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
-                    className="pt-6 border-t border-border flex flex-col gap-4"
+                    className="pt-8 mt-4 border-t border-border flex flex-col gap-5"
                   >
-                    <Link to="/profile" onClick={() => setMobileOpen(false)} className="font-serif text-xl text-foreground">My Profile</Link>
-                    <Link to="/orders" onClick={() => setMobileOpen(false)} className="font-serif text-xl text-foreground">My Orders</Link>
+                    <Link to="/profile" onClick={() => setMobileOpen(false)} className="font-serif text-lg tracking-widest text-muted-foreground hover:text-foreground uppercase transition-colors">My Profile</Link>
+                    <Link to="/orders" onClick={() => setMobileOpen(false)} className="font-serif text-lg tracking-widest text-muted-foreground hover:text-foreground uppercase transition-colors">My Orders</Link>
                     <button 
                       onClick={() => {
                         dispatch(logout());
                         setMobileOpen(false);
                       }} 
-                      className="font-serif text-xl text-left text-muted-foreground"
+                      className="font-serif text-lg tracking-widest text-left text-red-500 hover:text-red-600 uppercase transition-colors"
                     >
                       Sign Out
                     </button>
