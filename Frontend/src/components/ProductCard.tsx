@@ -77,7 +77,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
         {/* Info */}
         <h3 className="font-serif text-sm lg:text-base">{product.name}</h3>
-        <p className="font-body text-sm text-muted-foreground mt-1">${product.price}</p>
+        <p className="font-body text-sm text-muted-foreground mt-1">₹{product.price}</p>
       </motion.div>
     </Link>
   );

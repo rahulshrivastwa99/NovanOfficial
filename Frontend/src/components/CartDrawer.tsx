@@ -90,7 +90,7 @@ const CartDrawer = () => {
                             <Plus size={14} />
                           </button>
                         </div>
-                        <p className="font-body text-sm">${item.price * item.quantity}</p>
+                        <p className="font-body text-sm">₹{item.price * item.quantity}</p>
                       </div>
                     </div>
                     <button
@@ -110,7 +110,7 @@ const CartDrawer = () => {
               <div className="p-6 border-t border-border space-y-4">
                 <div className="flex justify-between font-body text-sm">
                   <span>Subtotal</span>
-                  <span className="font-medium">${subtotal}</span>
+                  <span className="font-medium">₹{subtotal}</span>
                 </div>
                 <button
                   onClick={handleCheckout}

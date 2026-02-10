@@ -102,7 +102,7 @@ const ProductDetail = () => {
               className="lg:py-8"
             >
               <h1 className="font-serif text-2xl lg:text-3xl mb-2">{product.name}</h1>
-              <p className="font-body text-lg mb-6">${product.price}</p>
+              <p className="font-body text-lg mb-6">₹{product.price}</p>
               <p className="font-body text-sm text-muted-foreground leading-relaxed mb-8">
                 {product.description}
               </p>

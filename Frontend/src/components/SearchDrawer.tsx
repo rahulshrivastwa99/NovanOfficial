@@ -96,7 +96,7 @@ const SearchDrawer = ({ isOpen, onClose }: SearchDrawerProps) => {
                             {product.name}
                           </h4>
                           <p className="text-sm text-muted-foreground flex items-center justify-between">
-                            ${product.price}
+                            ₹{product.price}
                             <ArrowRight
                               size={14}
                               className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all"

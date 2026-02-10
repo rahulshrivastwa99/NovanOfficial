@@ -6,7 +6,7 @@ import { products } from '@/data/products';
 const stats = [
   {
     label: 'Total Sales',
-    value: '$' + orders.reduce((s, o) => s + o.total, 0).toLocaleString(),
+    value: '₹' + orders.reduce((s, o) => s + o.total, 0).toLocaleString(),
     icon: DollarSign,
   },
   {
@@ -77,7 +77,7 @@ const AdminDashboard = () => {
                 <tr key={order.id} className="border-b border-border last:border-0">
                   <td className="p-4 font-body text-sm">{order.id}</td>
                   <td className="p-4 font-body text-sm">{order.customerName}</td>
-                  <td className="p-4 font-body text-sm">${order.total}</td>
+                  <td className="p-4 font-body text-sm">₹{order.total}</td>
                   <td className="p-4">
                     <span className={`px-3 py-1 font-body text-xs capitalize ${statusColor[order.status]}`}>
                       {order.status}
