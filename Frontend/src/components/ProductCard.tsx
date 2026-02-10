@@ -6,6 +6,7 @@ import { addToCart, openCart } from '@/store/cartSlice';
 import { toggleWishlist } from '@/store/wishlistSlice';
 import type { Product } from '@/data/products';
 import { Heart } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface ProductCardProps {
   product: Product;
@@ -20,6 +21,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
   const handleToggleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
     dispatch(toggleWishlist(product));
+    toast.success(isWishlisted ? 'Removed from wishlist' : 'Added to wishlist');
   };
 
   const handleQuickAdd = (e: React.MouseEvent) => {
@@ -35,6 +37,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
         image: product.images[0],
       })
     );
+    toast.success('Added to bag');
     dispatch(openCart());
   };
 

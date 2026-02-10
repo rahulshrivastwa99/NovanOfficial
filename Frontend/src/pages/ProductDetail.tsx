@@ -8,6 +8,7 @@ import { addToCart, openCart } from '@/store/cartSlice';
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import SizeGuideModal from '@/components/SizeGuideModal';
 
 const mockReviews = [
   { id: 1, name: 'Sarah M.', rating: 5, text: 'Absolutely beautiful quality. The fabric is luxurious and the fit is perfect.' },
@@ -23,6 +24,7 @@ const ProductDetail = () => {
   const [selectedColor, setSelectedColor] = useState('');
   const [selectedImage, setSelectedImage] = useState(0);
   const [wishlisted, setWishlisted] = useState(false);
+  const [showSizeGuide, setShowSizeGuide] = useState(false);
 
   if (!product) {
     return (
@@ -51,6 +53,7 @@ const ProductDetail = () => {
         image: product.images[0],
       })
     );
+    toast.success('Added to bag');
     dispatch(openCart());
   };
 
@@ -104,9 +107,17 @@ const ProductDetail = () => {
                 {product.description}
               </p>
 
-              {/* Size */}
+                  {/* Size */}
               <div className="mb-6">
-                <label className="luxury-button text-muted-foreground block mb-3">Size</label>
+                <div className="flex justify-between items-center mb-3">
+                  <label className="luxury-button text-muted-foreground">Size</label>
+                  <button 
+                    onClick={() => setShowSizeGuide(true)}
+                    className="text-xs underline text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    Size Guide
+                  </button>
+                </div>
                 <div className="flex gap-2">
                   {product.sizes.map((size) => (
                     <button
@@ -193,6 +204,7 @@ const ProductDetail = () => {
       </main>
 
       <Footer />
+      <SizeGuideModal isOpen={showSizeGuide} onClose={() => setShowSizeGuide(false)} />
     </>
   );
 };
