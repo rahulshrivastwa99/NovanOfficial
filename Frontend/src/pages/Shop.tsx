@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, SlidersHorizontal, X } from 'lucide-react';
@@ -6,8 +6,6 @@ import { products } from '@/data/products';
 import ProductCard from '@/components/ProductCard';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import CartDrawer from '@/components/CartDrawer';
-import AuthModal from '@/components/AuthModal';
 
 const priceRanges = [
   { label: 'Under $100', min: 0, max: 100 },
@@ -23,6 +21,12 @@ const Shop = () => {
   const [selectedPrice, setSelectedPrice] = useState<number | null>(null);
   const [mobileFilters, setMobileFilters] = useState(false);
   const [openAccordion, setOpenAccordion] = useState<string | null>('category');
+
+  // Ensure mobile filters are closed on mount/unmount
+  useEffect(() => {
+    setMobileFilters(false);
+    return () => setMobileFilters(false);
+  }, []);
 
   const filtered = useMemo(() => {
     return products.filter((p) => {
@@ -106,8 +110,6 @@ const Shop = () => {
   return (
     <>
       <Navbar />
-      <CartDrawer />
-      <AuthModal />
 
       <main className="pt-20 lg:pt-24 min-h-screen">
         <div className="container py-8 lg:py-12">

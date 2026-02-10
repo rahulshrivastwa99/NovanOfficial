@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useAppDispatch } from '@/store';
+import { useAppDispatch, useAppSelector } from '@/store';
 import { addToCart, openCart } from '@/store/cartSlice';
+import { toggleWishlist } from '@/store/wishlistSlice';
 import type { Product } from '@/data/products';
+import { Heart } from 'lucide-react';
 
 interface ProductCardProps {
   product: Product;
@@ -12,6 +14,13 @@ interface ProductCardProps {
 const ProductCard = ({ product }: ProductCardProps) => {
   const [hovered, setHovered] = useState(false);
   const dispatch = useAppDispatch();
+  const wishlistItems = useAppSelector((s) => s.wishlist.items);
+  const isWishlisted = wishlistItems.some((item) => item.id === product.id);
+
+  const handleToggleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault();
+    dispatch(toggleWishlist(product));
+  };
 
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -42,6 +51,12 @@ const ProductCard = ({ product }: ProductCardProps) => {
       >
         {/* Image */}
         <div className="relative aspect-[3/4] overflow-hidden bg-secondary mb-4">
+          <button
+            onClick={handleToggleWishlist}
+            className="absolute top-3 right-3 z-10 p-2 bg-background/50 backdrop-blur-sm rounded-full hover:bg-background transition-colors"
+          >
+            <Heart size={18} className={isWishlisted ? "fill-red-500 text-red-500" : "text-foreground"} />
+          </button>
           <img
             src={hovered && product.images[1] ? product.images[1] : product.images[0]}
             alt={product.name}

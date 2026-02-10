@@ -1,21 +1,26 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, User, ShoppingBag, Menu, X } from 'lucide-react';
+import { Search, User, ShoppingBag, Menu, X, Heart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAppSelector, useAppDispatch } from '@/store';
 import { openCart } from '@/store/cartSlice';
-import { openAuthModal } from '@/store/authSlice';
+import { openAuthModal, logout } from '@/store/authSlice';
+import { toast } from 'sonner';
+import SearchDrawer from './SearchDrawer';
 
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const cartItems = useAppSelector((s) => s.cart.items);
+  const wishlistItems = useAppSelector((s) => s.wishlist.items);
   const { isLoggedIn, user } = useAppSelector((s) => s.auth);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   const totalItems = cartItems.reduce((sum, i) => sum + i.quantity, 0);
+  const totalWishlist = wishlistItems.length;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);
@@ -40,8 +45,7 @@ const Navbar = () => {
 
   const handleProfileClick = () => {
     if (isLoggedIn) {
-      if (user?.role === 'admin') navigate('/admin/dashboard');
-      else navigate('/profile');
+      setProfileOpen(!profileOpen);
     } else {
       dispatch(openAuthModal());
     }
@@ -99,12 +103,77 @@ const Navbar = () => {
 
           {/* Right Icons */}
           <div className="flex items-center gap-4 lg:ml-10">
-            <button onClick={() => setSearchOpen(!searchOpen)} aria-label="Search" className="p-1">
+            <button onClick={() => setSearchOpen(true)} aria-label="Search" className="p-1">
               <Search size={18} />
             </button>
-            <button onClick={handleProfileClick} aria-label="Profile" className="p-1">
-              <User size={18} />
-            </button>
+            <Link to="/wishlist" aria-label="Wishlist" className="p-1 relative">
+              <Heart size={18} />
+              {totalWishlist > 0 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] flex items-center justify-center font-body rounded-full">
+                  {totalWishlist}
+                </span>
+              )}
+            </Link>
+            
+            <div className="relative">
+              <button onClick={handleProfileClick} aria-label="Profile" className="p-1">
+                <User size={18} />
+              </button>
+              
+              <AnimatePresence>
+                {profileOpen && isLoggedIn && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setProfileOpen(false)} />
+                    <motion.div
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute right-0 top-full mt-2 w-48 bg-background border border-border shadow-lg z-50 py-2"
+                    >
+                      <div className="px-4 py-3 border-b border-border bg-secondary/30">
+                        <p className="font-medium text-sm truncate">{user?.name}</p>
+                        <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                      </div>
+                      <Link 
+                        to="/profile" 
+                        className="block px-4 py-2 text-sm hover:bg-secondary transition-colors"
+                        onClick={() => setProfileOpen(false)}
+                      >
+                        My Profile
+                      </Link>
+                      <Link 
+                        to="/orders" 
+                        className="block px-4 py-2 text-sm hover:bg-secondary transition-colors"
+                        onClick={() => setProfileOpen(false)}
+                      >
+                        My Orders
+                      </Link>
+                      {user?.role === 'admin' && (
+                        <Link 
+                            to="/admin/dashboard" 
+                            className="block px-4 py-2 text-sm hover:bg-secondary transition-colors text-blue-600"
+                            onClick={() => setProfileOpen(false)}
+                        >
+                            Admin Dashboard
+                        </Link>
+                      )}
+                      <button 
+                        onClick={() => {
+                          dispatch(logout());
+                          setProfileOpen(false);
+                          toast.success('Logged out successfully');
+                        }}
+                        className="w-full text-left px-4 py-2 text-sm hover:bg-secondary transition-colors text-red-500 border-t border-border mt-1"
+                      >
+                        Sign Out
+                      </button>
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
+            </div>
+
             <button onClick={() => dispatch(openCart())} aria-label="Cart" className="p-1 relative">
               <ShoppingBag size={18} />
               {totalItems > 0 && (
@@ -116,26 +185,7 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Search Bar */}
-        <AnimatePresence>
-          {searchOpen && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className="border-t border-border overflow-hidden bg-background"
-            >
-              <div className="container py-4">
-                <input
-                  type="text"
-                  placeholder="Search products..."
-                  className="w-full bg-transparent font-body text-sm outline-none placeholder:text-muted-foreground"
-                  autoFocus
-                />
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <SearchDrawer isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
       </header>
 
       {/* Mobile Drawer from Left */}
@@ -163,7 +213,7 @@ const Navbar = () => {
                   <X size={24} />
                 </button>
               </div>
-              <nav className="flex flex-col px-6 pt-10 gap-8">
+              <nav className="flex flex-col px-6 pt-10 gap-6">
                 {mobileLinks.map((link, i) => (
                   <motion.div
                     key={link.to}
@@ -174,12 +224,33 @@ const Navbar = () => {
                     <Link
                       to={link.to}
                       onClick={() => setMobileOpen(false)}
-                      className="font-serif text-2xl lg:text-3xl tracking-wider font-semibold text-foreground hover:text-foreground/70 transition-colors"
+                      className="font-serif text-2xl tracking-wider font-semibold text-foreground hover:text-foreground/70 transition-colors"
                     >
                       {link.label}
                     </Link>
                   </motion.div>
                 ))}
+                
+                {isLoggedIn && (
+                   <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="pt-6 border-t border-border flex flex-col gap-4"
+                  >
+                    <Link to="/profile" onClick={() => setMobileOpen(false)} className="font-serif text-xl text-foreground">My Profile</Link>
+                    <Link to="/orders" onClick={() => setMobileOpen(false)} className="font-serif text-xl text-foreground">My Orders</Link>
+                    <button 
+                      onClick={() => {
+                        dispatch(logout());
+                        setMobileOpen(false);
+                      }} 
+                      className="font-serif text-xl text-left text-muted-foreground"
+                    >
+                      Sign Out
+                    </button>
+                  </motion.div>
+                )}
               </nav>
             </motion.div>
           </>
