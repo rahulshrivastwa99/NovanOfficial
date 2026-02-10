@@ -41,7 +41,7 @@ const AddProduct = () => {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="luxury-button text-muted-foreground block mb-2">Price ($)</label>
+            <label className="luxury-button text-muted-foreground block mb-2">Price (₹)</label>
             <input type="number" required className="w-full border border-border px-4 py-3 font-body text-sm outline-none focus:border-foreground transition-colors bg-transparent" />
           </div>
           <div>

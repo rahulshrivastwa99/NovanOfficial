@@ -15,7 +15,7 @@ export const products: Product[] = [
   {
     id: "1",
     name: "Essential Crew Tee",
-    price: 49,
+    price: 599,
     description: "A foundational piece crafted from premium Pima cotton. Features a relaxed fit with reinforced collar for lasting shape. The perfect canvas for everyday elegance.",
     category: "men",
     sizes: ["S", "M", "L", "XL"],
@@ -36,7 +36,7 @@ export const products: Product[] = [
   {
     id: "2",
     name: "Oversized Wool Coat",
-    price: 389,
+    price: 5999,
     description: "Luxuriously soft double-faced wool blend. Dropped shoulders with a clean, architectural silhouette. Unlined for a fluid drape.",
     category: "women",
     sizes: ["XS", "S", "M", "L"],
@@ -56,7 +56,7 @@ export const products: Product[] = [
   {
     id: "3",
     name: "Minimal Hoodie",
-    price: 129,
+    price: 1999,
     description: "Heavyweight French terry with a brushed interior. Kangaroo pocket and adjustable drawcord hood. Built to last season after season.",
     category: "men",
     sizes: ["S", "M", "L", "XL"],
@@ -76,7 +76,7 @@ export const products: Product[] = [
   {
     id: "4",
     name: "Tailored Linen Trousers",
-    price: 159,
+    price: 2499,
     description: "Italian linen blend with a high-waisted, wide-leg cut. Side pockets and invisible zip closure. Effortless sophistication.",
     category: "women",
     sizes: ["XS", "S", "M", "L"],
@@ -95,7 +95,7 @@ export const products: Product[] = [
   {
     id: "5",
     name: "Leather Crossbody Bag",
-    price: 245,
+    price: 3499,
     description: "Full-grain vegetable-tanned leather with antique brass hardware. Adjustable strap and magnetic closure. Ages beautifully.",
     category: "accessories",
     sizes: ["One Size"],
@@ -115,7 +115,7 @@ export const products: Product[] = [
   {
     id: "6",
     name: "Cashmere Crew Sweater",
-    price: 279,
+    price: 4999,
     description: "100% Grade-A Mongolian cashmere. Ribbed cuffs and hem with a regular fit. Featherweight warmth with timeless appeal.",
     category: "men",
     sizes: ["S", "M", "L", "XL"],
@@ -136,7 +136,7 @@ export const products: Product[] = [
   {
     id: "7",
     name: "Silk Camisole",
-    price: 119,
+    price: 1499,
     description: "Mulberry silk with French seam construction. Delicate adjustable straps and a cowl neckline. Day-to-night versatility.",
     category: "women",
     sizes: ["XS", "S", "M", "L"],
@@ -155,7 +155,7 @@ export const products: Product[] = [
   {
     id: "8",
     name: "Minimalist Watch",
-    price: 195,
+    price: 2999,
     description: "Swiss movement with a sapphire crystal face. Italian leather strap with quick-release mechanism. 40mm case diameter.",
     category: "accessories",
     sizes: ["One Size"],

@@ -46,7 +46,7 @@ const AdminProducts = () => {
                       <span className="font-body text-sm">{product.name}</span>
                     </div>
                   </td>
-                  <td className="p-4 font-body text-sm">${product.price}</td>
+                  <td className="p-4 font-body text-sm">₹{product.price}</td>
                   <td className="p-4 font-body text-sm capitalize hidden lg:table-cell">{product.category}</td>
                   <td className="p-4 font-body text-sm hidden lg:table-cell">{totalStock}</td>
                   <td className="p-4">

@@ -54,7 +54,7 @@ const Orders = () => {
                       {order.status}
                     </span>
                     <div className="flex items-center gap-4">
-                      <span className="font-medium">${order.total.toFixed(2)}</span>
+                      <span className="font-medium">₹{order.total.toFixed(2)}</span>
                        {expandedOrder === order.id ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                     </div>
                   </div>
@@ -81,7 +81,7 @@ const Orders = () => {
                                 <p className="text-sm text-muted-foreground">Size: {item.size} | Color: {item.color}</p>
                                 <div className="flex justify-between items-center mt-1">
                                     <p className="text-sm">Qty: {item.quantity}</p>
-                                    <p className="text-sm font-medium">${item.price}</p>
+                                    <p className="text-sm font-medium">₹{item.price}</p>
                                 </div>
                               </div>
                             </div>
@@ -89,7 +89,7 @@ const Orders = () => {
                         </div>
                         <div className="mt-6 pt-4 border-t border-border flex justify-between items-center">
                             <span className="font-medium">Total Amount</span>
-                            <span className="font-serif text-xl font-bold">${order.total.toFixed(2)}</span>
+                            <span className="font-serif text-xl font-bold">₹{order.total.toFixed(2)}</span>
                         </div>
                       </div>
                     </motion.div>

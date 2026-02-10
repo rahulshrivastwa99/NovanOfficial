@@ -8,10 +8,10 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
 const priceRanges = [
-  { label: 'Under $100', min: 0, max: 100 },
-  { label: '$100 - $200', min: 100, max: 200 },
-  { label: '$200 - $300', min: 200, max: 300 },
-  { label: 'Over $300', min: 300, max: Infinity },
+  { label: 'Under ₹2,000', min: 0, max: 2000 },
+  { label: '₹2,000 - ₹4,000', min: 2000, max: 4000 },
+  { label: '₹4,000 - ₹6,000', min: 4000, max: 6000 },
+  { label: 'Over ₹6,000', min: 6000, max: Infinity },
 ];
 
 const Shop = () => {

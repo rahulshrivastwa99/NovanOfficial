@@ -98,13 +98,13 @@ const AdminOrders = () => {
                 <label className="luxury-button text-muted-foreground block mb-1">Items</label>
                 {selectedOrder.items.map((item, i) => (
                   <p key={i} className="font-body text-sm">
-                    {item.name} × {item.quantity} ({item.size}) — ${item.price * item.quantity}
+                    {item.name} × {item.quantity} ({item.size}) — ₹{item.price * item.quantity}
                   </p>
                 ))}
               </div>
               <div>
                 <label className="luxury-button text-muted-foreground block mb-1">Total</label>
-                <p className="font-body text-lg font-medium">${selectedOrder.total}</p>
+                <p className="font-body text-lg font-medium">₹{selectedOrder.total}</p>
               </div>
             </div>
 

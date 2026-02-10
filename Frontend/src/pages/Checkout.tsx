@@ -127,22 +127,22 @@ const Checkout = () => {
                             {item.name} × {item.quantity}
                             <span className="text-muted-foreground ml-1">({item.size})</span>
                           </span>
-                          <span>${item.price * item.quantity}</span>
+                          <span>₹{item.price * item.quantity}</span>
                         </div>
                       ))}
                     </div>
                     <div className="border-t border-border pt-4 space-y-2">
                       <div className="flex justify-between font-body text-sm">
                         <span className="text-muted-foreground">Subtotal</span>
-                        <span>${subtotal}</span>
+                        <span>₹{subtotal}</span>
                       </div>
                       <div className="flex justify-between font-body text-sm">
                         <span className="text-muted-foreground">Shipping</span>
-                        <span>{shipping === 0 ? 'Free' : `$${shipping}`}</span>
+                        <span>{shipping === 0 ? 'Free' : `₹${shipping}`}</span>
                       </div>
                       <div className="flex justify-between font-body text-base font-medium pt-2 border-t border-border">
                         <span>Total</span>
-                        <span>${total}</span>
+                        <span>₹{total}</span>
                       </div>
                     </div>
                     <button
