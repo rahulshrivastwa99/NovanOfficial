@@ -25,6 +25,8 @@ import NotFound from "./pages/NotFound";
 
 import AuthModal from "./components/AuthModal";
 import CartDrawer from "./components/CartDrawer";
+import NewsletterPopup from "./components/NewsletterPopup";
+import CookieConsent from "./components/CookieConsent";
 
 import ScrollToTop from "./components/ScrollToTop";
 
@@ -44,6 +46,8 @@ const App = () => {
             <ScrollToTop />
             <AuthModal />
             <CartDrawer />
+            <NewsletterPopup />
+            <CookieConsent />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/shop" element={<Shop />} />
