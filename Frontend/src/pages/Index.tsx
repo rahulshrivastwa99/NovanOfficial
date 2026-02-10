@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
-import hero1Image from '@/assets/hero1.jpeg';  
 import categoryMen from '@/assets/category-men.jpg';
 import categoryWomen from '@/assets/category-women.jpg';
 import categoryAccessories from '@/assets/category-accessories.jpg';
@@ -9,6 +8,7 @@ import { products } from '@/data/products';
 import ProductCard from '@/components/ProductCard';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import HeroCarousel from '@/components/HeroCarousel';
 
 const bestSellers = products.filter((p) => p.isBestSeller);
 
@@ -24,45 +24,8 @@ const Index = () => {
       <Navbar />
 
       <main>
-        {/* Hero */}
-        <section className="relative h-screen flex items-center justify-center overflow-hidden">
-          <img
-            src={hero1Image}
-            alt="Novan hero"
-            className="absolute inset-0 w-full h-full object-cover object-top"
-          />
-          <div className="absolute inset-0 bg-foreground/30" />
-          <div className="relative z-10 text-center text-primary-foreground px-4">
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="font-serif text-4xl md:text-6xl lg:text-7xl font-light tracking-wide mb-6"
-            >
-              ELEVATE YOUR STYLE
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.5 }}
-              className="font-body text-sm md:text-base text-primary-foreground/80 mb-10 tracking-wider"
-            >
-              Redefining modern luxury, piece by piece
-            </motion.p>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.7 }}
-            >
-              <Link
-                to="/shop"
-                className="inline-flex items-center gap-2 border border-primary-foreground/80 text-primary-foreground px-8 py-4 luxury-button hover:bg-primary-foreground hover:text-foreground transition-colors duration-300"
-              >
-                Explore Collection <ArrowRight size={14} />
-              </Link>
-            </motion.div>
-          </div>
-        </section>
+        {/* Hero Carousel */}
+        <HeroCarousel />
 
         {/* Categories */}
         <section className="container py-20 lg:py-32">
