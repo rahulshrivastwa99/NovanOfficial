@@ -153,7 +153,7 @@ const Shop = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-50 bg-foreground/40"
+                className="fixed inset-0 z-[90] bg-foreground/40"
                 onClick={() => setMobileFilters(false)}
               />
               <motion.div
@@ -161,7 +161,7 @@ const Shop = () => {
                 animate={{ x: 0 }}
                 exit={{ x: '-100%' }}
                 transition={{ type: 'tween', duration: 0.3 }}
-                className="fixed left-0 top-0 bottom-0 z-50 w-80 bg-background p-6"
+                className="fixed left-0 top-0 bottom-0 z-[90] w-80 bg-background p-6"
               >
                 <div className="flex items-center justify-between mb-8">
                   <h3 className="font-serif text-lg">Filters</h3>
