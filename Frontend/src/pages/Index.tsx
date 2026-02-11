@@ -29,7 +29,7 @@ const Index = () => {
   }, [status, dispatch]);
 
   // Safely filter best sellers from the potentially empty or loading products array
-  const bestSellers = products.filter((p) => p.isBestSeller).slice(0, 4); // Limit to 4 for the homepage
+  const bestSellers = products.filter((p) => p.isBestSeller).slice(0, 8); // Limit to 8 for the homepage
   return (
     <>
       <Navbar />
@@ -87,6 +87,21 @@ const Index = () => {
                 <ProductCard key={p._id} product={p} />
               ))}
             </div>
+          </div>
+        </section>
+
+        {/* New Arrivals */}
+        <section className="container py-20 lg:py-32">
+          <div className="flex items-center justify-between mb-12">
+            <h2 className="font-serif text-2xl lg:text-3xl">New Arrivals</h2>
+            <Link to="/shop" className="luxury-button text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2">
+              View All <ArrowRight size={12} />
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8">
+            {products.slice(0, 8).map((p) => (
+              <ProductCard key={p._id} product={p} />
+            ))}
           </div>
         </section>
 

@@ -1,152 +1,167 @@
 const products = [
+  // --- MEN'S COLLECTION ---
   {
-    name: "Essential Crew Tee",
+    name: "Urban Oversized Graphic Tee",
+    price: 899,
+    description: "Premium heavy-weight cotton oversized t-shirt featuring a bold street-style graphic. Dropped shoulders for a relaxed fit. The ultimate everyday essential.",
+    category: "men",
+    sizes: ["S", "M", "L", "XL"],
+    colors: [{ name: "Black", hex: "#000000" }, { name: "White", hex: "#FFFFFF" }],
+    images: [
+      "/images/Picsart_26-02-11_20-58-47-747.jpg.jpeg",
+      "/images/Picsart_26-02-11_20-59-40-113.jpg.jpeg"
+    ],
+    stock: { S: 10, M: 25, L: 20, XL: 15 },
+    isBestSeller: true,
+  },
+  {
+    name: "Essential Solid Crewneck",
     price: 599,
-    description: "A foundational piece crafted from premium Pima cotton. Features a relaxed fit with reinforced collar for lasting shape.",
+    description: "A foundational piece crafted from premium combed cotton. Features a tailored fit with a reinforced collar for lasting shape.",
     category: "men",
     sizes: ["S", "M", "L", "XL"],
-    colors: [
-      { name: "Black", hex: "#000000" },
-      { name: "White", hex: "#FFFFFF" },
-      { name: "Gray", hex: "#808080" },
-    ],
+    colors: [{ name: "Navy", hex: "#1B1B3A" }, { name: "Olive", hex: "#556B2F" }],
     images: [
-      "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800",
-      "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=800",
+      "/images/Picsart_26-02-11_21-00-13-629.jpg.jpeg",
+      "/images/Picsart_26-02-11_21-00-53-663.jpg.jpeg"
     ],
-    stock: { S: 15, M: 20, L: 18, XL: 10 },
+    stock: { S: 15, M: 30, L: 25, XL: 10 },
+  },
+  {
+    name: "Vintage Wash Print Shirt",
+    price: 1099,
+    description: "Retro-inspired faded wash t-shirt with a cracked vintage print. Super soft feel from day one.",
+    category: "men",
+    sizes: ["M", "L", "XL"],
+    colors: [{ name: "Charcoal", hex: "#36454F" }, { name: "Maroon", hex: "#800000" }],
+    images: [
+      "/images/Picsart_26-02-11_21-01-36-758.jpg.jpeg",
+      "/images/Picsart_26-02-11_21-02-06-132.jpg.jpeg"
+    ],
+    stock: { M: 12, L: 18, XL: 8 },
     isBestSeller: true,
   },
   {
-    name: "Oversized Wool Coat",
-    price: 5999,
-    description: "Luxuriously soft double-faced wool blend. Dropped shoulders with a clean, architectural silhouette.",
+    name: "Minimalist Drop-Shoulder Tee",
+    price: 799,
+    description: "Clean aesthetic with zero branding. Made for layering or standing out on its own. Breathable and stretchable fabric.",
+    category: "men",
+    sizes: ["S", "M", "L"],
+    colors: [{ name: "Beige", hex: "#F5F5DC" }, { name: "Gray", hex: "#808080" }],
+    images: [
+      "/images/Picsart_26-02-11_21-03-04-072.jpg.jpeg",
+      "/images/Picsart_26-02-11_21-03-53-244.jpg.jpeg"
+    ],
+    stock: { S: 5, M: 20, L: 15 },
+  },
+  {
+    name: "Classic Polo Shirt",
+    price: 999,
+    description: "Textured pique cotton polo with a classic two-button placket and ribbed cuffs. Smart casual perfected.",
+    category: "men",
+    sizes: ["S", "M", "L", "XL"],
+    colors: [{ name: "Black", hex: "#000000" }, { name: "White", hex: "#FFFFFF" }],
+    images: [
+      "/images/Picsart_26-02-11_21-04-31-577.jpg.jpeg",
+      "/images/Picsart_26-02-11_21-05-12-996.jpg.jpeg"
+    ],
+    stock: { S: 8, M: 14, L: 22, XL: 10 },
+  },
+  {
+    name: "Athletic Fit Gym Tee",
+    price: 699,
+    description: "Moisture-wicking activewear blend designed to move with you. Tapered waist to enhance your physique.",
+    category: "men",
+    sizes: ["M", "L", "XL"],
+    colors: [{ name: "Steel Blue", hex: "#4682B4" }, { name: "Black", hex: "#000000" }],
+    images: [
+      "/images/Picsart_26-02-11_21-05-49-142.jpg.jpeg",
+      "/images/Picsart_26-02-11_21-06-30-452.jpg.jpeg"
+    ],
+    stock: { M: 30, L: 25, XL: 12 },
+  },
+
+  // --- WOMEN'S COLLECTION ---
+  {
+    name: "Ribbed Crop Top",
+    price: 599,
+    description: "Form-fitting ribbed fabric with a slight stretch. Perfect for pairing with high-waisted denim or trousers.",
     category: "women",
     sizes: ["XS", "S", "M", "L"],
-    colors: [
-      { name: "Charcoal", hex: "#333333" },
-      { name: "Camel", hex: "#C19A6B" },
-    ],
+    colors: [{ name: "White", hex: "#FFFFFF" }, { name: "Lilac", hex: "#C8A2C8" }],
     images: [
-      "https://images.unsplash.com/photo-1539533018447-63fcce2678e3?w=800",
+      "/images/Picsart_26-02-11_21-07-13-207.jpg.jpeg",
+      "/images/Picsart_26-02-11_21-08-14-378.jpg.jpeg"
     ],
-    stock: { XS: 5, S: 8, M: 12, L: 6 },
+    stock: { XS: 10, S: 20, M: 15, L: 8 },
     isBestSeller: true,
   },
   {
-    name: "Minimal Hoodie",
-    price: 1999,
-    description: "Heavyweight French terry with a brushed interior. Kangaroo pocket and adjustable drawcord hood. Built to last season after season.",
-    category: "men",
-    sizes: ["S", "M", "L", "XL"],
-    colors: [
-      { name: "Black", hex: "#000000" },
-      { name: "Heather Gray", hex: "#B0B0B0" },
-    ],
+    name: "Relaxed Fit Boyfriend Tee",
+    price: 799,
+    description: "Borrowed-from-the-boys silhouette but tailored for you. 100% organic cotton for ultimate comfort.",
+    category: "women",
+    sizes: ["S", "M", "L"],
+    colors: [{ name: "Blush Pink", hex: "#FFB6C1" }, { name: "Black", hex: "#000000" }],
     images: [
-      "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=800",
-      "https://images.unsplash.com/photo-1578768079470-0a4536cc669e?w=800",
-      "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=800",
-      "https://images.unsplash.com/photo-1542406775-ade58c52d2e4?w=800",
+      "/images/Picsart_26-02-11_21-09-19-262.jpg.jpeg",
+      "/images/Picsart_26-02-11_21-10-46-207.jpg.jpeg"
     ],
-    stock: { S: 20, M: 25, L: 22, XL: 15 },
-    isBestSeller: true,
+    stock: { S: 12, M: 18, L: 10 },
   },
   {
-    name: "Tailored Linen Trousers",
-    price: 2499,
-    description: "Italian linen blend with a high-waisted, wide-leg cut. Side pockets and invisible zip closure. Effortless sophistication.",
+    name: "Aesthetic Typo Print Shirt",
+    price: 899,
+    description: "Chic typography print on a soft, flowy fabric. Elevates any basic outfit instantly.",
     category: "women",
     sizes: ["XS", "S", "M", "L"],
-    colors: [
-      { name: "Ivory", hex: "#FFFFF0" },
-      { name: "Black", hex: "#000000" },
-    ],
+    colors: [{ name: "Off White", hex: "#FAF9F6" }, { name: "Sage", hex: "#9DC183" }],
     images: [
-      "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=800",
-      "https://images.unsplash.com/photo-1551854838-212c50b4c184?w=800",
-      "https://images.unsplash.com/photo-1509551388413-e18d0ac5d495?w=800",
-      "https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=800",
+      "/images/Picsart_26-02-11_21-11-53-680.jpg.jpeg",
+      "/images/Picsart_26-02-11_21-13-06-506.jpg.jpeg"
     ],
-    stock: { XS: 8, S: 12, M: 15, L: 7 },
-  },
-  {
-  
-    name: "Leather Crossbody Bag",
-    price: 3499,
-    description: "Full-grain vegetable-tanned leather with antique brass hardware. Adjustable strap and magnetic closure. Ages beautifully.",
-    category: "accessories",
-    sizes: ["One Size"],
-    colors: [
-      { name: "Black", hex: "#000000" },
-      { name: "Tan", hex: "#D2B48C" },
-    ],
-    images: [
-      "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800",
-      "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800",
-      "https://images.unsplash.com/photo-1590874103328-eac38a683ce7?w=800",
-      "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=800",
-    ],
-    stock: { "One Size": 30 },
+    stock: { XS: 5, S: 15, M: 20, L: 12 },
     isBestSeller: true,
   },
   {
-    name: "Cashmere Crew Sweater",
-    price: 4999,
-    description: "100% Grade-A Mongolian cashmere. Ribbed cuffs and hem with a regular fit. Featherweight warmth with timeless appeal.",
-    category: "men",
-    sizes: ["S", "M", "L", "XL"],
-    colors: [
-      { name: "Navy", hex: "#1B1B3A" },
-      { name: "Oatmeal", hex: "#D3C4A5" },
-      { name: "Black", hex: "#000000" },
-    ],
-    images: [
-      "https://images.unsplash.com/photo-1614975059251-992f11792571?w=800",
-      "https://images.unsplash.com/photo-1580331451062-99ff652288d7?w=800",
-      "https://images.unsplash.com/photo-1578587018452-892bacefd3f2?w=800",
-      "https://images.unsplash.com/photo-1434389677669-e08b4cda3a80?w=800",
-    ],
-    stock: { S: 6, M: 10, L: 8, XL: 4 },
-    isBestSeller: true,
-  },
-  {
-    name: "Silk Camisole",
+    name: "Lounge Oversized Hoodie",
     price: 1499,
-    description: "Mulberry silk with French seam construction. Delicate adjustable straps and a cowl neckline. Day-to-night versatility.",
+    description: "Plush fleece-lined interior. Ultimate cozy wear for chilling at home or running errands in style.",
     category: "women",
-    sizes: ["XS", "S", "M", "L"],
-    colors: [
-      { name: "Champagne", hex: "#F7E7CE" },
-      { name: "Black", hex: "#000000" },
-    ],
+    sizes: ["S", "M", "L", "XL"],
+    colors: [{ name: "Heather Gray", hex: "#B0B0B0" }, { name: "Mocha", hex: "#A38068" }],
     images: [
-      "https://images.unsplash.com/photo-1564257631407-4deb1f99d992?w=800",
-      "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800",
-      "https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=800",
-      "https://images.unsplash.com/photo-1485968579580-b6d095142e6e?w=800",
+      "/images/Picsart_26-02-11_21-13-45-942.jpg.jpeg",
+      "/images/Picsart_26-02-11_21-14-33-575.jpg.jpeg"
     ],
-    stock: { XS: 10, S: 14, M: 16, L: 8 },
+    stock: { S: 8, M: 12, L: 15, XL: 5 },
   },
   {
-    name: "Minimalist Watch",
-    price: 2999,
-    description: "Swiss movement with a sapphire crystal face. Italian leather strap with quick-release mechanism. 40mm case diameter.",
-    category: "accessories",
-    sizes: ["One Size"],
-    colors: [
-      { name: "Silver/Black", hex: "#C0C0C0" },
-      { name: "Gold/Brown", hex: "#DAA520" },
-    ],
+    name: "Sleek Basic Camisole",
+    price: 499,
+    description: "Silky smooth finish with adjustable straps. A versatile staple for every wardrobe.",
+    category: "women",
+    sizes: ["XS", "S", "M"],
+    colors: [{ name: "Black", hex: "#000000" }, { name: "Nude", hex: "#E3BC9A" }],
     images: [
-      "https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=800",
-      "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=800",
-      "https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3?w=800",
-      "https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?w=800",
+      "/images/Picsart_26-02-11_21-16-01-905.jpg.jpeg",
+      "/images/Picsart_26-02-11_21-17-02-399.jpg.jpeg"
     ],
-    stock: { "One Size": 20 },
+    stock: { XS: 15, S: 25, M: 20 },
+  },
+  {
+    name: "Signature Abstract Print Tee",
+    price: 999,
+    description: "Turn heads with this modern abstract design. Crafted from lightweight, breathable fabric.",
+    category: "women",
+    sizes: ["S", "M", "L"],
+    colors: [{ name: "Navy/White", hex: "#000080" }, { name: "Coral", hex: "#FF7F50" }],
+    images: [
+      "/images/Picsart_26-02-11_21-29-02-090.jpg.jpeg" 
+      // Note: This product only gets 1 image because there were exactly 23 photos (11 pairs + 1 single)
+    ],
+    stock: { S: 10, M: 15, L: 10 },
   }
-  // ... Add the rest of your 8 products here in the same format
 ];
 
 module.exports = products;
