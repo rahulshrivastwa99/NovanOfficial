@@ -1,14 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Heart, Star, ArrowLeft } from 'lucide-react';
-import { products } from '@/data/products';
 import { useAppDispatch } from '@/store';
 import { addToCart, openCart } from '@/store/cartSlice';
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import SizeGuideModal from '@/components/SizeGuideModal';
+import axios from 'axios';
+// Import the Product interface from types
+import type { Product } from '@/types'; 
 
 const mockReviews = [
   { id: 1, name: 'Sarah M.', rating: 5, text: 'Absolutely beautiful quality. The fabric is luxurious and the fit is perfect.' },
@@ -18,13 +20,43 @@ const mockReviews = [
 
 const ProductDetail = () => {
   const { id } = useParams();
-  const product = products.find((p) => p.id === id);
   const dispatch = useAppDispatch();
+  
+  // State for the fetched product
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
+
   const [selectedSize, setSelectedSize] = useState('');
   const [selectedColor, setSelectedColor] = useState('');
   const [selectedImage, setSelectedImage] = useState(0);
   const [wishlisted, setWishlisted] = useState(false);
   const [showSizeGuide, setShowSizeGuide] = useState(false);
+
+  // Fetch product from backend
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const { data } = await axios.get(`http://localhost:5000/api/products/${id}`);
+        setProduct(data);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching product", error);
+        setLoading(false);
+      }
+    };
+    fetchProduct();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <>
+        <Navbar />
+        <div className="pt-24 min-h-screen flex items-center justify-center">
+          <p className="font-body text-muted-foreground">Loading Product...</p>
+        </div>
+      </>
+    );
+  }
 
   if (!product) {
     return (
@@ -44,7 +76,7 @@ const ProductDetail = () => {
     }
     dispatch(
       addToCart({
-        productId: product.id,
+        productId: product._id, // Ensure we use _id
         name: product.name,
         price: product.price,
         quantity: 1,

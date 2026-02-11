@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export interface CartItem {
-  productId: string;
+  productId: string; // We will store the MongoDB _id here
   name: string;
   price: number;
   quantity: number;

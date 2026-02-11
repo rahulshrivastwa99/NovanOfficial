@@ -1,30 +1,7 @@
 import { motion } from 'framer-motion';
 import { DollarSign, ShoppingCart, Package, Clock } from 'lucide-react';
 import { orders } from '@/data/orders';
-import { products } from '@/data/products';
-
-const stats = [
-  {
-    label: 'Total Sales',
-    value: '₹' + orders.reduce((s, o) => s + o.total, 0).toLocaleString(),
-    icon: DollarSign,
-  },
-  {
-    label: 'Total Orders',
-    value: orders.length.toString(),
-    icon: ShoppingCart,
-  },
-  {
-    label: 'Products in Stock',
-    value: products.length.toString(),
-    icon: Package,
-  },
-  {
-    label: 'Pending Orders',
-    value: orders.filter((o) => o.status === 'processing').length.toString(),
-    icon: Clock,
-  },
-];
+import { useAppSelector } from '@/store';
 
 const statusColor: Record<string, string> = {
   processing: 'bg-warning/10 text-warning',
@@ -33,6 +10,31 @@ const statusColor: Record<string, string> = {
 };
 
 const AdminDashboard = () => {
+  const { items: products } = useAppSelector((state) => state.products);
+
+  const stats = [
+    {
+      label: 'Total Sales',
+      value: '₹' + orders.reduce((s, o) => s + o.total, 0).toLocaleString(),
+      icon: DollarSign,
+    },
+    {
+      label: 'Total Orders',
+      value: orders.length.toString(),
+      icon: ShoppingCart,
+    },
+    {
+      label: 'Products in Stock',
+      value: products.length.toString(),
+      icon: Package,
+    },
+    {
+      label: 'Pending Orders',
+      value: orders.filter((o) => o.status === 'processing').length.toString(),
+      icon: Clock,
+    },
+  ];
+
   return (
     <div>
       <h2 className="font-serif text-2xl mb-8">Dashboard</h2>

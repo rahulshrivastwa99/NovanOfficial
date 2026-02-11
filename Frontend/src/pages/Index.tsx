@@ -1,16 +1,16 @@
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import categoryMen from '@/assets/category-men.jpg';
 import categoryWomen from '@/assets/category-women.jpg';
 import categoryAccessories from '@/assets/category-accessories.jpg';
-import { products } from '@/data/products';
+import { useAppDispatch, useAppSelector } from '@/store';
+import { fetchProducts } from '@/store/productSlice';
 import ProductCard from '@/components/ProductCard';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import HeroCarousel from '@/components/HeroCarousel';
-
-const bestSellers = products.filter((p) => p.isBestSeller);
 
 const categories = [
   { label: 'Men', image: categoryMen, to: '/shop?category=men' },
@@ -19,6 +19,17 @@ const categories = [
 ];
 
 const Index = () => {
+  const dispatch = useAppDispatch();
+  const { items: products, status } = useAppSelector((state) => state.products);
+
+  useEffect(() => {
+    if (status === 'idle') {
+      dispatch(fetchProducts());
+    }
+  }, [status, dispatch]);
+
+  // Safely filter best sellers from the potentially empty or loading products array
+  const bestSellers = products.filter((p) => p.isBestSeller).slice(0, 4); // Limit to 4 for the homepage
   return (
     <>
       <Navbar />
@@ -73,7 +84,7 @@ const Index = () => {
             </div>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8">
               {bestSellers.map((p) => (
-                <ProductCard key={p.id} product={p} />
+                <ProductCard key={p._id} product={p} />
               ))}
             </div>
           </div>

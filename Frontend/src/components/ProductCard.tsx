@@ -4,9 +4,9 @@ import { motion } from 'framer-motion';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { addToCart, openCart } from '@/store/cartSlice';
 import { toggleWishlist } from '@/store/wishlistSlice';
-import type { Product } from '@/data/products';
 import { Heart } from 'lucide-react';
 import { toast } from 'sonner';
+import { Product } from '@/types';
 
 interface ProductCardProps {
   product: Product;
@@ -16,7 +16,8 @@ const ProductCard = ({ product }: ProductCardProps) => {
   const [hovered, setHovered] = useState(false);
   const dispatch = useAppDispatch();
   const wishlistItems = useAppSelector((s) => s.wishlist.items);
-  const isWishlisted = wishlistItems.some((item) => item.id === product.id);
+  // Match using _id
+  const isWishlisted = wishlistItems.some((item) => item._id === product._id);
 
   const handleToggleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -28,7 +29,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
     e.preventDefault();
     dispatch(
       addToCart({
-        productId: product.id,
+        productId: product._id, // Use _id here
         name: product.name,
         price: product.price,
         quantity: 1,
@@ -42,7 +43,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
   };
 
   return (
-    <Link to={`/product/${product.id}`}>
+    <Link to={`/product/${product._id}`}>
       <motion.div
         className="group cursor-pointer"
         onMouseEnter={() => setHovered(true)}

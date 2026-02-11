@@ -1,15 +1,23 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, Edit, Trash2 } from 'lucide-react';
-import { products as initialProducts, Product } from '@/data/products';
+import { useAppSelector, useAppDispatch } from '@/store';
+import { fetchProducts } from '@/store/productSlice';
 import { toast } from 'sonner';
 
 const AdminProducts = () => {
-  const [productList, setProductList] = useState<Product[]>(initialProducts);
+  const dispatch = useAppDispatch();
+  const { items: products, status } = useAppSelector((state) => state.products);
 
+  useEffect(() => {
+      if (status === 'idle') {
+          dispatch(fetchProducts());
+      }
+  }, [status, dispatch]);
+
+  // TODO: Implement actual delete API call
   const handleDelete = (id: string) => {
-    setProductList(productList.filter((p) => p.id !== id));
-    toast.success('Product deleted');
+     toast.info("Delete functionality requires backend implementation");
   };
 
   return (
@@ -36,10 +44,10 @@ const AdminProducts = () => {
             </tr>
           </thead>
           <tbody>
-            {productList.map((product) => {
+            {products.map((product) => {
               const totalStock = Object.values(product.stock).reduce((s, v) => s + v, 0);
               return (
-                <tr key={product.id} className="border-b border-border last:border-0">
+                <tr key={product._id} className="border-b border-border last:border-0">
                   <td className="p-4">
                     <div className="flex items-center gap-3">
                       <img src={product.images[0]} alt={product.name} className="w-12 h-12 object-cover" />
@@ -52,13 +60,13 @@ const AdminProducts = () => {
                   <td className="p-4">
                     <div className="flex gap-2">
                       <Link
-                        to={`/admin/products/edit/${product.id}`}
+                        to={`/admin/products/edit/${product._id}`}
                         className="p-2 hover:bg-secondary transition-colors"
                       >
                         <Edit size={14} />
                       </Link>
                       <button
-                        onClick={() => handleDelete(product.id)}
+                        onClick={() => handleDelete(product._id)}
                         className="p-2 hover:bg-secondary text-destructive transition-colors"
                       >
                         <Trash2 size={14} />

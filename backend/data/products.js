@@ -1,22 +1,8 @@
-export interface Product {
-  id: string;
-  name: string;
-  price: number;
-  description: string;
-  category: 'men' | 'women' | 'accessories';
-  sizes: string[];
-  colors: { name: string; hex: string }[];
-  images: string[];
-  stock: Record<string, number>;
-  isBestSeller?: boolean;
-}
-
-export const products: Product[] = [
+const products = [
   {
-    id: "1",
     name: "Essential Crew Tee",
     price: 599,
-    description: "A foundational piece crafted from premium Pima cotton. Features a relaxed fit with reinforced collar for lasting shape. The perfect canvas for everyday elegance.",
+    description: "A foundational piece crafted from premium Pima cotton. Features a relaxed fit with reinforced collar for lasting shape.",
     category: "men",
     sizes: ["S", "M", "L", "XL"],
     colors: [
@@ -27,17 +13,14 @@ export const products: Product[] = [
     images: [
       "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800",
       "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=800",
-      "https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=800",
-      "https://images.unsplash.com/photo-1562157873-818bc0726f68?w=800",
     ],
     stock: { S: 15, M: 20, L: 18, XL: 10 },
     isBestSeller: true,
   },
   {
-    id: "2",
     name: "Oversized Wool Coat",
     price: 5999,
-    description: "Luxuriously soft double-faced wool blend. Dropped shoulders with a clean, architectural silhouette. Unlined for a fluid drape.",
+    description: "Luxuriously soft double-faced wool blend. Dropped shoulders with a clean, architectural silhouette.",
     category: "women",
     sizes: ["XS", "S", "M", "L"],
     colors: [
@@ -46,15 +29,11 @@ export const products: Product[] = [
     ],
     images: [
       "https://images.unsplash.com/photo-1539533018447-63fcce2678e3?w=800",
-      "https://images.unsplash.com/photo-1548624313-0396c75e4b1a?w=800",
-      "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=800",
-      "https://images.unsplash.com/photo-1544022613-e87ca75a784a?w=800",
     ],
     stock: { XS: 5, S: 8, M: 12, L: 6 },
     isBestSeller: true,
   },
   {
-    id: "3",
     name: "Minimal Hoodie",
     price: 1999,
     description: "Heavyweight French terry with a brushed interior. Kangaroo pocket and adjustable drawcord hood. Built to last season after season.",
@@ -74,7 +53,6 @@ export const products: Product[] = [
     isBestSeller: true,
   },
   {
-    id: "4",
     name: "Tailored Linen Trousers",
     price: 2499,
     description: "Italian linen blend with a high-waisted, wide-leg cut. Side pockets and invisible zip closure. Effortless sophistication.",
@@ -93,7 +71,7 @@ export const products: Product[] = [
     stock: { XS: 8, S: 12, M: 15, L: 7 },
   },
   {
-    id: "5",
+  
     name: "Leather Crossbody Bag",
     price: 3499,
     description: "Full-grain vegetable-tanned leather with antique brass hardware. Adjustable strap and magnetic closure. Ages beautifully.",
@@ -113,7 +91,6 @@ export const products: Product[] = [
     isBestSeller: true,
   },
   {
-    id: "6",
     name: "Cashmere Crew Sweater",
     price: 4999,
     description: "100% Grade-A Mongolian cashmere. Ribbed cuffs and hem with a regular fit. Featherweight warmth with timeless appeal.",
@@ -134,7 +111,6 @@ export const products: Product[] = [
     isBestSeller: true,
   },
   {
-    id: "7",
     name: "Silk Camisole",
     price: 1499,
     description: "Mulberry silk with French seam construction. Delicate adjustable straps and a cowl neckline. Day-to-night versatility.",
@@ -153,7 +129,6 @@ export const products: Product[] = [
     stock: { XS: 10, S: 14, M: 16, L: 8 },
   },
   {
-    id: "8",
     name: "Minimalist Watch",
     price: 2999,
     description: "Swiss movement with a sapphire crystal face. Italian leather strap with quick-release mechanism. 40mm case diameter.",
@@ -170,5 +145,8 @@ export const products: Product[] = [
       "https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?w=800",
     ],
     stock: { "One Size": 20 },
-  },
+  }
+  // ... Add the rest of your 8 products here in the same format
 ];
+
+module.exports = products;
