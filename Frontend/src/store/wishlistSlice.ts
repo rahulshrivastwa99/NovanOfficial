@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Product } from '@/data/products';
+import { Product } from '@/types';
 import { toast } from 'sonner';
 
 interface WishlistState {
@@ -13,7 +13,12 @@ const loadState = (): WishlistState => {
     if (serializedState === null) {
       return { items: [] };
     }
-    return JSON.parse(serializedState);
+    const state = JSON.parse(serializedState);
+    // basic validation to ensure items have _id
+    if (state.items && state.items.length > 0 && !state.items[0]._id) {
+      return { items: [] }; // Reset if old schema
+    }
+    return state;
   } catch (err) {
     return { items: [] };
   }
@@ -26,24 +31,22 @@ export const wishlistSlice = createSlice({
   initialState,
   reducers: {
     addToWishlist: (state, action: PayloadAction<Product>) => {
-      const exists = state.items.some((item) => item.id === action.payload.id);
+      const exists = state.items.some((item) => item._id === action.payload._id);
       if (!exists) {
         state.items.push(action.payload);
         toast.success("Added to Wishlist");
       } else {
         toast.info("Already in Wishlist");
       }
-      // Save to localStorage
       localStorage.setItem('wishlist', JSON.stringify(state));
     },
     removeFromWishlist: (state, action: PayloadAction<string>) => {
-      state.items = state.items.filter((item) => item.id !== action.payload);
+      state.items = state.items.filter((item) => item._id !== action.payload);
       toast.success("Removed from Wishlist");
-      // Save to localStorage
       localStorage.setItem('wishlist', JSON.stringify(state));
     },
     toggleWishlist: (state, action: PayloadAction<Product>) => {
-      const index = state.items.findIndex((item) => item.id === action.payload.id);
+      const index = state.items.findIndex((item) => item._id === action.payload._id);
       if (index >= 0) {
         state.items.splice(index, 1);
         toast.success("Removed from Wishlist");

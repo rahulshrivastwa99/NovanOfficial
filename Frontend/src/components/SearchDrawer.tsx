@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Search, X, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from './ui/button';
-import { products } from '@/data/products';
+import { useAppSelector, useAppDispatch } from '@/store';
+import { fetchProducts } from '@/store/productSlice';
 import EmptyState from './EmptyState';
 
 interface SearchDrawerProps {
@@ -14,6 +15,14 @@ interface SearchDrawerProps {
 const SearchDrawer = ({ isOpen, onClose }: SearchDrawerProps) => {
   const [query, setQuery] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
+  const dispatch = useAppDispatch();
+  const { items: products, status } = useAppSelector((state) => state.products);
+
+  useEffect(() => {
+    if (isOpen && status === 'idle') {
+      dispatch(fetchProducts());
+    }
+  }, [isOpen, status, dispatch]);
 
   // Auto-focus input when drawer opens
   useEffect(() => {
@@ -79,8 +88,8 @@ const SearchDrawer = ({ isOpen, onClose }: SearchDrawerProps) => {
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {results.map((product) => (
                       <Link
-                        key={product.id}
-                        to={`/product/${product.id}`}
+                        key={product._id}
+                        to={`/product/${product._id}`}
                         onClick={onClose}
                         className="group flex flex-col gap-3"
                       >
