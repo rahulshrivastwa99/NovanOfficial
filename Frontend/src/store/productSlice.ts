@@ -4,7 +4,7 @@ import { Product } from '@/types';
 
 // Fetch from your local backend
 export const fetchProducts = createAsyncThunk('products/fetchProducts', async () => {
-  const response = await axios.get('http://localhost:5000/api/products');
+  const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/products`);
   return response.data;
 });
 
