@@ -28,19 +28,25 @@ const NewsletterPopup = () => {
   return (
     <AnimatePresence>
       {isOpen && (
-        <>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] bg-foreground/40 backdrop-blur-[2px]"
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[100] flex items-center justify-center px-4"
+        >
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-foreground/40 backdrop-blur-[2px]" 
             onClick={handleClose}
           />
+          
+          {/* Modal Content */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] w-[90%] max-w-md bg-background p-8 lg:p-12 shadow-2xl text-center border border-border"
+            onClick={(e) => e.stopPropagation()}
+            className="relative w-full max-w-md bg-background p-6 md:p-8 lg:p-12 shadow-2xl text-center border border-border"
           >
             <button
               onClick={handleClose}
@@ -73,7 +79,7 @@ const NewsletterPopup = () => {
               By subscribing you agree to our Terms & Conditions.
             </p>
           </motion.div>
-        </>
+        </motion.div>
       )}
     </AnimatePresence>
   );
