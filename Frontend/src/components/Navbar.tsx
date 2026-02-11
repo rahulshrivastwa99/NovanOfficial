@@ -1,12 +1,12 @@
-import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Search, User, ShoppingBag, Menu, X, Heart } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useAppSelector, useAppDispatch } from '@/store';
-import { openCart } from '@/store/cartSlice';
-import { openAuthModal, logout } from '@/store/authSlice';
-import { toast } from 'sonner';
-import SearchDrawer from './SearchDrawer';
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Search, User, ShoppingBag, Menu, X, Heart } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useAppSelector, useAppDispatch } from "@/store";
+import { openCart } from "@/store/cartSlice";
+import { openAuthModal, logout } from "@/store/authSlice";
+import { toast } from "sonner";
+import SearchDrawer from "./SearchDrawer";
 
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -24,23 +24,23 @@ const Navbar = () => {
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   const navLinks = [
-    { to: '/', label: 'Home' },
-    { to: '/shop', label: 'Shop' },
-    { to: '/about', label: 'About' },
-    { to: '/contact', label: 'Contact' },
+    { to: "/", label: "Home" },
+    { to: "/shop", label: "Shop" },
+    { to: "/about", label: "About" },
+    { to: "/contact", label: "Contact" },
   ];
 
   const mobileLinks = [
-    { to: '/shop', label: 'SHOP' },
-    { to: '/shop?category=men', label: 'MEN' },
-    { to: '/shop?category=women', label: 'WOMEN' },
-    { to: '/about', label: 'ABOUT' },
-    { to: '/contact', label: 'CONTACT' },
+    { to: "/shop", label: "SHOP" },
+    { to: "/shop?category=men", label: "MEN" },
+    { to: "/shop?category=women", label: "WOMEN" },
+    { to: "/about", label: "ABOUT" },
+    { to: "/contact", label: "CONTACT" },
   ];
 
   const handleProfileClick = () => {
@@ -56,12 +56,11 @@ const Navbar = () => {
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           scrolled
-            ? 'bg-background/95 backdrop-blur-md shadow-sm'
-            : 'bg-transparent'
+            ? "bg-background/95 backdrop-blur-md shadow-sm"
+            : "bg-transparent"
         }`}
       >
         <div className="container flex items-center justify-between h-16 lg:h-20">
-          {/* Mobile menu toggle */}
           <button
             className="lg:hidden p-2 -ml-2"
             onClick={() => setMobileOpen(true)}
@@ -70,7 +69,6 @@ const Navbar = () => {
             <Menu size={20} />
           </button>
 
-          {/* Desktop Nav Left */}
           <nav className="hidden lg:flex items-center gap-10 flex-1">
             {navLinks.slice(0, 2).map((link) => (
               <Link
@@ -83,12 +81,13 @@ const Navbar = () => {
             ))}
           </nav>
 
-          {/* Logo Centered */}
-          <Link to="/" className="font-serif text-xl lg:text-2xl tracking-[0.3em] font-bold">
+          <Link
+            to="/"
+            className="font-serif text-xl lg:text-2xl tracking-[0.3em] font-bold"
+          >
             NOVAN.
           </Link>
 
-          {/* Desktop Nav Right */}
           <nav className="hidden lg:flex items-center gap-10 flex-1 justify-end">
             {navLinks.slice(2).map((link) => (
               <Link
@@ -101,9 +100,12 @@ const Navbar = () => {
             ))}
           </nav>
 
-          {/* Right Icons */}
           <div className="flex items-center gap-4 lg:ml-10">
-            <button onClick={() => setSearchOpen(true)} aria-label="Search" className="p-1">
+            <button
+              onClick={() => setSearchOpen(true)}
+              aria-label="Search"
+              className="p-1"
+            >
               <Search size={18} />
             </button>
             <Link to="/wishlist" aria-label="Wishlist" className="p-1 relative">
@@ -114,16 +116,23 @@ const Navbar = () => {
                 </span>
               )}
             </Link>
-            
+
             <div className="relative">
-              <button onClick={handleProfileClick} aria-label="Profile" className="p-1">
+              <button
+                onClick={handleProfileClick}
+                aria-label="Profile"
+                className="p-1"
+              >
                 <User size={18} />
               </button>
-              
+
               <AnimatePresence>
                 {profileOpen && isLoggedIn && (
                   <>
-                    <div className="fixed inset-0 z-40" onClick={() => setProfileOpen(false)} />
+                    <div
+                      className="fixed inset-0 z-40"
+                      onClick={() => setProfileOpen(false)}
+                    />
                     <motion.div
                       initial={{ opacity: 0, y: 10, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -132,37 +141,41 @@ const Navbar = () => {
                       className="absolute right-0 top-full mt-2 w-48 bg-background border border-border shadow-lg z-50 py-2"
                     >
                       <div className="px-4 py-3 border-b border-border bg-secondary/30">
-                        <p className="font-medium text-sm truncate">{user?.name}</p>
-                        <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                        <p className="font-medium text-sm truncate">
+                          {user?.name}
+                        </p>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {user?.email}
+                        </p>
                       </div>
-                      <Link 
-                        to="/profile" 
+                      <Link
+                        to="/profile"
                         className="block px-4 py-2 text-sm hover:bg-secondary transition-colors"
                         onClick={() => setProfileOpen(false)}
                       >
                         My Profile
                       </Link>
-                      <Link 
-                        to="/orders" 
+                      <Link
+                        to="/orders"
                         className="block px-4 py-2 text-sm hover:bg-secondary transition-colors"
                         onClick={() => setProfileOpen(false)}
                       >
                         My Orders
                       </Link>
-                      {user?.role === 'admin' && (
-                        <Link 
-                            to="/admin/dashboard" 
-                            className="block px-4 py-2 text-sm hover:bg-secondary transition-colors text-blue-600"
-                            onClick={() => setProfileOpen(false)}
+                      {user?.role === "admin" && (
+                        <Link
+                          to="/admin/dashboard"
+                          className="block px-4 py-2 text-sm hover:bg-secondary transition-colors text-blue-600"
+                          onClick={() => setProfileOpen(false)}
                         >
-                            Admin Dashboard
+                          Admin Dashboard
                         </Link>
                       )}
-                      <button 
+                      <button
                         onClick={() => {
                           dispatch(logout());
                           setProfileOpen(false);
-                          toast.success('Logged out successfully');
+                          toast.success("Logged out successfully");
                         }}
                         className="w-full text-left px-4 py-2 text-sm hover:bg-secondary transition-colors text-red-500 border-t border-border mt-1"
                       >
@@ -174,7 +187,11 @@ const Navbar = () => {
               </AnimatePresence>
             </div>
 
-            <button onClick={() => dispatch(openCart())} aria-label="Cart" className="p-1 relative">
+            <button
+              onClick={() => dispatch(openCart())}
+              aria-label="Cart"
+              className="p-1 relative"
+            >
               <ShoppingBag size={18} />
               {totalItems > 0 && (
                 <span className="absolute -top-1 -right-1 w-4 h-4 bg-foreground text-background text-[10px] flex items-center justify-center font-body">
@@ -185,10 +202,12 @@ const Navbar = () => {
           </div>
         </div>
 
-        <SearchDrawer isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
+        <SearchDrawer
+          isOpen={searchOpen}
+          onClose={() => setSearchOpen(false)}
+        />
       </header>
 
-      {/* Mobile Drawer from Left */}
       <AnimatePresence>
         {mobileOpen && (
           <>
@@ -201,15 +220,20 @@ const Navbar = () => {
               onClick={() => setMobileOpen(false)}
             />
             <motion.div
-              initial={{ x: '-100%' }}
+              initial={{ x: "-100%" }}
               animate={{ x: 0 }}
-              exit={{ x: '-100%' }}
+              exit={{ x: "-100%" }}
               transition={{ duration: 0.4, ease: [0.76, 0, 0.24, 1] }}
-              className="fixed top-0 left-0 bottom-0 z-[90] w-[80%] max-w-sm bg-background flex flex-col"
+              className="fixed top-0 left-0 bottom-0 z-[90] w-[80%] max-sm bg-background flex flex-col"
             >
               <div className="flex items-center justify-between px-6 py-5 border-b border-border">
-                <span className="font-serif text-lg tracking-[0.3em] font-bold">NOVAN.</span>
-                <button onClick={() => setMobileOpen(false)} aria-label="Close menu">
+                <span className="font-serif text-lg tracking-[0.3em] font-bold">
+                  NOVAN.
+                </span>
+                <button
+                  onClick={() => setMobileOpen(false)}
+                  aria-label="Close menu"
+                >
                   <X size={24} />
                 </button>
               </div>
@@ -230,21 +254,33 @@ const Navbar = () => {
                     </Link>
                   </motion.div>
                 ))}
-                
+
                 {isLoggedIn && (
-                   <motion.div
+                  <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
                     className="pt-8 mt-4 border-t border-border flex flex-col gap-5"
                   >
-                    <Link to="/profile" onClick={() => setMobileOpen(false)} className="font-serif text-lg tracking-widest text-muted-foreground hover:text-foreground uppercase transition-colors">My Profile</Link>
-                    <Link to="/orders" onClick={() => setMobileOpen(false)} className="font-serif text-lg tracking-widest text-muted-foreground hover:text-foreground uppercase transition-colors">My Orders</Link>
-                    <button 
+                    <Link
+                      to="/profile"
+                      onClick={() => setMobileOpen(false)}
+                      className="font-serif text-lg tracking-widest text-muted-foreground hover:text-foreground uppercase transition-colors"
+                    >
+                      My Profile
+                    </Link>
+                    <Link
+                      to="/orders"
+                      onClick={() => setMobileOpen(false)}
+                      className="font-serif text-lg tracking-widest text-muted-foreground hover:text-foreground uppercase transition-colors"
+                    >
+                      My Orders
+                    </Link>
+                    <button
                       onClick={() => {
                         dispatch(logout());
                         setMobileOpen(false);
-                      }} 
+                      }}
                       className="font-serif text-lg tracking-widest text-left text-red-500 hover:text-red-600 uppercase transition-colors"
                     >
                       Sign Out
