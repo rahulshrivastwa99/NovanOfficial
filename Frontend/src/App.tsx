@@ -23,11 +23,11 @@ import AdminOrders from "./pages/admin/Orders";
 import AddProduct from "./pages/admin/AddProduct";
 import NotFound from "./pages/NotFound";
 
+import LogoutOverlay from "./components/LogoutOverlay";
 import AuthModal from "./components/AuthModal";
 import CartDrawer from "./components/CartDrawer";
 import NewsletterPopup from "./components/NewsletterPopup";
 import CookieConsent from "./components/CookieConsent";
-
 import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
@@ -45,6 +45,7 @@ const App = () => {
           <BrowserRouter>
             <ScrollToTop />
             <AuthModal />
+            <LogoutOverlay />
             <CartDrawer />
             <NewsletterPopup />
             <CookieConsent />
