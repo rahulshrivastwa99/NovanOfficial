@@ -30,3 +30,19 @@ app.get('/', (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+// const axios = require('axios');
+
+// const keepAlive = () => {
+//   const url = `https://novanofficialapi.onrender.com/`; 
+//   setInterval(async () => {
+//     try {
+//       await axios.get(url);
+//       console.log('Keep-alive ping sent successfully');
+//     } catch (error) {
+//       console.error('Keep-alive ping failed:', error.message);
+//     }
+//   }, 600000); // 10 minutes in milliseconds
+// };
+
+// keepAlive();
