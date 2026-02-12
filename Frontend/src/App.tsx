@@ -23,6 +23,13 @@ import AdminOrders from "./pages/admin/Orders";
 import AddProduct from "./pages/admin/AddProduct";
 import NotFound from "./pages/NotFound";
 
+// Support Pages Imports - Fixed to match filenames exactly
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsAndConditions from "./pages/TermsAndConditions";
+import RefundCancellation from "./pages/RefundCancellation";
+import FAQ from "./pages/FAQ";
+import ShippingReturns from "./pages/ShippingReturns";
+
 import AuthModal from "./components/AuthModal";
 import CartDrawer from "./components/CartDrawer";
 import NewsletterPopup from "./components/NewsletterPopup";
@@ -58,6 +65,14 @@ const App = () => {
               <Route path="/contact" element={<Contact />} />
               <Route path="/wishlist" element={<Wishlist />} />
               <Route path="/orders" element={<Orders />} />
+
+              {/* Support Routes - Updated to use correct component names */}
+              <Route path="/privacy" element={<PrivacyPolicy />} />
+              <Route path="/terms" element={<TermsAndConditions />} />
+              <Route path="/refund" element={<RefundCancellation />} />
+              <Route path="/faq" element={<FAQ />} />
+              <Route path="/shipping" element={<ShippingReturns />} />
+
               <Route path="/admin" element={<AdminLayout />}>
                 <Route path="dashboard" element={<AdminDashboard />} />
                 <Route path="products" element={<AdminProducts />} />
