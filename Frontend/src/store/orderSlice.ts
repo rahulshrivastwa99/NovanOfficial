@@ -1,59 +1,120 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import axios from 'axios';
+import { RootState } from './index'; // Ensure this points to your store root
 
-export interface OrderItem {
-  productId: string;
-  name: string;
-  price: number;
-  quantity: number;
-  image: string;
-  size: string;
-  color: string;
-}
-
+// Interface matching your Mongoose Schema
 export interface Order {
-  id: string;
-  date: string;
-  status: 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled';
-  total: number;
-  items: OrderItem[];
+  _id?: string;
+  orderItems: any[];
+  shippingAddress: any;
+  paymentMethod: string;
+  itemsPrice: number;
+  taxPrice: number;
+  shippingPrice: number;
+  totalPrice: number;
+  isPaid?: boolean;
+  isDelivered?: boolean;
+  status?: string; // e.g., 'Processing'
 }
 
 interface OrderState {
-  orders: Order[];
+  loading: boolean;
+  success: boolean;
+  order: Order | null;
+  orders: Order[]; // For "My Orders" list
+  error: string | null;
 }
 
-// Load initial state from localStorage if available
-const loadState = (): OrderState => {
-  try {
-    const serializedState = localStorage.getItem('orders');
-    if (serializedState === null) {
-      return { orders: [] };
-    }
-    return JSON.parse(serializedState);
-  } catch (err) {
-    return { orders: [] };
-  }
+const initialState: OrderState = {
+  loading: false,
+  success: false,
+  order: null,
+  orders: [],
+  error: null,
 };
 
-const initialState: OrderState = loadState();
+// 1. Create Order (Send to Backend)
+export const placeOrder = createAsyncThunk(
+  'order/placeOrder',
+  async (orderData: Order, { getState, rejectWithValue }) => {
+    try {
+      const { auth: { user } } = getState() as RootState;
+
+      const config = {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${user?.token}`,
+        },
+      };
+
+      const { data } = await axios.post('http://localhost:5000/api/orders', orderData, config);
+      return data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message
+      );
+    }
+  }
+);
+
+// 2. Get My Orders (For Profile/Orders Page)
+export const getMyOrders = createAsyncThunk(
+  'order/getMyOrders',
+  async (_, { getState, rejectWithValue }) => {
+    try {
+      const { auth: { user } } = getState() as RootState;
+      const config = { headers: { Authorization: `Bearer ${user?.token}` } };
+
+      const { data } = await axios.get('http://localhost:5000/api/orders/myorders', config);
+      return data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
 
 const orderSlice = createSlice({
   name: 'orders',
   initialState,
   reducers: {
-    placeOrder: (state, action: PayloadAction<Order>) => {
-      state.orders.unshift(action.payload);
-      localStorage.setItem('orders', JSON.stringify(state));
+    resetOrder: (state) => {
+      state.loading = false;
+      state.success = false;
+      state.order = null;
+      state.error = null;
     },
-    updateOrderStatus: (state, action: PayloadAction<{ id: string; status: Order['status'] }>) => {
-      const order = state.orders.find((o) => o.id === action.payload.id);
-      if (order) {
-        order.status = action.payload.status;
-        localStorage.setItem('orders', JSON.stringify(state));
-      }
-    },
+  },
+  extraReducers: (builder) => {
+    builder
+      // Place Order
+      .addCase(placeOrder.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(placeOrder.fulfilled, (state, action) => {
+        state.loading = false;
+        state.success = true;
+        state.order = action.payload;
+      })
+      .addCase(placeOrder.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      // Get My Orders
+      .addCase(getMyOrders.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(getMyOrders.fulfilled, (state, action) => {
+        state.loading = false;
+        state.orders = action.payload;
+      })
+      .addCase(getMyOrders.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
   },
 });
 
-export const { placeOrder, updateOrderStatus } = orderSlice.actions;
+export const { resetOrder } = orderSlice.actions;
 export default orderSlice.reducer;
