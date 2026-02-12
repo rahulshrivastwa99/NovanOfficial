@@ -1,6 +1,8 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
 // 1. Update User interface to match your Backend Response
 export interface User {
   _id: string;        // Backend sends '_id', not 'id'
@@ -46,7 +48,7 @@ export const loginUser = createAsyncThunk(
   async (userData: any, thunkAPI) => {
     try {
       // Connects to your real Backend
-      const response = await axios.post('http://localhost:5000/api/auth/login', userData);
+      const response = await axios.post(`${BACKEND_URL}/api/auth/login`, userData);
 
       // Save to localStorage so they stay logged in on refresh
       localStorage.setItem('novan-user', JSON.stringify(response.data));
@@ -63,7 +65,7 @@ export const registerUser = createAsyncThunk(
   'auth/register',
   async (userData: any, thunkAPI) => {
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/register', userData);
+      const response = await axios.post(`${BACKEND_URL}/api/auth/register`, userData);
       localStorage.setItem('novan-user', JSON.stringify(response.data));
       return response.data;
     } catch (error: any) {
