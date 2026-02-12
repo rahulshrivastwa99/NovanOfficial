@@ -1,10 +1,20 @@
 const express = require('express');
 const router = express.Router();
-const { addOrderItems, getMyOrders } = require('../controllers/orderController');
-const { protect } = require('../middleware/authMiddleware');
+const { 
+  addOrderItems, 
+  getMyOrders, 
+  getOrders, 
+  updateOrderToDelivered 
+} = require('../controllers/orderController');
+const { protect, admin } = require('../middleware/authMiddleware');
 
 // Using 'protect' ensures only logged-in users can hit these routes
-router.route('/').post(protect, addOrderItems);
+router.route('/')
+.post(protect, addOrderItems)
+.get(protect, admin, getOrders);
+
 router.route('/myorders').get(protect, getMyOrders);
+
+router.route('/:id/deliver').put(protect, admin, updateOrderToDelivered);
 
 module.exports = router;
