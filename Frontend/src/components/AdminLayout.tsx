@@ -1,7 +1,8 @@
 import { Outlet, Link, useLocation, Navigate } from 'react-router-dom';
 import { LayoutDashboard, Package, ShoppingCart, LogOut, Store } from 'lucide-react';
 import { useAppSelector, useAppDispatch } from '@/store';
-import { logout } from '@/store/authSlice';
+import { logout, initiateLogout } from '@/store/authSlice';
+import { toast } from 'sonner';
 
 const adminLinks = [
   { to: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -14,7 +15,7 @@ const AdminLayout = () => {
   const dispatch = useAppDispatch();
   const location = useLocation();
 
-  if (!isLoggedIn || user?.role !== 'admin') {
+  if (!isLoggedIn || !user?.isAdmin) {
     return <Navigate to="/" replace />;
   }
 
@@ -54,7 +55,10 @@ const AdminLayout = () => {
             Back to Shop
           </Link>
           <button
-            onClick={() => dispatch(logout())}
+            onClick={() => {
+              dispatch(initiateLogout());
+              // Overlay handles the rest
+            }}
             className="flex items-center gap-3 px-4 py-3 w-full font-body text-sm tracking-wider text-white/50 hover:text-white transition-colors"
           >
             <LogOut size={18} />

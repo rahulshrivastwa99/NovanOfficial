@@ -1,21 +1,26 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Search, User, ShoppingBag, Menu, X, Heart } from "lucide-react";
+import { Search, User, ShoppingBag, Menu, X, Heart, LogOut } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAppSelector, useAppDispatch } from "@/store";
 import { openCart } from "@/store/cartSlice";
-import { openAuthModal, logout } from "@/store/authSlice";
+import { openAuthModal, logout, initiateLogout } from "@/store/authSlice";
 import { toast } from "sonner";
 import SearchDrawer from "./SearchDrawer";
+import AuthModal from "./AuthModal"; // <--- IMPORT THIS
 
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  
+  // Get Redux state
   const cartItems = useAppSelector((s) => s.cart.items);
   const wishlistItems = useAppSelector((s) => s.wishlist.items);
-  const { isLoggedIn, user } = useAppSelector((s) => s.auth);
+  // Check if user is logged in
+  const { user } = useAppSelector((s) => s.auth);
+  
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
@@ -35,24 +40,25 @@ const Navbar = () => {
     { to: "/contact", label: "Contact" },
   ];
 
-  const mobileLinks = [
-    { to: "/shop", label: "SHOP" },
-    { to: "/shop?category=men", label: "MEN" },
-    { to: "/shop?category=women", label: "WOMEN" },
-    { to: "/about", label: "ABOUT" },
-    { to: "/contact", label: "CONTACT" },
-  ];
-
   const handleProfileClick = () => {
-    if (isLoggedIn) {
+    if (user) {
       setProfileOpen(!profileOpen);
     } else {
       dispatch(openAuthModal());
     }
   };
 
+  const handleLogout = () => {
+    dispatch(initiateLogout());
+    setProfileOpen(false);
+    // Overlay handles the rest
+  };
+
   return (
     <>
+      {/* Include the AuthModal here so it can be opened */}
+      <AuthModal /> 
+
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           scrolled
@@ -61,145 +67,157 @@ const Navbar = () => {
         }`}
       >
         <div className="container flex items-center justify-between h-16 lg:h-20">
+          {/* Mobile Menu Button */}
           <button
             className="lg:hidden p-2 -ml-2"
             onClick={() => setMobileOpen(true)}
             aria-label="Open menu"
           >
-            <Menu size={20} />
+            <Menu size={24} />
           </button>
 
-          <nav className="hidden lg:flex items-center gap-10 flex-1">
+          {/* Desktop Left Nav */}
+          <nav className="hidden lg:flex items-center gap-8 flex-1">
             {navLinks.slice(0, 2).map((link) => (
               <Link
                 key={link.to}
                 to={link.to}
-                className="luxury-button text-foreground/70 hover:text-foreground transition-colors duration-300"
+                className="luxury-button text-foreground/70 hover:text-foreground transition-colors duration-300 text-sm tracking-wide"
               >
                 {link.label}
               </Link>
             ))}
           </nav>
 
+          {/* Logo */}
           <Link
             to="/"
-            className="font-serif text-xl lg:text-2xl tracking-[0.3em] font-bold"
+            className="font-serif text-2xl lg:text-3xl tracking-[0.2em] font-bold z-50"
           >
             NOVAN.
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-10 flex-1 justify-end">
+          {/* Desktop Right Nav */}
+          <nav className="hidden lg:flex items-center gap-8 flex-1 justify-end">
             {navLinks.slice(2).map((link) => (
               <Link
                 key={link.to}
                 to={link.to}
-                className="luxury-button text-foreground/70 hover:text-foreground transition-colors duration-300"
+                className="luxury-button text-foreground/70 hover:text-foreground transition-colors duration-300 text-sm tracking-wide"
               >
                 {link.label}
               </Link>
             ))}
-          </nav>
-
-          <div className="flex items-center gap-4 lg:ml-10">
-            <button
-              onClick={() => setSearchOpen(true)}
-              aria-label="Search"
-              className="p-1"
-            >
-              <Search size={18} />
-            </button>
-            <Link to="/wishlist" aria-label="Wishlist" className="p-1 relative">
-              <Heart size={18} />
-              {totalWishlist > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] flex items-center justify-center font-body rounded-full">
-                  {totalWishlist}
-                </span>
-              )}
-            </Link>
-
-            <div className="relative">
+            
+            <div className="flex items-center gap-5 ml-4 border-l border-border/50 pl-6">
+              {/* Search */}
               <button
-                onClick={handleProfileClick}
-                aria-label="Profile"
-                className="p-1"
+                onClick={() => setSearchOpen(true)}
+                aria-label="Search"
+                className="hover:text-foreground/70 transition-colors"
               >
-                <User size={18} />
+                <Search size={20} strokeWidth={1.5} />
               </button>
 
-              <AnimatePresence>
-                {profileOpen && isLoggedIn && (
-                  <>
-                    <div
-                      className="fixed inset-0 z-40"
-                      onClick={() => setProfileOpen(false)}
-                    />
-                    <motion.div
-                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      transition={{ duration: 0.2 }}
-                      className="absolute right-0 top-full mt-2 w-48 bg-background border border-border shadow-lg z-50 py-2"
-                    >
-                      <div className="px-4 py-3 border-b border-border bg-secondary/30">
-                        <p className="font-medium text-sm truncate">
-                          {user?.name}
-                        </p>
-                        <p className="text-xs text-muted-foreground truncate">
-                          {user?.email}
-                        </p>
-                      </div>
-                      <Link
-                        to="/profile"
-                        className="block px-4 py-2 text-sm hover:bg-secondary transition-colors"
-                        onClick={() => setProfileOpen(false)}
-                      >
-                        My Profile
-                      </Link>
-                      <Link
-                        to="/orders"
-                        className="block px-4 py-2 text-sm hover:bg-secondary transition-colors"
-                        onClick={() => setProfileOpen(false)}
-                      >
-                        My Orders
-                      </Link>
-                      {user?.role === "admin" && (
-                        <Link
-                          to="/admin/dashboard"
-                          className="block px-4 py-2 text-sm hover:bg-secondary transition-colors text-blue-600"
-                          onClick={() => setProfileOpen(false)}
-                        >
-                          Admin Dashboard
-                        </Link>
-                      )}
-                      <button
-                        onClick={() => {
-                          dispatch(logout());
-                          setProfileOpen(false);
-                          toast.success("Logged out successfully");
-                        }}
-                        className="w-full text-left px-4 py-2 text-sm hover:bg-secondary transition-colors text-red-500 border-t border-border mt-1"
-                      >
-                        Sign Out
-                      </button>
-                    </motion.div>
-                  </>
+              {/* Wishlist */}
+              <Link to="/wishlist" aria-label="Wishlist" className="relative hover:text-foreground/70 transition-colors">
+                <Heart size={20} strokeWidth={1.5} />
+                {totalWishlist > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] flex items-center justify-center font-body rounded-full">
+                    {totalWishlist}
+                  </span>
                 )}
-              </AnimatePresence>
-            </div>
+              </Link>
 
-            <button
-              onClick={() => dispatch(openCart())}
-              aria-label="Cart"
-              className="p-1 relative"
-            >
-              <ShoppingBag size={18} />
-              {totalItems > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-foreground text-background text-[10px] flex items-center justify-center font-body">
-                  {totalItems}
-                </span>
-              )}
-            </button>
-          </div>
+              {/* Profile Dropdown */}
+              <div className="relative">
+                <button
+                  onClick={handleProfileClick}
+                  aria-label="Profile"
+                  className="hover:text-foreground/70 transition-colors flex items-center gap-2"
+                >
+                  <User size={20} strokeWidth={1.5} />
+                  {user && <span className="text-xs font-medium uppercase hidden xl:block">{user.name.split(' ')[0]}</span>}
+                </button>
+
+                <AnimatePresence>
+                  {profileOpen && user && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-40"
+                        onClick={() => setProfileOpen(false)}
+                      />
+                      <motion.div
+                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        transition={{ duration: 0.2 }}
+                        className="absolute right-0 top-full mt-4 w-56 bg-background border border-border shadow-xl z-50 py-2 rounded-sm"
+                      >
+                        <div className="px-5 py-3 border-b border-border bg-secondary/30">
+                          <p className="font-medium text-sm truncate text-foreground">
+                            {user.name}
+                          </p>
+                          <p className="text-xs text-muted-foreground truncate mt-0.5">
+                            {user.email}
+                          </p>
+                        </div>
+                        
+                        <div className="py-2">
+                          <Link
+                            to="/profile"
+                            className="block px-5 py-2.5 text-sm hover:bg-secondary/50 transition-colors"
+                            onClick={() => setProfileOpen(false)}
+                          >
+                            My Profile
+                          </Link>
+                          <Link
+                            to="/orders"
+                            className="block px-5 py-2.5 text-sm hover:bg-secondary/50 transition-colors"
+                            onClick={() => setProfileOpen(false)}
+                          >
+                            My Orders
+                          </Link>
+                          {user.isAdmin && (
+                            <Link
+                              to="/admin/dashboard"
+                              className="block px-5 py-2.5 text-sm hover:bg-secondary/50 transition-colors text-blue-600 font-medium"
+                              onClick={() => setProfileOpen(false)}
+                            >
+                              Admin Dashboard
+                            </Link>
+                          )}
+                        </div>
+
+                        <div className="border-t border-border mt-1 pt-1">
+                          <button
+                            onClick={handleLogout}
+                            className="w-full text-left px-5 py-2.5 text-sm hover:bg-red-50 text-red-500 transition-colors flex items-center gap-2"
+                          >
+                            <LogOut size={14} /> Sign Out
+                          </button>
+                        </div>
+                      </motion.div>
+                    </>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Cart */}
+              <button
+                onClick={() => dispatch(openCart())}
+                aria-label="Cart"
+                className="relative hover:text-foreground/70 transition-colors"
+              >
+                <ShoppingBag size={20} strokeWidth={1.5} />
+                {totalItems > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-foreground text-background text-[10px] flex items-center justify-center font-body rounded-full">
+                    {totalItems}
+                  </span>
+                )}
+              </button>
+            </div>
+          </nav>
         </div>
 
         <SearchDrawer
@@ -208,6 +226,7 @@ const Navbar = () => {
         />
       </header>
 
+      {/* Mobile Menu */}
       <AnimatePresence>
         {mobileOpen && (
           <>
@@ -216,7 +235,7 @@ const Navbar = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="fixed inset-0 z-[90] bg-foreground/30"
+              className="fixed inset-0 z-[90] bg-black/20 backdrop-blur-sm"
               onClick={() => setMobileOpen(false)}
             />
             <motion.div
@@ -224,70 +243,99 @@ const Navbar = () => {
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ duration: 0.4, ease: [0.76, 0, 0.24, 1] }}
-              className="fixed top-0 left-0 bottom-0 z-[90] w-[80%] max-sm bg-background flex flex-col"
+              className="fixed top-0 left-0 bottom-0 z-[90] w-[85%] max-w-sm bg-background flex flex-col shadow-2xl border-r border-border"
             >
               <div className="flex items-center justify-between px-6 py-5 border-b border-border">
-                <span className="font-serif text-lg tracking-[0.3em] font-bold">
+                <span className="font-serif text-lg tracking-[0.2em] font-bold">
                   NOVAN.
                 </span>
                 <button
                   onClick={() => setMobileOpen(false)}
                   aria-label="Close menu"
+                  className="p-2 -mr-2 text-muted-foreground hover:text-foreground"
                 >
                   <X size={24} />
                 </button>
               </div>
-              <nav className="flex flex-col px-6 pt-10 gap-6">
-                {mobileLinks.map((link, i) => (
-                  <motion.div
-                    key={link.to}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 + i * 0.05 }}
-                  >
-                    <Link
-                      to={link.to}
-                      onClick={() => setMobileOpen(false)}
-                      className="font-serif text-2xl tracking-[0.15em] font-medium text-foreground hover:text-foreground/60 transition-colors uppercase block"
-                    >
-                      {link.label}
-                    </Link>
-                  </motion.div>
-                ))}
 
-                {isLoggedIn && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                    className="pt-8 mt-4 border-t border-border flex flex-col gap-5"
-                  >
-                    <Link
-                      to="/profile"
-                      onClick={() => setMobileOpen(false)}
-                      className="font-serif text-lg tracking-widest text-muted-foreground hover:text-foreground uppercase transition-colors"
+              <div className="flex-1 overflow-y-auto px-6 py-8">
+                <nav className="flex flex-col gap-6">
+                  {navLinks.map((link, i) => (
+                    <motion.div
+                      key={link.to}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.1 + i * 0.05 }}
                     >
-                      My Profile
-                    </Link>
-                    <Link
-                      to="/orders"
-                      onClick={() => setMobileOpen(false)}
-                      className="font-serif text-lg tracking-widest text-muted-foreground hover:text-foreground uppercase transition-colors"
+                      <Link
+                        to={link.to}
+                        onClick={() => setMobileOpen(false)}
+                        className="font-serif text-2xl tracking-widest font-medium text-foreground hover:text-foreground/60 transition-colors uppercase block"
+                      >
+                        {link.label}
+                      </Link>
+                    </motion.div>
+                  ))}
+
+                  <div className="w-10 h-px bg-border my-2"></div>
+
+                  {user ? (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3 }}
+                      className="flex flex-col gap-5"
                     >
-                      My Orders
-                    </Link>
-                    <button
+                       <div className="flex items-center gap-3 mb-2">
+                          <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-lg font-serif">
+                             {user.name.charAt(0)}
+                          </div>
+                          <div>
+                            <p className="font-medium">{user.name}</p>
+                            <p className="text-xs text-muted-foreground">{user.email}</p>
+                          </div>
+                       </div>
+
+                      <Link
+                        to="/profile"
+                        onClick={() => setMobileOpen(false)}
+                        className="font-serif text-lg tracking-widest text-muted-foreground hover:text-foreground uppercase transition-colors"
+                      >
+                        My Profile
+                      </Link>
+                      <Link
+                        to="/orders"
+                        onClick={() => setMobileOpen(false)}
+                        className="font-serif text-lg tracking-widest text-muted-foreground hover:text-foreground uppercase transition-colors"
+                      >
+                        My Orders
+                      </Link>
+                      <button
+                        onClick={() => {
+                          handleLogout();
+                          setMobileOpen(false);
+                        }}
+                        className="font-serif text-lg tracking-widest text-left text-red-500 hover:text-red-600 uppercase transition-colors mt-2"
+                      >
+                        Sign Out
+                      </button>
+                    </motion.div>
+                  ) : (
+                    <motion.button
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3 }}
                       onClick={() => {
-                        dispatch(logout());
+                        dispatch(openAuthModal());
                         setMobileOpen(false);
                       }}
-                      className="font-serif text-lg tracking-widest text-left text-red-500 hover:text-red-600 uppercase transition-colors"
+                      className="font-serif text-xl tracking-widest text-left text-foreground hover:text-foreground/70 uppercase transition-colors"
                     >
-                      Sign Out
-                    </button>
-                  </motion.div>
-                )}
-              </nav>
+                      Login / Sign Up
+                    </motion.button>
+                  )}
+                </nav>
+              </div>
             </motion.div>
           </>
         )}
