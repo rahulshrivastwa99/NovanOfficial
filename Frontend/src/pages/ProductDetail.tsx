@@ -9,6 +9,8 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import SizeGuideModal from '@/components/SizeGuideModal';
 import axios from 'axios';
+
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 // Import the Product interface from types
 import type { Product } from '@/types'; 
 
@@ -36,7 +38,7 @@ const ProductDetail = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/products/${id}`);
+        const { data } = await axios.get(`${BACKEND_URL}/api/products/${id}`);
         setProduct(data);
         setLoading(false);
       } catch (error) {
