@@ -49,7 +49,7 @@ export const placeOrder = createAsyncThunk(
           Authorization: `Bearer ${user?.token}`,
         },
       };
-      const { data } = await axios.post('http://localhost:5000/api/orders', orderData, config);
+      const { data } = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/orders`, orderData, config);
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -64,7 +64,7 @@ export const getMyOrders = createAsyncThunk(
     try {
       const { auth: { user } } = getState() as RootState;
       const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-      const { data } = await axios.get('http://localhost:5000/api/orders/myorders', config);
+      const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/orders/myorders`, config);
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -81,7 +81,7 @@ export const listOrders = createAsyncThunk(
     try {
       const { auth: { user } } = getState() as RootState;
       const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-      const { data } = await axios.get('http://localhost:5000/api/orders', config);
+      const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/orders`, config);
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -96,7 +96,7 @@ export const deliverOrder = createAsyncThunk(
     try {
       const { auth: { user } } = getState() as RootState;
       const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-      await axios.put(`http://localhost:5000/api/orders/${id}/deliver`, {}, config);
+      await axios.put(`${import.meta.env.VITE_BACKEND_URL}/api/orders/${id}/deliver`, {}, config);
       return id; // Return ID to update local state immediately
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || error.message);
