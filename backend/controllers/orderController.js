@@ -3,6 +3,11 @@ const Order = require('../models/Order');
 // @desc    Create new order
 // @route   POST /api/orders
 // @access  Private
+const getOrders = async (req, res) => {
+  const orders = await Order.find({}).populate('user', 'id name');
+  res.json(orders);
+};
+
 const addOrderItems = async (req, res) => {
   const {
     orderItems,
@@ -35,6 +40,23 @@ const addOrderItems = async (req, res) => {
   }
 };
 
+const updateOrderToDelivered = async (req, res) => {
+  const order = await Order.findById(req.params.id);
+
+  if (order) {
+    order.isDelivered = true;
+    order.deliveredAt = Date.now();
+    order.status = 'Delivered'; // Update the string status too
+
+    const updatedOrder = await order.save();
+    res.json(updatedOrder);
+  } else {
+    res.status(404).json({ message: 'Order not found' });
+  }
+};
+
+
+
 // @desc    Get logged in user orders
 // @route   GET /api/orders/myorders
 // @access  Private
@@ -43,4 +65,4 @@ const getMyOrders = async (req, res) => {
   res.json(orders);
 };
 
-module.exports = { addOrderItems, getMyOrders };
+module.exports = { addOrderItems, getMyOrders, getOrders, updateOrderToDelivered };
