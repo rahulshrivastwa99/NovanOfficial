@@ -13,6 +13,9 @@ export interface Product {
   sizes: string[];
   colors: { name: string; hex: string }[];
   stock: Record<string, number>;
+  reviews: any[];
+  rating: number;
+  numReviews: number;
   user?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -20,34 +23,51 @@ export interface Product {
 
 interface ProductState {
   items: Product[];
+  page: number;
+  pages: number;
+  count: number;
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
+  reviewStatus: "idle" | "loading" | "succeeded" | "failed";
+  reviewError: string | null;
 }
 
 const initialState: ProductState = {
   items: [],
+  page: 1,
+  pages: 1,
+  count: 0,
   status: "idle",
   error: null,
+  reviewStatus: "idle",
+  reviewError: null,
 };
 
 // --- ASYNC THUNKS ---
 
-// 1. Fetch All Products
+// 1. Fetch All Products (with filters/pagination)
 export const fetchProducts = createAsyncThunk(
   "products/fetchProducts",
-  async (_, { rejectWithValue }) => {
+  async (
+    keyword: any = {},
+    { rejectWithValue }
+  ) => {
     try {
+      // keyword might look like { keyword: 'abc', pageNumber: 1, category: 'men', ... }
+      // Convert object to query string
+      const params = new URLSearchParams(keyword).toString();
+
       const response = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/api/products`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/products?${params}`,
       );
-      return response.data;
+      return response.data; // { products, page, pages, count }
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || error.message);
     }
   },
 );
 
-// 2. Create Product (Admin Only) - This is the missing piece!
+// 2. Create Product (Admin Only)
 export const createProduct = createAsyncThunk(
   "products/create",
   async (productData: FormData, { getState, rejectWithValue }) => {
@@ -76,6 +96,35 @@ export const createProduct = createAsyncThunk(
   },
 );
 
+// 3. Create Product Review
+export const createReview = createAsyncThunk(
+  "products/createReview",
+  async (
+    { productId, review }: { productId: string; review: { rating: number; comment: string } },
+    { getState, rejectWithValue }
+  ) => {
+    try {
+      const {
+        auth: { user },
+      } = getState() as RootState;
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${user?.token}`,
+        },
+      };
+
+      await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/products/${productId}/reviews`,
+        review,
+        config
+      );
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  }
+);
+
 const productSlice = createSlice({
   name: "products",
   initialState,
@@ -85,6 +134,10 @@ const productSlice = createSlice({
       state.status = "idle";
       state.error = null;
     },
+    resetReviewStatus: (state) => {
+      state.reviewStatus = "idle";
+      state.reviewError = null;
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -94,7 +147,20 @@ const productSlice = createSlice({
       })
       .addCase(fetchProducts.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.items = action.payload;
+        // Backend now returns { products, page, pages, count }
+        // We use 'items' for products to match existing code usage (mostly)
+        // If the backend returns an array (old behavior fallback), handle that
+        if (Array.isArray(action.payload)) {
+          state.items = action.payload;
+          state.page = 1;
+          state.pages = 1;
+          state.count = action.payload.length;
+        } else {
+          state.items = action.payload.products;
+          state.page = action.payload.page;
+          state.pages = action.payload.pages;
+          state.count = action.payload.count;
+        }
       })
       .addCase(fetchProducts.rejected, (state, action) => {
         state.status = "failed";
@@ -107,15 +173,26 @@ const productSlice = createSlice({
       })
       .addCase(createProduct.fulfilled, (state, action) => {
         state.status = "succeeded";
-        // Add the new product to the local list immediately
         state.items.push(action.payload);
       })
       .addCase(createProduct.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload as string;
+      })
+
+      // --- Create Review Cases ---
+      .addCase(createReview.pending, (state) => {
+        state.reviewStatus = "loading";
+      })
+      .addCase(createReview.fulfilled, (state) => {
+        state.reviewStatus = "succeeded";
+      })
+      .addCase(createReview.rejected, (state, action) => {
+        state.reviewStatus = "failed";
+        state.reviewError = action.payload as string;
       });
   },
 });
 
-export const { resetProductStatus } = productSlice.actions;
+export const { resetProductStatus, resetReviewStatus } = productSlice.actions;
 export default productSlice.reducer;
