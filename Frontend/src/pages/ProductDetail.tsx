@@ -3,24 +3,26 @@ import { useParams, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Heart,
-  Star,
   ArrowLeft,
   ShoppingBag,
   Truck,
   RotateCcw,
   CreditCard,
-  ChevronDown,
   CheckCircle2,
   X,
   Ruler,
 } from "lucide-react";
 import { useAppDispatch } from "@/store";
 import { addToCart, openCart } from "@/store/cartSlice";
+import { createReview, resetReviewStatus } from "@/store/productSlice";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import Rating from "@/components/Rating";
 import axios from "axios";
 import type { Product } from "@/types";
+import { useSelector } from "react-redux";
+import { RootState } from "@/store";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -52,6 +54,10 @@ const ProductDetail = () => {
   const { id } = useParams();
   const dispatch = useAppDispatch();
 
+  // Auth State
+  const { user } = useSelector((state: RootState) => state.auth);
+  const { reviewStatus, reviewError } = useSelector((state: RootState) => state.products);
+
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedSize, setSelectedSize] = useState("");
@@ -59,21 +65,48 @@ const ProductDetail = () => {
   const [wishlisted, setWishlisted] = useState(false);
   const [showSizeGuide, setShowSizeGuide] = useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
-  const [openAccordion, setOpenAccordion] = useState<string | null>("info");
+
+  // Review Form State
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState("");
+
+  const fetchProduct = async () => {
+    try {
+      const { data } = await axios.get(`${BACKEND_URL}/api/products/${id}`);
+      setProduct(data);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching product", error);
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        const { data } = await axios.get(`${BACKEND_URL}/api/products/${id}`);
-        setProduct(data);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching product", error);
-        setLoading(false);
-      }
-    };
     fetchProduct();
   }, [id]);
+
+  useEffect(() => {
+    if (reviewStatus === 'succeeded') {
+      toast.success('Review submitted successfully');
+      setRating(0);
+      setComment("");
+      dispatch(resetReviewStatus());
+      fetchProduct(); // Refresh reviews
+    }
+    if (reviewStatus === 'failed') {
+      toast.error(reviewError || 'Failed to submit review');
+      dispatch(resetReviewStatus());
+    }
+  }, [reviewStatus, reviewError, dispatch]);
+
+  const handleReviewSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (rating === 0) {
+      toast.error('Please select a rating');
+      return;
+    }
+    dispatch(createReview({ productId: id!, review: { rating, comment } }));
+  };
 
   if (loading)
     return (
@@ -93,7 +126,7 @@ const ProductDetail = () => {
     );
 
   const productImages =
-    product.images?.length > 0 ? product.images : [product.image];
+    product.images?.length > 0 ? product.images : [product.images?.[0] || ""];
 
   const handleAddToCart = () => {
     if (!selectedSize) {
@@ -117,15 +150,11 @@ const ProductDetail = () => {
     dispatch(openCart());
   };
 
-  const toggleAccordion = (id: string) =>
-    setOpenAccordion(openAccordion === id ? null : id);
-
   return (
     <>
       <Navbar />
       <main className="pt-24 pb-20 min-h-screen bg-background">
         <div className="container max-w-7xl px-4 md:px-6">
-          {/* --- ADDED BACK BUTTON HERE --- */}
           <Link
             to="/shop"
             className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground transition-colors mb-8"
@@ -166,6 +195,9 @@ const ProductDetail = () => {
                 <h1 className="font-serif text-4xl lg:text-5xl">
                   {product.name}
                 </h1>
+                <div className="flex items-center gap-4">
+                   <Rating value={product.rating} text={`${product.numReviews} reviews`} />
+                </div>
                 <div className="flex items-center gap-4">
                   <span className="text-3xl font-bold">
                     ₹{product.price.toLocaleString()}
@@ -256,24 +288,70 @@ const ProductDetail = () => {
               <div className="max-w-xs w-full space-y-6">
                 <h3 className="font-serif text-3xl">Customer Stories</h3>
                 <div className="flex items-center gap-4">
-                  <span className="text-6xl font-serif">4.8</span>
+                  <span className="text-6xl font-serif">
+                     {product.rating > 0 ? product.rating.toFixed(1) : "0.0"}
+                  </span>
                   <div className="space-y-1">
-                    <div className="flex text-yellow-500">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} size={14} fill="currentColor" />
-                      ))}
-                    </div>
+                    <Rating value={product.rating} color="#000000" />
                     <p className="text-[10px] uppercase tracking-widest opacity-60">
-                      Verified India Reviews
+                      Based on {product.numReviews} Reviews
                     </p>
                   </div>
+                </div>
+
+                {/* WRITE REVIEW FORM */}
+                <div className="pt-8 border-t border-border">
+                  <h4 className="font-medium mb-4">Write a Review</h4>
+                  {user ? (
+                    <form onSubmit={handleReviewSubmit} className="space-y-4">
+                       <div className="text-sm">
+                          <label className="block mb-2 text-muted-foreground">Rating</label>
+                           <select 
+                             value={rating} 
+                             onChange={(e) => setRating(Number(e.target.value))}
+                             className="w-full p-2 border border-border rounded-md bg-transparent"
+                           >
+                              <option value="0">Select...</option>
+                              <option value="1">1 - Poor</option>
+                              <option value="2">2 - Fair</option>
+                              <option value="3">3 - Good</option>
+                              <option value="4">4 - Very Good</option>
+                              <option value="5">5 - Excellent</option>
+                           </select>
+                       </div>
+                       <div>
+                          <label className="block mb-2 text-sm text-muted-foreground">Comment</label>
+                          <textarea
+                             value={comment}
+                             onChange={(e) => setComment(e.target.value)}
+                             rows={3}
+                             className="w-full p-2 border border-border rounded-md bg-transparent text-sm"
+                             required
+                          ></textarea>
+                       </div>
+                       <button 
+                         type="submit" 
+                         disabled={reviewStatus === 'loading'}
+                         className="w-full bg-foreground text-background py-2 rounded-md text-sm font-medium hover:bg-foreground/90 transition-colors disabled:opacity-50"
+                       >
+                         {reviewStatus === 'loading' ? 'Submitting...' : 'Submit Review'}
+                       </button>
+                    </form>
+                  ) : (
+                    <div className="bg-secondary/30 p-4 rounded-lg text-sm">
+                      Please <Link to="/auth/login" className="underline font-medium">sign in</Link> to write a review.
+                    </div>
+                  )}
                 </div>
               </div>
 
               <div className="flex-1 space-y-10 w-full">
-                {mockReviews.map((review) => (
+                {product.reviews && product.reviews.length === 0 && (
+                   <p className="text-muted-foreground italic">No reviews yet. Be the first to review!</p>
+                )}
+                {product.reviews?.map((review) => (
                   <div
-                    key={review.id}
+                    key={review._id}
                     className="space-y-3 pb-10 border-b border-border last:border-0"
                   >
                     <div className="flex items-center justify-between">
@@ -284,14 +362,13 @@ const ProductDetail = () => {
                           Verified Buyer
                         </span>
                       </div>
+                      <span className="text-xs text-muted-foreground">
+                        {review.createdAt?.substring(0, 10)}
+                      </span>
                     </div>
-                    <div className="flex text-yellow-500">
-                      {[...Array(review.rating)].map((_, i) => (
-                        <Star key={i} size={12} fill="currentColor" />
-                      ))}
-                    </div>
+                    <Rating value={review.rating} />
                     <p className="text-sm font-medium leading-relaxed italic text-foreground/80">
-                      "{review.text}"
+                      "{review.comment}"
                     </p>
                   </div>
                 ))}
