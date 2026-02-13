@@ -30,11 +30,11 @@ import RefundCancellation from "./pages/RefundCancellation";
 import FAQ from "./pages/FAQ";
 import ShippingReturns from "./pages/ShippingReturns";
 
+import LogoutOverlay from "./components/LogoutOverlay";
 import AuthModal from "./components/AuthModal";
 import CartDrawer from "./components/CartDrawer";
 import NewsletterPopup from "./components/NewsletterPopup";
 import CookieConsent from "./components/CookieConsent";
-
 import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
@@ -52,6 +52,7 @@ const App = () => {
           <BrowserRouter>
             <ScrollToTop />
             <AuthModal />
+            <LogoutOverlay />
             <CartDrawer />
             <NewsletterPopup />
             <CookieConsent />

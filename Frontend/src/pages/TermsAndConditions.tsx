@@ -1,113 +1,149 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { motion, Variants } from "framer-motion";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import CartDrawer from "@/components/CartDrawer";
+import AuthModal from "@/components/AuthModal";
+import termsHero from "@/assets/category-men.jpg";
+
+const luxuryEase = [0.22, 1, 0.36, 1];
+
+// FIX: Added ': Variants' type and default value '(i = 0)' to prevent TypeScript errors
+const fadeUp: Variants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: (i = 0) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 1.2, delay: i * 0.15, ease: luxuryEase },
+  }),
+};
 
 const TermsAndConditions = () => {
+  const sections = [
+    {
+      title: "1. Agreement to Terms",
+      content:
+        "By accessing and using the Novan website, you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using or accessing this site.",
+    },
+    {
+      title: "2. Intellectual Property Rights",
+      content:
+        "The Service and its original content, features, and functionality are and will remain the exclusive property of Novan and its licensors. The Service is protected by copyright, trademark, and other laws of both the United States and foreign countries.",
+    },
+    {
+      title: "3. Accuracy of Information",
+      content:
+        "We attempt to ensure that information on this website is complete, accurate, and current. Despite our efforts, information may occasionally be inaccurate, incomplete, or out of date. We make no representation as to the completeness or accuracy of any information on this site.",
+    },
+    {
+      title: "4. Limitation of Liability",
+      content:
+        "In no event shall Novan, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses.",
+    },
+    {
+      title: "5. Governing Law",
+      content:
+        "These Terms shall be governed and construed in accordance with the laws of the jurisdiction in which Novan operates, without regard to its conflict of law provisions.",
+    },
+  ];
+
   return (
-    <div className="pt-32 pb-24 bg-white min-h-screen">
-      <div className="container mx-auto px-6">
-        {/* Navigation - Back Button (Matches site's minimalist icons) */}
-        <div className="mb-12">
-          <Link
-            to="/"
-            className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground transition-colors font-body"
+    <>
+      <Navbar />
+      <CartDrawer />
+      <AuthModal />
+
+      <main className="min-h-screen bg-background">
+        {/* Full Width Hero */}
+        <section className="relative h-[85vh] w-full overflow-hidden">
+          <motion.div
+            className="absolute inset-0 z-0"
+            initial={{ scale: 1.1 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 2, ease: luxuryEase }}
           >
-            <ArrowLeft size={14} />
-            Back to Home
-          </Link>
-        </div>
+            <img
+              src={termsHero}
+              alt="Terms Background"
+              className="w-full h-full object-cover object-center"
+            />
+          </motion.div>
 
-        <div className="flex flex-col lg:flex-row gap-12 lg:gap-24">
-          {/* Left Column: Heading (Matches "Contact Us" layout) */}
-          <div className="lg:w-1/3">
-            <p className="font-body text-xs tracking-[0.2em] uppercase text-muted-foreground mb-4">
-              Legal Framework
-            </p>
-            <h1 className="font-serif text-5xl lg:text-6xl mb-8 text-foreground leading-tight">
-              Terms & Conditions
-            </h1>
-            <div className="space-y-6 text-sm text-muted-foreground font-body leading-relaxed">
-              <p>
-                Effective Date: February 2026. <br />
-                These terms govern your usage of the NOVAN e-commerce platform.
-              </p>
-              <div className="pt-4 border-t border-border w-fit">
-                <p className="text-foreground font-medium uppercase tracking-wider text-xs mb-2">
-                  Legal Support
+          <div className="absolute inset-0 bg-black/40 z-10" />
+
+          <div className="relative z-20 h-full flex flex-col items-center justify-center text-center text-white px-6">
+            <motion.div
+              initial="hidden"
+              animate="visible"
+              variants={{
+                visible: { transition: { staggerChildren: 0.2 } },
+              }}
+            >
+              <motion.div variants={fadeUp}>
+                <p className="uppercase tracking-[0.3em] text-xs lg:text-sm mb-6 font-medium text-white/80">
+                  Legal Framework
                 </p>
-                <p>legal@novan.com</p>
-              </div>
-            </div>
+              </motion.div>
+
+              <motion.h1
+                variants={fadeUp}
+                className="font-serif text-5xl md:text-7xl lg:text-8xl mb-8 leading-none drop-shadow-lg"
+              >
+                Terms & <br className="hidden md:block" />
+                Conditions
+              </motion.h1>
+
+              <motion.div
+                variants={fadeUp}
+                className="w-24 h-[1px] bg-white/70 mx-auto mb-8"
+              />
+
+              <motion.p
+                variants={fadeUp}
+                className="font-body text-lg lg:text-xl max-w-xl mx-auto opacity-90 leading-relaxed font-light drop-shadow-md text-white/90"
+              >
+                Please read these terms carefully before accessing our website.
+                They govern your relationship with the Novan platform.
+              </motion.p>
+            </motion.div>
           </div>
+        </section>
 
-          {/* Vertical Divider (Matches Contact Page) */}
-          <div className="hidden lg:block w-[1px] bg-border min-h-[600px]"></div>
-
-          {/* Right Column: Refined Policy Content */}
-          <div className="lg:w-2/3 space-y-16 pb-20">
-            <section>
-              <h2 className="font-body text-xs tracking-[0.2em] uppercase text-foreground mb-6">
-                01. Acceptance of Terms
-              </h2>
-              <p className="font-body text-sm leading-relaxed text-muted-foreground">
-                By accessing the NOVAN store, you agree to be bound by these
-                Terms of Service. Our platform provides a curated selection of
-                premium men's and women's apparel. You represent that you are of
-                legal age and that your use of our products is strictly for
-                lawful purposes. Any violation of these terms will result in
-                immediate termination of Service.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="font-body text-xs tracking-[0.2em] uppercase text-foreground mb-6">
-                02. Product & Visual Accuracy
-              </h2>
-              <p className="font-body text-sm leading-relaxed text-muted-foreground">
-                We strive for absolute precision in our product displays.
-                However, given the nature of textile photography, fabric colors
-                may vary slightly depending on your digital display. All shirts
-                and t-shirts are subject to limited availability. We reserve the
-                right to limit purchase quantities or discontinue items at our
-                sole discretion.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="font-body text-xs tracking-[0.2em] uppercase text-foreground mb-6">
-                03. Pricing & Order Refusal
-              </h2>
-              <p className="font-body text-sm leading-relaxed text-muted-foreground">
-                Prices for our collections are subject to revision without prior
-                notice. NOVAN reserves the right to refuse any order for reasons
-                including suspected fraudulent activity or pricing errors. If an
-                order is cancelled, we will notify you using the email address
-                provided during checkout.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="font-body text-xs tracking-[0.2em] uppercase text-foreground mb-6">
-                04. Intellectual Property
-              </h2>
-              <p className="font-body text-sm leading-relaxed text-muted-foreground">
-                The NOVAN brand identity—including our logos, text, and
-                high-fidelity imagery—is our exclusive intellectual property.
-                You are strictly prohibited from reproducing or exploiting any
-                portion of our website without express written authorization.
-              </p>
-            </section>
-
-            <section className="pt-12 border-t border-border">
-              <p className="font-serif italic text-muted-foreground">
-                Thank you for choosing NOVAN. We appreciate your commitment to
-                modern luxury.
-              </p>
-            </section>
+        {/* Content Section */}
+        <section className="container max-w-4xl mx-auto px-4 md:px-6 py-20 lg:py-32">
+          <div className="space-y-20">
+            {sections.map((section, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{
+                  duration: 0.8,
+                  delay: index * 0.1,
+                  ease: luxuryEase,
+                }}
+                className="group"
+              >
+                <h3 className="font-serif text-2xl md:text-3xl mb-6 text-foreground pl-6 border-l-2 border-foreground/30 group-hover:border-foreground transition-colors duration-500">
+                  {section.title}
+                </h3>
+                <div className="pl-6 md:pl-8">
+                  <p className="font-body text-muted-foreground leading-8 text-lg">
+                    {section.content}
+                  </p>
+                </div>
+                {index !== sections.length - 1 && (
+                  <div className="h-[1px] bg-border mt-16 w-full opacity-60" />
+                )}
+              </motion.div>
+            ))}
           </div>
-        </div>
-      </div>
-    </div>
+        </section>
+      </main>
+
+      <Footer />
+    </>
   );
 };
 

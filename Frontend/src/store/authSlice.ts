@@ -1,18 +1,27 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import axios from 'axios';
 
-interface User {
-  id: string;
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
+// 1. Update User interface to match your Backend Response
+export interface User {
+  _id: string;        // Backend sends '_id', not 'id'
   name: string;
   email: string;
-  role: 'user' | 'admin';
+  isAdmin: boolean;   // Backend sends 'isAdmin', not 'role'
+  token: string;      // We need this for protected routes later
 }
 
 interface AuthState {
   user: User | null;
   isLoggedIn: boolean;
   showAuthModal: boolean;
+  isLoading: boolean;
+  error: string | null;
+  isLoggingOut: boolean; // New state for logout transition
 }
 
+// Helper to load user from storage safely
 const loadUser = (): User | null => {
   try {
     const saved = localStorage.getItem('novan-user');
@@ -28,43 +37,103 @@ const initialState: AuthState = {
   user: savedUser,
   isLoggedIn: !!savedUser,
   showAuthModal: false,
+  isLoading: false,
+  error: null,
+  isLoggingOut: false,
 };
+
+// 2. Async Thunk for Login
+export const loginUser = createAsyncThunk(
+  'auth/login',
+  async (userData: any, thunkAPI) => {
+    try {
+      // Connects to your real Backend
+      const response = await axios.post(`${BACKEND_URL}/api/auth/login`, userData);
+
+      // Save to localStorage so they stay logged in on refresh
+      localStorage.setItem('novan-user', JSON.stringify(response.data));
+      return response.data;
+    } catch (error: any) {
+      // Returns the error message from your backend (e.g., "Invalid email or password")
+      return thunkAPI.rejectWithValue(error.response?.data?.message || 'Login failed');
+    }
+  }
+);
+
+// 3. Async Thunk for Signup
+export const registerUser = createAsyncThunk(
+  'auth/register',
+  async (userData: any, thunkAPI) => {
+    try {
+      const response = await axios.post(`${BACKEND_URL}/api/auth/register`, userData);
+      localStorage.setItem('novan-user', JSON.stringify(response.data));
+      return response.data;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error.response?.data?.message || 'Registration failed');
+    }
+  }
+);
 
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    login(state, action: PayloadAction<{ email: string; password: string }>) {
-      const { email } = action.payload;
-      if (email === 'admin@novan.com') {
-        state.user = { id: 'admin-1', name: 'Admin', email, role: 'admin' };
-      } else {
-        state.user = { id: 'user-1', name: email.split('@')[0], email, role: 'user' };
-      }
-      state.isLoggedIn = true;
-      state.showAuthModal = false;
-      localStorage.setItem('novan-user', JSON.stringify(state.user));
-    },
-    signup(state, action: PayloadAction<{ name: string; email: string; password: string }>) {
-      const { name, email } = action.payload;
-      state.user = { id: 'user-' + Date.now(), name, email, role: 'user' };
-      state.isLoggedIn = true;
-      state.showAuthModal = false;
-      localStorage.setItem('novan-user', JSON.stringify(state.user));
-    },
     logout(state) {
       state.user = null;
       state.isLoggedIn = false;
+      state.error = null;
+      state.isLoggingOut = false; // Reset transition state
       localStorage.removeItem('novan-user');
+    },
+    initiateLogout(state) {
+      state.isLoggingOut = true; // Trigger transition
     },
     openAuthModal(state) {
       state.showAuthModal = true;
+      state.error = null; // Clear old errors when opening
     },
     closeAuthModal(state) {
       state.showAuthModal = false;
     },
+    clearError(state) {
+      state.error = null;
+    }
+  },
+  // 4. Handle the API states (Loading, Success, Fail)
+  extraReducers: (builder) => {
+    builder
+      // Login Cases
+      .addCase(loginUser.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(loginUser.fulfilled, (state, action: PayloadAction<User>) => {
+        state.isLoading = false;
+        state.isLoggedIn = true;
+        state.user = action.payload;
+        // state.showAuthModal = false; // Handled in component
+      })
+      .addCase(loginUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+      // Register Cases
+      .addCase(registerUser.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(registerUser.fulfilled, (state, action: PayloadAction<User>) => {
+        state.isLoading = false;
+        state.isLoggedIn = true;
+        state.user = action.payload;
+        // state.showAuthModal = false; // Handled in component
+      })
+      .addCase(registerUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      });
   },
 });
 
-export const { login, signup, logout, openAuthModal, closeAuthModal } = authSlice.actions;
+export const { logout, initiateLogout, openAuthModal, closeAuthModal, clearError } = authSlice.actions;
 export default authSlice.reducer;
