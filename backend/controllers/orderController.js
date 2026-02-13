@@ -1,13 +1,12 @@
 const Order = require('../models/Order');
 
-// @desc    Create new order
-// @route   POST /api/orders
-// @access  Private
+// @desc    Get all orders (Admin)
 const getOrders = async (req, res) => {
   const orders = await Order.find({}).populate('user', 'id name');
   res.json(orders);
 };
 
+// @desc    Create new order
 const addOrderItems = async (req, res) => {
   const {
     orderItems,
@@ -35,18 +34,34 @@ const addOrderItems = async (req, res) => {
     });
 
     const createdOrder = await order.save();
-
     res.status(201).json(createdOrder);
   }
 };
 
+// @desc    Update order to delivered/shipped
+// @route   PUT /api/orders/:id/deliver
+// @access  Private/Admin
 const updateOrderToDelivered = async (req, res) => {
   const order = await Order.findById(req.params.id);
 
   if (order) {
-    order.isDelivered = true;
-    order.deliveredAt = Date.now();
-    order.status = 'Delivered'; // Update the string status too
+    // 1. SCENARIO: MARK AS DELIVERED (Final Step)
+    if (req.body.status === 'Delivered') {
+        order.isDelivered = true;
+        order.deliveredAt = Date.now();
+        order.status = 'Delivered';
+        // We keep previous tracking info if it existed
+    } 
+    // 2. SCENARIO: MARK AS SHIPPED (Adding Tracking)
+    else if (req.body.trackingId && req.body.courier) {
+        order.status = 'Shipped';
+        order.isDelivered = false; // Important: It is NOT delivered yet
+        order.trackingInfo = {
+            id: req.body.trackingId,
+            courier: req.body.courier,
+            status: 'Shipped'
+        };
+    }
 
     const updatedOrder = await order.save();
     res.json(updatedOrder);
@@ -55,13 +70,9 @@ const updateOrderToDelivered = async (req, res) => {
   }
 };
 
-
-
 // @desc    Get logged in user orders
-// @route   GET /api/orders/myorders
-// @access  Private
 const getMyOrders = async (req, res) => {
-  const orders = await Order.find({ user: req.user._id });
+  const orders = await Order.find({ user: req.user._id }).sort({ createdAt: -1 });
   res.json(orders);
 };
 

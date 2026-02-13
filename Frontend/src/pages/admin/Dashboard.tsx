@@ -25,7 +25,7 @@ const AdminDashboard = () => {
   const confirmDelivery = async () => {
     if (confirmId) {
       try {
-        await dispatch(deliverOrder(confirmId)).unwrap();
+        await dispatch(deliverOrder({ id: confirmId, status: 'Delivered' })).unwrap();
         toast.success('Order status updated to Delivered');
       } catch (err) {
         toast.error('Failed to update status');
@@ -120,14 +120,18 @@ const AdminDashboard = () => {
                         </span>
                     </td>
                     <td className="p-4">
-                        {!order.isDelivered ? (
+                        {!order.isDelivered && order.status === 'Shipped' && (
                             <button 
                                 onClick={() => handleDeliver(order._id)}
-                                className="flex items-center gap-1.5 bg-foreground text-background hover:bg-black/80 px-3 py-1.5 rounded text-xs font-medium transition-colors"
+                                className="flex items-center gap-1.5 bg-green-600 text-white hover:bg-green-700 px-3 py-1.5 rounded text-xs font-medium transition-colors"
                             >
-                                <Truck size={12} /> Mark Sent
+                                <CheckCircle size={12} /> Mark Delivered
                             </button>
-                        ) : (
+                        )}
+                        {!order.isDelivered && order.status !== 'Shipped' && (
+                             <span className="text-muted-foreground text-xs italic">Manage in Orders</span>
+                        )}
+                        {order.isDelivered && (
                             <span className="flex items-center gap-1.5 text-green-600 text-xs font-medium">
                                 <CheckCircle size={14} /> Completed
                             </span>

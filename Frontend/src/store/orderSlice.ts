@@ -17,6 +17,11 @@ export interface Order {
   status?: string;
   user?: any;
   createdAt?: string;
+  trackingInfo?: {
+    id: string;
+    courier: string;
+    status: string;
+  };
 }
 
 interface OrderState {
@@ -35,8 +40,6 @@ const initialState: OrderState = {
   error: null,
 };
 
-// --- USER ACTIONS ---
-
 // 1. Create Order
 export const placeOrder = createAsyncThunk(
   'order/placeOrder',
@@ -49,7 +52,9 @@ export const placeOrder = createAsyncThunk(
           Authorization: `Bearer ${user?.token}`,
         },
       };
-      const { data } = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/orders`, orderData, config);
+      // Use ENV variable or localhost fallback
+      const url = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+      const { data } = await axios.post(`${url}/api/orders`, orderData, config);
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -64,7 +69,8 @@ export const getMyOrders = createAsyncThunk(
     try {
       const { auth: { user } } = getState() as RootState;
       const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-      const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/orders/myorders`, config);
+      const url = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+      const { data } = await axios.get(`${url}/api/orders/myorders`, config);
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -81,7 +87,8 @@ export const listOrders = createAsyncThunk(
     try {
       const { auth: { user } } = getState() as RootState;
       const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-      const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/orders`, config);
+      const url = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+      const { data } = await axios.get(`${url}/api/orders`, config);
       return data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -89,15 +96,28 @@ export const listOrders = createAsyncThunk(
   }
 );
 
-// 4. Admin: Mark as Delivered
+// 4. Admin: Deliver / Ship Order
 export const deliverOrder = createAsyncThunk(
   'order/deliverOrder',
-  async (id: string, { getState, rejectWithValue }) => {
+  async (
+    arg: { id: string; courier?: string; trackingId?: string; status?: string },
+    { getState, rejectWithValue }
+  ) => {
     try {
+      console.log("REDUX THUNK RECEIVED ARG:", arg);
+      const { id, courier, trackingId, status } = arg;
+
       const { auth: { user } } = getState() as RootState;
       const config = { headers: { Authorization: `Bearer ${user?.token}` } };
-      await axios.put(`${import.meta.env.VITE_BACKEND_URL}/api/orders/${id}/deliver`, {}, config);
-      return id; // Return ID to update local state immediately
+      const url = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+
+      // Send data to backend
+      const { data } = await axios.put(
+        `${url}/api/orders/${id}/deliver`,
+        { courier, trackingId, status },
+        config
+      );
+      return data; // Return full updated order
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || error.message);
     }
@@ -117,10 +137,8 @@ const orderSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // --- Place Order ---
-      .addCase(placeOrder.pending, (state) => {
-        state.loading = true;
-      })
+      // Place Order
+      .addCase(placeOrder.pending, (state) => { state.loading = true; })
       .addCase(placeOrder.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
@@ -130,11 +148,8 @@ const orderSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
-
-      // --- Get My Orders ---
-      .addCase(getMyOrders.pending, (state) => {
-        state.loading = true;
-      })
+      // Get My Orders
+      .addCase(getMyOrders.pending, (state) => { state.loading = true; })
       .addCase(getMyOrders.fulfilled, (state, action) => {
         state.loading = false;
         state.orders = action.payload;
@@ -143,11 +158,8 @@ const orderSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
-
-      // --- Admin: List Orders ---
-      .addCase(listOrders.pending, (state) => {
-        state.loading = true;
-      })
+      // Admin List Orders
+      .addCase(listOrders.pending, (state) => { state.loading = true; })
       .addCase(listOrders.fulfilled, (state, action) => {
         state.loading = false;
         state.orders = action.payload;
@@ -156,13 +168,13 @@ const orderSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
-
-      // --- Admin: Deliver Order ---
+      // Admin Deliver Order
       .addCase(deliverOrder.fulfilled, (state, action) => {
-        const order = state.orders.find((o) => o._id === action.payload);
-        if (order) {
-          order.isDelivered = true;
-          order.status = 'Delivered';
+        const updatedOrder = action.payload;
+        // Update the specific order in the list without refreshing
+        const index = state.orders.findIndex((o) => o._id === updatedOrder._id);
+        if (index !== -1) {
+          state.orders[index] = updatedOrder;
         }
       });
   },

@@ -22,6 +22,13 @@ const orderSchema = mongoose.Schema(
         color: { type: String },
       },
     ],
+    // --- KEEP THIS ONE ---
+    trackingInfo: {
+      id: { type: String },
+      courier: { type: String },
+      status: { type: String }, // e.g. 'Shipped'
+    },
+    // ---------------------
     shippingAddress: {
       address: { type: String, required: true },
       city: { type: String, required: true },
@@ -47,6 +54,8 @@ const orderSchema = mongoose.Schema(
     isDelivered: { type: Boolean, required: true, default: false },
     deliveredAt: { type: Date },
     status: { type: String, required: true, default: 'Processing' },
+    
+    // --- REMOVED THE DUPLICATE TRACKINGINFO HERE ---
   },
   {
     timestamps: true,
