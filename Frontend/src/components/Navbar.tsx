@@ -310,6 +310,15 @@ const Navbar = () => {
                       >
                         My Orders
                       </Link>
+                      {user.isAdmin && (
+                        <Link
+                          to="/admin/dashboard"
+                          onClick={() => setMobileOpen(false)}
+                          className="font-serif text-lg tracking-widest text-blue-600 hover:text-blue-700 uppercase transition-colors font-semibold"
+                        >
+                          Admin Dashboard
+                        </Link>
+                      )}
                       <button
                         onClick={() => {
                           handleLogout();
