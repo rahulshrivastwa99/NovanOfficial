@@ -1,0 +1,150 @@
+import React from "react";
+import { motion, Variants } from "framer-motion";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import CartDrawer from "@/components/CartDrawer";
+import AuthModal from "@/components/AuthModal";
+import termsHero from "@/assets/category-men.jpg";
+
+const luxuryEase = [0.22, 1, 0.36, 1];
+
+// FIX: Added ': Variants' type and default value '(i = 0)' to prevent TypeScript errors
+const fadeUp: Variants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: (i = 0) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 1.2, delay: i * 0.15, ease: luxuryEase },
+  }),
+};
+
+const TermsAndConditions = () => {
+  const sections = [
+    {
+      title: "1. Agreement to Terms",
+      content:
+        "By accessing and using the Novan website, you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using or accessing this site.",
+    },
+    {
+      title: "2. Intellectual Property Rights",
+      content:
+        "The Service and its original content, features, and functionality are and will remain the exclusive property of Novan and its licensors. The Service is protected by copyright, trademark, and other laws of both the United States and foreign countries.",
+    },
+    {
+      title: "3. Accuracy of Information",
+      content:
+        "We attempt to ensure that information on this website is complete, accurate, and current. Despite our efforts, information may occasionally be inaccurate, incomplete, or out of date. We make no representation as to the completeness or accuracy of any information on this site.",
+    },
+    {
+      title: "4. Limitation of Liability",
+      content:
+        "In no event shall Novan, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses.",
+    },
+    {
+      title: "5. Governing Law",
+      content:
+        "These Terms shall be governed and construed in accordance with the laws of the jurisdiction in which Novan operates, without regard to its conflict of law provisions.",
+    },
+  ];
+
+  return (
+    <>
+      <Navbar />
+      <CartDrawer />
+      <AuthModal />
+
+      <main className="min-h-screen bg-background">
+        {/* Full Width Hero */}
+        <section className="relative h-[85vh] w-full overflow-hidden">
+          <motion.div
+            className="absolute inset-0 z-0"
+            initial={{ scale: 1.1 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 2, ease: luxuryEase }}
+          >
+            <img
+              src={termsHero}
+              alt="Terms Background"
+              className="w-full h-full object-cover object-center"
+            />
+          </motion.div>
+
+          <div className="absolute inset-0 bg-black/40 z-10" />
+
+          <div className="relative z-20 h-full flex flex-col items-center justify-center text-center text-white px-6">
+            <motion.div
+              initial="hidden"
+              animate="visible"
+              variants={{
+                visible: { transition: { staggerChildren: 0.2 } },
+              }}
+            >
+              <motion.div variants={fadeUp}>
+                <p className="uppercase tracking-[0.3em] text-xs lg:text-sm mb-6 font-medium text-white/80">
+                  Legal Framework
+                </p>
+              </motion.div>
+
+              <motion.h1
+                variants={fadeUp}
+                className="font-serif text-5xl md:text-7xl lg:text-8xl mb-8 leading-none drop-shadow-lg"
+              >
+                Terms & <br className="hidden md:block" />
+                Conditions
+              </motion.h1>
+
+              <motion.div
+                variants={fadeUp}
+                className="w-24 h-[1px] bg-white/70 mx-auto mb-8"
+              />
+
+              <motion.p
+                variants={fadeUp}
+                className="font-body text-lg lg:text-xl max-w-xl mx-auto opacity-90 leading-relaxed font-light drop-shadow-md text-white/90"
+              >
+                Please read these terms carefully before accessing our website.
+                They govern your relationship with the Novan platform.
+              </motion.p>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Content Section */}
+        <section className="container max-w-4xl mx-auto px-4 md:px-6 py-20 lg:py-32">
+          <div className="space-y-20">
+            {sections.map((section, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{
+                  duration: 0.8,
+                  delay: index * 0.1,
+                  ease: luxuryEase,
+                }}
+                className="group"
+              >
+                <h3 className="font-serif text-2xl md:text-3xl mb-6 text-foreground pl-6 border-l-2 border-foreground/30 group-hover:border-foreground transition-colors duration-500">
+                  {section.title}
+                </h3>
+                <div className="pl-6 md:pl-8">
+                  <p className="font-body text-muted-foreground leading-8 text-lg">
+                    {section.content}
+                  </p>
+                </div>
+                {index !== sections.length - 1 && (
+                  <div className="h-[1px] bg-border mt-16 w-full opacity-60" />
+                )}
+              </motion.div>
+            ))}
+          </div>
+        </section>
+      </main>
+
+      <Footer />
+    </>
+  );
+};
+
+export default TermsAndConditions;
