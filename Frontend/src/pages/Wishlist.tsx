@@ -8,17 +8,21 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
 import EmptyState from '@/components/EmptyState';
+import LoginRequired from '@/components/LoginRequired';
 import { Heart } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const Wishlist = () => {
   const { items: wishlistItems, loading } = useAppSelector((s) => s.wishlist);
+  const { user } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
+
+  if (!user) return <LoginRequired />;
 
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-grow container py-20 lg:py-24">
+      <main className="flex-grow container pt-28 pb-20 lg:pt-32 lg:pb-24">
         <h1 className="font-serif text-3xl lg:text-4xl mb-12 text-center">My Wishlist</h1>
 
         {loading ? (

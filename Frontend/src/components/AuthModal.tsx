@@ -8,14 +8,22 @@ import { toast } from 'sonner';
 
 const AuthModal = () => {
   // Get state from Redux
-  const { showAuthModal, isLoading, error, user } = useAppSelector((state) => state.auth);
+  const { showAuthModal, isLoading, error, user, initialMode } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
 
-  const [mode, setMode] = useState<'login' | 'signup'>('login');
+  // Initialize mode based on Redux state when modal opens
+  const [mode, setMode] = useState<'login' | 'signup'>(initialMode || 'login'); 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
+
+  // Sync mode with Redux initialMode whenever the modal opens
+  useEffect(() => {
+    if (showAuthModal) {
+        setMode(initialMode || 'login');
+    }
+  }, [showAuthModal, initialMode]);
 
   // 1. Handle Errors (e.g. "User already exists")
   useEffect(() => {
@@ -48,6 +56,9 @@ const AuthModal = () => {
   // 3. Clear inputs when mode changes
   useEffect(() => {
     dispatch(clearError());
+    // Only clear inputs if NOT switching modes during a session, 
+    // but here we just clear them to be safe.
+    // If you want to keep email when switching, you can condition this.
     setEmail('');
     setPassword('');
     setName('');
@@ -59,7 +70,7 @@ const AuthModal = () => {
       // Wait for exit animation to finish before resetting state
       const timer = setTimeout(() => {
         setIsSuccess(false);
-        setMode('login');
+        // We don't strictly need to reset to 'login' here as it will be set by initialMode next time
         setEmail('');
         setPassword('');
         setName('');

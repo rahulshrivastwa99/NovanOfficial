@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useCallback } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAppSelector, useAppDispatch } from '@/store';
 import { clearCart } from '@/store/cartSlice';
@@ -9,12 +9,14 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import CartDrawer from '@/components/CartDrawer';
 import AuthModal from '@/components/AuthModal';
+import ExitIntentModal from '@/components/ExitIntentModal'; // Import Modal
 import { Loader2, ShieldCheck } from 'lucide-react';
 import axios from 'axios';
 
 const Checkout = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const cart = useAppSelector((state) => state.cart);
   const { user } = useAppSelector((state) => state.auth);
@@ -27,6 +29,10 @@ const Checkout = () => {
   const [city, setCity] = useState('');
   const [postalCode, setPostalCode] = useState('');
   const [country, setCountry] = useState('India');
+
+  // Exit Intent State
+  const [showExitModal, setShowExitModal] = useState(false);
+  const [shouldBlockNavigation, setShouldBlockNavigation] = useState(true);
 
   // --- PRICING CALCULATIONS ---
   const itemsPrice = cart.items.reduce((acc, item) => acc + item.price * item.quantity, 0);
@@ -54,7 +60,7 @@ const Checkout = () => {
   // 2. Handle Success (Only for COD or manual resets)
   useEffect(() => {
     if (success) {
-      // We handle navigation manually in the Razorpay handler, but this is a backup
+      setShouldBlockNavigation(false); // Valid exit
       dispatch(clearCart());
       dispatch(resetOrder());
       navigate('/orders');
@@ -64,6 +70,42 @@ const Checkout = () => {
     }
   }, [success, error, dispatch, navigate]);
 
+  // --- EXIT INTENT LOGIC ---
+  useEffect(() => {
+    // 1. Push current state to history to create a "buffer" entry
+    window.history.pushState(null, '', location.pathname);
+
+    const handlePopState = (event: PopStateEvent) => {
+      // User pressed back button
+      if (shouldBlockNavigation) {
+        // Prevent navigation by pushing state again
+        window.history.pushState(null, '', location.pathname);
+        setShowExitModal(true);
+      } else {
+        // Allow navigation (back functionality restores naturally if we don't pushState)
+        // But since we pushed state initially, we might need to go back twice or just navigate
+        navigate(-1); 
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [shouldBlockNavigation, location.pathname, navigate]);
+
+  const handleConfirmExit = () => {
+    setShouldBlockNavigation(false);
+    setShowExitModal(false);
+    navigate(-2); // Go back effectively (undo pushState + actual back)
+  };
+
+  const handleCloseModal = () => {
+    setShowExitModal(false);
+  };
+
+
   // --- MAIN ORDER HANDLER ---
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,6 +114,8 @@ const Checkout = () => {
       toast.error("Your cart is empty");
       return;
     }
+
+    setShouldBlockNavigation(false); // Allow navigation for order placement
 
     // Common Order Data
     const orderItemsData = cart.items.map((item) => ({
@@ -104,7 +148,10 @@ const Checkout = () => {
                navigate('/success');
                toast.success("Order Placed Successfully!");
            })
-           .catch((err) => toast.error(err));
+           .catch((err) => {
+               setShouldBlockNavigation(true); // Re-enable if failed
+               toast.error(err);
+           });
         return;
     }
 
@@ -114,7 +161,6 @@ const Checkout = () => {
         const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
         
         // 1. Create Order in Database (PENDING STATE)
-        // User requested: "Immediately save [...] with status: 'Payment Pending'"
         const orderRes = await dispatch(placeOrder({
             orderItems: orderItemsData,
             shippingAddress: shippingData,
@@ -124,7 +170,7 @@ const Checkout = () => {
             shippingPrice,
             totalPrice,
             isPaid: false,
-            status: 'Payment Pending', // Explicitly set pending status
+            status: 'Payment Pending', 
         })).unwrap();
 
         const orderId = orderRes._id;
@@ -166,11 +212,12 @@ const Checkout = () => {
                         toast.success("Payment Successful!");
                     } else {
                         toast.error("Payment Verification Failed");
+                        setShouldBlockNavigation(true);
                     }
-
                 } catch (err) {
                     console.error(err);
                     toast.error("Payment Verification Failed");
+                    setShouldBlockNavigation(true);
                 }
             },
             // 5. Handle Modal Dismissal / Failure
@@ -193,6 +240,7 @@ const Checkout = () => {
         rzp.open();
 
     } catch (error) {
+        setShouldBlockNavigation(true);
         toast.error("Order Creation Failed");
         console.error(error);
     }
@@ -203,8 +251,15 @@ const Checkout = () => {
       <Navbar />
       <CartDrawer />
       <AuthModal />
+      
+      {/* Exit Intent Modal */}
+      <ExitIntentModal 
+        isOpen={showExitModal} 
+        onClose={handleCloseModal}
+        onConfirmExit={handleConfirmExit}
+      />
 
-      <main className="pt-20 lg:pt-24 min-h-screen bg-gray-50/50">
+      <main className="pt-28 lg:pt-32 min-h-screen bg-gray-50/50">
         <div className="container py-8 lg:py-12 max-w-6xl">
           <h1 className="font-serif text-3xl mb-10 text-center lg:text-left">Checkout</h1>
 

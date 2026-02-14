@@ -67,7 +67,7 @@ const Index = () => {
         <HeroCarousel />
 
         {/* Categories */}
-        <section className="container py-20 lg:py-32">
+        <section className="container py-12 lg:py-20">
           <motion.h2
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
@@ -104,7 +104,7 @@ const Index = () => {
         </section>
 
         {/* Best Sellers */}
-        <section className="bg-secondary py-20 lg:py-32">
+        <section className="bg-secondary py-12 lg:py-20">
           <div className="container">
             <div className="flex items-center justify-between mb-12">
               <h2 className="font-serif text-2xl lg:text-3xl">Best Sellers</h2>
@@ -131,7 +131,7 @@ const Index = () => {
         </section>
 
         {/* New Arrivals */}
-        <section className="container py-20 lg:py-32">
+        <section className="container py-12 lg:py-20">
           <div className="flex items-center justify-between mb-12">
             <h2 className="font-serif text-2xl lg:text-3xl">New Arrivals</h2>
             <Link
@@ -156,7 +156,7 @@ const Index = () => {
         </section>
 
         {/* All Collection with Pagination */}
-        <section className="container pb-20 lg:pb-32">
+        <section className="container pb-12">
            <h2 className="font-serif text-2xl lg:text-3xl mb-12 text-center">Our Collection</h2>
            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8">
               {safeProducts.map((p: any) => (
@@ -201,27 +201,26 @@ const Index = () => {
         </section>
 
         {/* Mission / Philosophy */}
-        <section className="container py-20 lg:py-32">
-          <div className="max-w-3xl mx-auto text-center">
+        {/* Mission / Philosophy */}
+        <section className="container pb-20 lg:pb-32 pt-4">
+          <div className="max-w-4xl mx-auto text-center border-t border-border pt-16">
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8 }}
-              className="luxury-button text-muted-foreground mb-6"
+              className="luxury-button text-muted-foreground mb-8 text-xs lg:text-sm tracking-[0.3em]"
             >
-              Our Philosophy
+              OUR PHILOSOPHY
             </motion.p>
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.1 }}
-              className="font-serif text-2xl lg:text-4xl leading-relaxed mb-8"
+              className="font-serif text-3xl lg:text-5xl leading-tight mb-10 text-foreground"
             >
-              We believe in the power of restraint. Each piece is designed to
-              transcend seasons, crafted from the finest materials, and built to
-              become a cornerstone of your wardrobe.
+              "True luxury lies not in excess, but in the absence of the unnecessary. We craft timeless silhouettes for the modern soul."
             </motion.h2>
             <motion.div
               initial={{ opacity: 0 }}
@@ -231,9 +230,9 @@ const Index = () => {
             >
               <Link
                 to="/about"
-                className="luxury-button text-muted-foreground hover:text-foreground transition-colors underline underline-offset-4"
+                className="inline-block border-b border-foreground pb-1 font-medium text-sm hover:text-black/70 transition-colors uppercase tracking-widest"
               >
-                Learn More
+                Discover Our Story
               </Link>
             </motion.div>
           </div>

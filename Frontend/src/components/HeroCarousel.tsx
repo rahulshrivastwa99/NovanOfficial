@@ -26,10 +26,10 @@ const slides = [
   {
     id: 3,
     image: hero3,
-    title: "TIMELESS MENSWEAR",
-    subtitle: "Crafted for the modern gentleman",
-    cta: "Shop Women",
-    link: "/shop?category=women"
+    title: "MEN'S ATELIER",
+    subtitle: "Timeless cuts, redefined.",
+    cta: "Shop Men",
+    link: "/shop?category=men"
   }
 ];
 
@@ -47,33 +47,33 @@ const HeroCarousel = () => {
   const prevSlide = () => setCurrent((prev) => (prev - 1 + slides.length) % slides.length);
 
   return (
-    <section className="relative h-screen overflow-hidden bg-black">
+    <section className="relative h-screen overflow-hidden bg-black text-white">
       <AnimatePresence mode="wait">
         <motion.div
           key={current}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.7 }}
+          transition={{ duration: 0.8 }}
           className="absolute inset-0"
         >
           <img
             src={slides[current].image}
             alt={slides[current].title}
-            className="w-full h-full object-cover object-top opacity-90"
+            className="w-full h-full object-cover object-top opacity-80"
           />
-          <div className="absolute inset-0 bg-black/30" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/30" />
         </motion.div>
       </AnimatePresence>
 
-      <div className="absolute inset-0 z-10 flex items-center justify-center text-center text-white px-4">
-        <div className="max-w-4xl">
+      <div className="absolute inset-0 z-10 flex items-center justify-center text-center px-4">
+        <div className="max-w-5xl">
           <motion.h1
             key={`title-${current}`}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="font-serif text-4xl md:text-6xl lg:text-7xl font-light tracking-wide mb-6"
+            transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+            className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter mb-6 uppercase"
           >
             {slides[current].title}
           </motion.h1>
@@ -82,7 +82,7 @@ const HeroCarousel = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="font-body text-lg md:text-xl text-white/90 mb-10 tracking-wider"
+            className="text-lg md:text-2xl text-white/90 mb-10 font-light tracking-wide"
           >
             {slides[current].subtitle}
           </motion.p>
@@ -94,9 +94,9 @@ const HeroCarousel = () => {
           >
             <Link
               to={slides[current].link}
-              className="inline-flex items-center gap-2 border border-white/80 text-white px-8 py-4 luxury-button hover:bg-white hover:text-black transition-colors duration-300"
+              className="inline-flex items-center gap-3 bg-white text-black px-10 py-4 text-sm font-bold uppercase tracking-widest hover:bg-white/90 transition-all duration-300 rounded-sm"
             >
-              {slides[current].cta} <ArrowRight size={14} />
+              {slides[current].cta} <ArrowRight size={16} />
             </Link>
           </motion.div>
         </div>
@@ -105,26 +105,27 @@ const HeroCarousel = () => {
       {/* Navigation Arrows */}
       <button 
         onClick={prevSlide}
-        className="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full border border-white/20 text-white hover:bg-white hover:text-black transition-colors z-20 hidden md:block"
+        className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 p-4 rounded-full border border-white/20 text-white hover:bg-white hover:text-black transition-all z-20 hidden md:block backdrop-blur-sm"
       >
         <ChevronLeft size={24} />
       </button>
       <button 
         onClick={nextSlide}
-        className="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full border border-white/20 text-white hover:bg-white hover:text-black transition-colors z-20 hidden md:block"
+        className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 p-4 rounded-full border border-white/20 text-white hover:bg-white hover:text-black transition-all z-20 hidden md:block backdrop-blur-sm"
       >
         <ChevronRight size={24} />
       </button>
 
       {/* Dots */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-3 z-20">
+      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex gap-4 z-20">
         {slides.map((_, index) => (
           <button
             key={index}
             onClick={() => setCurrent(index)}
-            className={`w-3 h-3 rounded-full transition-all duration-300 ${
-              current === index ? 'bg-white w-8' : 'bg-white/50 hover:bg-white/80'
+            className={`h-1 rounded-full transition-all duration-500 ${
+              current === index ? 'bg-white w-12' : 'bg-white/30 w-6 hover:bg-white/60'
             }`}
+            aria-label={`Go to slide ${index + 1}`}
           />
         ))}
       </div>

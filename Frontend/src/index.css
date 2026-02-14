@@ -46,9 +46,11 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground font-body antialiased;
   }
+
   h1,
   h2,
   h3,
@@ -63,12 +65,15 @@
   .luxury-heading {
     @apply font-serif font-light tracking-wide;
   }
+
   .luxury-button {
     @apply uppercase tracking-[0.2em] text-xs font-body font-medium;
   }
+
   .image-zoom {
     @apply transition-transform duration-700 ease-out;
   }
+
   .image-zoom:hover {
     @apply scale-105;
   }

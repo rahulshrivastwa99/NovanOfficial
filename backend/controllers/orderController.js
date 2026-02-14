@@ -107,4 +107,73 @@ const getMyOrders = async (req, res) => {
   res.json(orders);
 };
 
-module.exports = { addOrderItems, getMyOrders, getOrders, updateOrderToDelivered };
+// @desc    Submit Return/Exchange Request
+// @route   POST /api/orders/:id/return
+// @access  Private
+const submitReturnRequest = async (req, res) => {
+    const { returnType, returnReason } = req.body;
+    const order = await Order.findById(req.params.id);
+
+    if (order) {
+        // Validation: Can only return if delivered
+        if (!order.isDelivered) {
+            res.status(400).json({ message: 'Order must be delivered to request a return.' });
+            return;
+        }
+
+        // Validation: Check return window (e.g., 7 days)
+        const deliveryDate = new Date(order.deliveredAt);
+        const currentDate = new Date();
+        const diffTime = Math.abs(currentDate - deliveryDate);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+
+        if (diffDays > 7) {
+            res.status(400).json({ message: 'Return window (7 days) has expired.' });
+            return;
+        }
+        
+        if (order.returnStatus !== 'None') {
+            res.status(400).json({ message: 'Return request already submitted.' });
+            return;
+        }
+
+        order.returnStatus = 'Requested';
+        order.returnType = returnType;
+        order.returnReason = returnReason;
+        
+        // Optionally update main status to indicate active return
+        // order.status = `${returnType} Requested`; 
+
+        const updatedOrder = await order.save();
+        res.json(updatedOrder);
+
+    } else {
+        res.status(404).json({ message: 'Order not found' });
+    }
+};
+
+// @desc    Submit Checkout Abandonment Survey
+// @route   POST /api/orders/abandonment
+// @access  Public (or Private if we have user info)
+const AbandonmentSurvey = require('../models/AbandonmentSurvey');
+
+const submitAbandonmentSurvey = async (req, res) => {
+    const { reasons, comment, deviceInfo } = req.body;
+    
+    // Attempt to link to user if logged in, otherwise anonymous
+    const userId = req.user ? req.user._id : null;
+
+    try {
+        const survey = await AbandonmentSurvey.create({
+            user: userId,
+            reasons,
+            comment,
+            deviceInfo
+        });
+        res.status(201).json(survey);
+    } catch (error) {
+        res.status(400).json({ message: 'Failed to submit survey' });
+    }
+};
+
+module.exports = { addOrderItems, getMyOrders, getOrders, updateOrderToDelivered, submitReturnRequest, submitAbandonmentSurvey };

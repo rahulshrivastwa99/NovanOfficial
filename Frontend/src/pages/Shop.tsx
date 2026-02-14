@@ -26,6 +26,7 @@ const Shop = () => {
   const [category, setCategory] = useState(searchParams.get("category") || "all");
   const [minPrice, setMinPrice] = useState(searchParams.get("minPrice") || "");
   const [maxPrice, setMaxPrice] = useState(searchParams.get("maxPrice") || "");
+  const [size, setSize] = useState(searchParams.get("size") || "");
   const [pageNumber, setPageNumber] = useState(Number(searchParams.get("pageNumber")) || 1);
   const [mobileFilters, setMobileFilters] = useState(false);
   const [openAccordion, setOpenAccordion] = useState<string | null>("category");
@@ -49,38 +50,43 @@ const Shop = () => {
     if (category !== "all") params.category = category;
     if (minPrice) params.minPrice = minPrice;
     if (maxPrice) params.maxPrice = maxPrice;
+    if (size) params.size = size;
 
     dispatch(fetchProducts(params) as any);
 
     // Update URL
     setSearchParams(params);
-  }, [dispatch, debouncedKeyword, category, minPrice, maxPrice, pageNumber, setSearchParams]);
+  }, [dispatch, debouncedKeyword, category, minPrice, maxPrice, size, pageNumber, setSearchParams]);
 
   // Reset page when filters change (except page itself)
   useEffect(() => {
     setPageNumber(1);
-  }, [debouncedKeyword, category, minPrice, maxPrice]);
+  }, [debouncedKeyword, category, minPrice, maxPrice, size]);
 
+  // --- FILTER SECTION COMPONENT ---
   const FilterSection = ({
     id,
     title,
     children,
+    isOpen = false
   }: {
     id: string;
     title: string;
     children: React.ReactNode;
+    isOpen?: boolean;
   }) => (
-    <div className="border-b border-border pb-4 mb-4">
+    <div className="border border-black mb-4 bg-white">
       <button
         onClick={() => setOpenAccordion(openAccordion === id ? null : id)}
-        className="w-full flex items-center justify-between luxury-button text-muted-foreground mb-3"
+        className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
       >
-        <span className="font-medium uppercase tracking-wider text-xs">
+        <span className="font-bold uppercase tracking-wider text-sm">
           {title}
         </span>
         <ChevronDown
-          size={14}
-          className={`transition-transform ${openAccordion === id ? "rotate-180" : ""}`}
+          size={16}
+          strokeWidth={2}
+          className={`transition-transform duration-300 ${openAccordion === id ? "rotate-180" : ""}`}
         />
       </button>
       <AnimatePresence>
@@ -91,7 +97,9 @@ const Shop = () => {
             exit={{ height: 0, opacity: 0 }}
             className="overflow-hidden"
           >
-            {children}
+            <div className="p-4 pt-0 border-t border-dashed border-gray-200 mt-2">
+                {children}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -100,59 +108,92 @@ const Shop = () => {
 
   const filters = (
     <div className="py-2">
-      <div className="mb-6 relative">
+      <div className="mb-8 relative">
           <input
             type="text"
-            placeholder="Search products..."
+            placeholder="Search T-Shirts..."
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-secondary/30 border border-border rounded-md text-sm focus:outline-none focus:border-foreground transition-colors"
+            className="w-full pl-3 pr-10 py-3 bg-white border border-black text-sm font-medium focus:outline-none placeholder:text-gray-400 uppercase tracking-wide"
           />
-          <Search className="absolute left-3 top-2.5 text-muted-foreground" size={16} />
+          <Search className="absolute right-3 top-3 text-black" size={18} strokeWidth={1.5} />
       </div>
 
-      <FilterSection id="category" title="Category">
-        <div className="space-y-2 pb-2">
-          {["all", "men", "women", "accessories"].map((cat) => (
-            <div key={cat} className="flex items-center">
-              <input
-                type="radio"
-                id={`cat-${cat}`}
-                name="category"
-                checked={category === cat}
-                onChange={() => setCategory(cat)}
-                className="mr-2 accent-black"
-              />
-              <label
-                htmlFor={`cat-${cat}`}
-                className={`cursor-pointer text-sm capitalize ${
-                  category === cat ? "text-foreground font-medium" : "text-muted-foreground"
-                }`}
-              >
-                {cat === "all" ? "All Products" : cat}
-              </label>
+      <FilterSection id="gender" title="Gender">
+        <div className="space-y-3 pt-4">
+          {["all", "men", "women", "unisex"].map((cat) => (
+            <div key={cat} className="flex items-center group cursor-pointer" onClick={() => setCategory(cat)}>
+              <div className={`w-4 h-4 border border-black flex items-center justify-center mr-3 transition-colors ${category === cat ? "bg-black" : "bg-white"}`}>
+                  {category === cat && <div className="w-2 h-2 bg-white" />}
+              </div>
+              <span className={`text-sm uppercase tracking-wide ${category === cat ? "font-bold" : "text-gray-600 group-hover:text-black"}`}>
+                {cat === 'all' ? 'All' : cat}
+              </span>
             </div>
           ))}
         </div>
       </FilterSection>
 
-      <FilterSection id="price" title="Price Range">
-        <div className="flex items-center gap-2 pb-2">
-            <input
-              type="number"
-              placeholder="Min"
-              value={minPrice}
-              onChange={(e) => setMinPrice(e.target.value)}
-              className="w-full px-3 py-2 bg-secondary/30 border border-border rounded-md text-sm focus:outline-none focus:border-foreground"
-            />
-            <span className="text-muted-foreground">-</span>
-            <input
-              type="number"
-              placeholder="Max"
-              value={maxPrice}
-              onChange={(e) => setMaxPrice(e.target.value)}
-              className="w-full px-3 py-2 bg-secondary/30 border border-border rounded-md text-sm focus:outline-none focus:border-foreground"
-            />
+      <FilterSection id="style" title="Style">
+          <div className="space-y-3 pt-4">
+             {["Graphic Tees", "Solid / Plain", "Oversized", "Polos", "V-Neck"].map((style) => (
+                <div 
+                    key={style} 
+                    className="flex items-center group cursor-pointer" 
+                    onClick={() => setKeyword(prev => prev === style ? "" : style)}
+                >
+                    <div className={`w-4 h-4 border border-black flex items-center justify-center mr-3 transition-colors ${keyword === style ? "bg-black" : "bg-white"}`}>
+                         {keyword === style && <div className="w-2 h-2 bg-white" />}
+                    </div>
+                    <span className={`text-sm uppercase tracking-wide ${keyword === style ? "font-bold" : "text-gray-600 group-hover:text-black"}`}>
+                        {style}
+                    </span>
+                </div>
+             ))}
+          </div>
+      </FilterSection>
+
+      <FilterSection id="size" title="Size">
+         <div className="grid grid-cols-4 gap-2 pt-4">
+            {["XS", "S", "M", "L", "XL", "XXL"].map((s) => (
+                <button 
+                    key={s}
+                    onClick={() => setSize(prev => prev === s ? "" : s)}
+                    className={`border text-xs font-bold py-2 transition-all uppercase ${
+                        size === s 
+                        ? "border-black bg-black text-white" 
+                        : "border-gray-300 hover:border-black hover:bg-black hover:text-white"
+                    }`}
+                >
+                    {s}
+                </button>
+            ))}
+         </div>
+      </FilterSection>
+
+      <FilterSection id="price" title="Price">
+        <div className="flex items-center gap-2 pt-4">
+            <div className="relative w-full">
+                <span className="absolute left-3 top-2.5 text-xs font-bold text-gray-500">₹</span>
+                <input
+                type="number"
+                placeholder="Min"
+                value={minPrice}
+                onChange={(e) => setMinPrice(e.target.value)}
+                className="w-full pl-6 pr-3 py-2 bg-gray-50 border border-gray-200 text-sm focus:outline-none focus:border-black transition-colors font-medium"
+                />
+            </div>
+            <span className="text-gray-400">-</span>
+            <div className="relative w-full">
+                <span className="absolute left-3 top-2.5 text-xs font-bold text-gray-500">₹</span>
+                <input
+                type="number"
+                placeholder="Max"
+                value={maxPrice}
+                onChange={(e) => setMaxPrice(e.target.value)}
+                className="w-full pl-6 pr-3 py-2 bg-gray-50 border border-gray-200 text-sm focus:outline-none focus:border-black transition-colors font-medium"
+                />
+            </div>
         </div>
       </FilterSection>
     </div>
@@ -162,7 +203,7 @@ const Shop = () => {
     <>
       <Navbar />
 
-      <main className="pt-20 lg:pt-24 min-h-screen bg-background">
+      <main className="pt-28 lg:pt-32 min-h-screen bg-background">
         <div className="container py-8 lg:py-12">
           {/* Header */}
           <div className="flex items-center justify-between mb-10">
@@ -197,7 +238,7 @@ const Shop = () => {
               ) : (
                 <AnimatePresence mode="wait">
                   <motion.div
-                    key={page + category + keyword + minPrice + maxPrice} // Force re-render animation when filters change
+                    key={page + category + keyword + minPrice + maxPrice + size} // Force re-render animation when filters change
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -20 }}
@@ -222,6 +263,7 @@ const Shop = () => {
                       setKeyword("");
                       setMinPrice("");
                       setMaxPrice("");
+                      setSize("");
                     }}
                     className="mt-4 text-xs uppercase tracking-widest underline underline-offset-4"
                   >

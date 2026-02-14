@@ -61,6 +61,7 @@ export interface FetchProductsParams {
   minPrice?: string;
   maxPrice?: string;
   pageNumber?: number;
+  size?: string;
 }
 
 // 1. Fetch All Products (with filters/pagination)
@@ -80,13 +81,14 @@ export const fetchProducts = createAsyncThunk(
       if (params.minPrice) queryParams.append("minPrice", params.minPrice);
       if (params.maxPrice) queryParams.append("maxPrice", params.maxPrice);
       if (params.pageNumber) queryParams.append("pageNumber", params.pageNumber.toString());
+      if (params.size) queryParams.append("size", params.size);
 
       const response = await axios.get(
         `${import.meta.env.VITE_BACKEND_URL}/api/products?${queryParams.toString()}`,
       );
       return response.data; // { products, page, pages, count }
     } catch (error) {
-       
+
       const err = error as any;
       return rejectWithValue(err.response?.data?.message || err.message);
     }
@@ -117,7 +119,7 @@ export const createProduct = createAsyncThunk(
       );
       return data; // Returns the newly created product
     } catch (error) {
-       
+
       const err = error as any;
       return rejectWithValue(err.response?.data?.message || err.message);
     }
@@ -148,7 +150,7 @@ export const createReview = createAsyncThunk(
         config
       );
     } catch (error) {
-       
+
       const err = error as any;
       return rejectWithValue(err.response?.data?.message || err.message);
     }

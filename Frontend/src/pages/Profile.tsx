@@ -24,7 +24,7 @@ const Profile = () => {
       <CartDrawer />
       <AuthModal />
 
-      <main className="pt-20 lg:pt-24 min-h-screen">
+      <main className="pt-28 lg:pt-32 min-h-screen">
         <div className="container py-8 lg:py-12 max-w-3xl">
           <div className="flex items-center justify-between mb-10">
             <h1 className="font-serif text-3xl">My Account</h1>
