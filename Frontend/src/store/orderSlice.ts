@@ -3,10 +3,33 @@ import axios from 'axios';
 import { RootState } from './index';
 
 // Interface matching your Mongoose Schema
+export interface OrderItem {
+  name: string;
+  qty: number;
+  image: string;
+  price: number;
+  product: string;
+  size?: string;
+  color?: string;
+}
+
+export interface ShippingAddress {
+  address: string;
+  city: string;
+  postalCode: string;
+  country: string;
+}
+
+export interface User {
+  _id: string;
+  name: string;
+  email: string;
+}
+
 export interface Order {
   _id?: string;
-  orderItems: any[];
-  shippingAddress: any;
+  orderItems: OrderItem[];
+  shippingAddress: ShippingAddress;
   paymentMethod: string;
   itemsPrice: number;
   taxPrice: number;
@@ -15,7 +38,7 @@ export interface Order {
   isPaid?: boolean;
   isDelivered?: boolean;
   status?: string;
-  user?: any;
+  user?: User | string; // ID or object
   createdAt?: string;
   paidAt?: string;
   paymentResult?: {
@@ -63,8 +86,10 @@ export const placeOrder = createAsyncThunk(
       const url = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
       const { data } = await axios.post(`${url}/api/orders`, orderData, config);
       return data;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || error.message);
+    } catch (error) {
+       
+      const err = error as any;
+      return rejectWithValue(err.response?.data?.message || err.message);
     }
   }
 );
@@ -79,8 +104,10 @@ export const getMyOrders = createAsyncThunk(
       const url = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
       const { data } = await axios.get(`${url}/api/orders/myorders`, config);
       return data;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || error.message);
+    } catch (error) {
+       
+      const err = error as any;
+      return rejectWithValue(err.response?.data?.message || err.message);
     }
   }
 );
@@ -97,8 +124,10 @@ export const listOrders = createAsyncThunk(
       const url = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
       const { data } = await axios.get(`${url}/api/orders`, config);
       return data;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || error.message);
+    } catch (error) {
+       
+      const err = error as any;
+      return rejectWithValue(err.response?.data?.message || err.message);
     }
   }
 );

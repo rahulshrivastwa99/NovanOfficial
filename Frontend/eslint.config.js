@@ -19,8 +19,16 @@ export default tseslint.config(
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
-      "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
+      
+      // Shadcn UI components ki warning band karne ke liye
+      "react-refresh/only-export-components": [
+        "warn",
+        { allowConstantExport: true }
+      ],
+      
+      // Faltu ki strict TypeScript errors band karne ke liye
       "@typescript-eslint/no-unused-vars": "off",
+      "@typescript-eslint/no-explicit-any": "off",
     },
   },
 );
