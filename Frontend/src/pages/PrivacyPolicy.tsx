@@ -1,143 +1,112 @@
 import React, { useState, useEffect } from "react";
-import { motion, Variants } from "framer-motion";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { motion } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
 import AuthModal from "@/components/AuthModal";
-import privacyHero from "@/assets/category-accessories.jpg";
-
-const luxuryEase = [0.22, 1, 0.36, 1];
-
-const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: (i = 0) => ({
-    opacity: 1,
-    y: 0,
-    transition: { duration: 1.2, delay: i * 0.15, ease: luxuryEase },
-  }),
-};
 
 const PrivacyPolicy = () => {
-  const navigate = useNavigate();
   const [isAtTop, setIsAtTop] = useState(true);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsAtTop(window.scrollY < 50);
-    };
+    const handleScroll = () => setIsAtTop(window.scrollY < 50);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const sections = [
-    {
-      title: "1. Data Collection",
-      content:
-        "We collect personal information necessary to provide our services, including name, contact details, and shipping address. This data is gathered when you make a purchase.",
-    },
-    {
-      title: "2. Payment Security",
-      content:
-        "We do not store your credit card details. All transactions are processed through Razorpay using industry-standard SSL encryption.",
-    },
-    {
-      title: "3. Usage of Information",
-      content:
-        "Your information is used to process orders and improve your experience. We do not sell your personal data to third parties.",
-    },
-    {
-      title: "4. Cookies",
-      content:
-        "We use cookies to analyze site traffic. You can choose to decline cookies through your browser settings.",
-    },
-  ];
-
   return (
     <>
       <div
-        className={`fixed top-0 z-50 w-full transition-colors duration-300 ${
-          isAtTop ? "bg-white border-b border-gray-100" : "bg-transparent"
-        }`}
+        className={`fixed top-0 z-50 w-full transition-colors duration-300 ${isAtTop ? "bg-white/90 backdrop-blur-md border-b border-gray-100" : "bg-transparent"}`}
       >
         <Navbar />
       </div>
-
       <CartDrawer />
       <AuthModal />
 
-      <main className="min-h-screen bg-background pt-20">
-        <section className="relative h-[60vh] w-full overflow-hidden">
-          <button
-            onClick={() => navigate("/")}
-            className="absolute top-16 left-6 z-30 flex items-center gap-2 text-white hover:text-gray-200 transition-colors group"
-          >
-            <ArrowLeft
-              size={20}
-              className="group-hover:-translate-x-1 transition-transform"
-            />
-            <span className="uppercase tracking-widest text-xs font-medium">
-              Back to Home
-            </span>
-          </button>
-
+      <main className="min-h-screen bg-white pt-28 px-4 md:px-8 pb-20">
+        <div className="max-w-4xl mx-auto">
           <motion.div
-            className="absolute inset-0 z-0"
-            initial={{ scale: 1.1 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 2, ease: luxuryEase }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-10"
           >
-            <img
-              src={privacyHero}
-              alt="Privacy"
-              className="w-full h-full object-cover object-center"
-            />
+            <h1 className="font-serif text-4xl text-black leading-tight mb-2">
+              Privacy Policy
+            </h1>
+            <p className="text-gray-500 text-sm">
+              Published in accordance with the Information Technology Act, 2000.
+            </p>
           </motion.div>
-          <div className="absolute inset-0 bg-black/50 z-10" />
-          <div className="relative z-20 h-full flex flex-col items-center justify-center text-center text-white px-6">
-            <motion.div
-              initial="hidden"
-              animate="visible"
-              variants={{ visible: { transition: { staggerChildren: 0.2 } } }}
-            >
-              <motion.h1
-                variants={fadeUp}
-                className="font-serif text-5xl md:text-7xl mb-6"
-              >
-                Privacy Policy
-              </motion.h1>
-              <motion.p
-                variants={fadeUp}
-                className="font-body text-lg opacity-90"
-              >
-                Protecting your data.
-              </motion.p>
-            </motion.div>
-          </div>
-        </section>
 
-        <section className="container max-w-4xl mx-auto px-4 py-20">
-          <div className="space-y-16">
-            {sections.map((section, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6 }}
-                className="group"
-              >
-                <h3 className="font-serif text-2xl mb-4 pl-6 border-l-2 border-gray-300 group-hover:border-black transition-colors">
-                  {section.title}
-                </h3>
-                <p className="font-body text-gray-600 leading-relaxed text-lg pl-6">
-                  {section.content}
-                </p>
-              </motion.div>
-            ))}
+          <div className="space-y-8 font-sans text-gray-700 leading-relaxed text-sm">
+            <section>
+              <h3 className="font-serif text-xl text-black mb-3">
+                INTRODUCTION
+              </h3>
+              <p>
+                The online store www.novanclothing.com ("Online Store") is owned
+                and operated by Novan Pvt Ltd, under the laws of India having
+                its registered office in Delhi. Through this Policy,
+                NovanClothing intends to convey the manner in which the user’s
+                information is collated and used while providing the services of
+                the Online Store. This Policy is binding on every user of the
+                Online Store.
+              </p>
+            </section>
+
+            <section>
+              <h3 className="font-serif text-xl text-black mb-3">
+                USER INFORMATION
+              </h3>
+              <p>
+                ‘User information’ for the purpose of this Policy includes
+                personal information used to identify or contact a single person
+                including name, email address, residential address, phone
+                number, and transaction history. We collect information when you
+                create an account, browse products, or transact a purchase via
+                Razorpay.
+              </p>
+            </section>
+
+            <section>
+              <h3 className="font-serif text-xl text-black mb-3">
+                USE OF INFORMATION & DISCLOSURE
+              </h3>
+              <p>
+                The User Information is primarily used to facilitate a better,
+                customized use of the Online Store’s services. This includes
+                responding to queries, completing purchases, and protecting the
+                integrity of the store. We share information with third-party
+                vendors for delivery and payment processing (Razorpay) purposes
+                only.
+              </p>
+            </section>
+
+            <section className="bg-gray-50 p-6 rounded-lg border border-gray-100">
+              <h3 className="font-serif text-xl text-black mb-3">
+                MANDATORY UNBOXING VIDEO
+              </h3>
+              <p className="font-bold uppercase">
+                Please kindly make sure to take the unboxing video whenever the
+                order gets delivered. It helps in case of any discrepancy like
+                Item Lost or Wrong Product Received. Refund in such cases is
+                only possible if the Unboxing Video is available.
+              </p>
+            </section>
+
+            <section>
+              <h3 className="font-serif text-xl text-black mb-3">
+                GRIEVANCE OFFICER
+              </h3>
+              <p>
+                In case of any complaints or grievances, you may contact our
+                Support Team at <strong>Novan.clothing15@gmail.com</strong> or
+                via WhatsApp at <strong>+91 9958849763</strong>.
+              </p>
+            </section>
           </div>
-        </section>
+        </div>
       </main>
       <Footer />
     </>

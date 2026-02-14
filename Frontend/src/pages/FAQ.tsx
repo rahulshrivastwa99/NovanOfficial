@@ -1,35 +1,26 @@
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence, Variants } from "framer-motion";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Plus, Minus } from "lucide-react";
+import { Plus, Minus, Search } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
 import AuthModal from "@/components/AuthModal";
-import faqHero from "@/assets/category-women.jpg";
-
-const luxuryEase = [0.22, 1, 0.36, 1];
-
-const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: (i = 0) => ({
-    opacity: 1,
-    y: 0,
-    transition: { duration: 1.2, delay: i * 0.15, ease: luxuryEase },
-  }),
-};
 
 const faqData = [
   {
-    category: "Shopping & Orders",
+    category: "Order & Tracking",
     questions: [
       {
-        q: "Do I need an account to place an order?",
-        a: "No, you can shop as a guest. However, creating an account allows you to track your orders.",
+        q: "How can I track my order?",
+        a: "Once your order is shipped, you will receive a tracking link via email and SMS. You can also track it directly on our website under the 'Track Order' section.",
       },
       {
         q: "Can I cancel my order?",
-        a: "You may request to cancel your order within 24 hours of placement, provided it has not yet been shipped.",
+        a: "Orders can be cancelled within 24 hours of placement, provided they haven't been dispatched. Please email Novan.clothing15@gmail.com with your Order ID to request a cancellation.",
+      },
+      {
+        q: "Can I change my delivery address after placing an order?",
+        a: "Address changes are only possible if the order has not yet been shipped. Please contact us immediately on WhatsApp at +91 9958849763 for urgent changes.",
       },
     ],
   },
@@ -37,12 +28,25 @@ const faqData = [
     category: "Shipping & Delivery",
     questions: [
       {
-        q: "How long will it take to receive my order?",
-        a: "Domestic orders (India) typically arrive within 3-7 business days. International timelines vary between 10-15 days.",
+        q: "What are the shipping charges?",
+        a: "We offer free shipping on all prepaid orders above ₹999. For orders below that, a nominal shipping fee is applied at checkout.",
       },
       {
-        q: "Do you ship internationally?",
-        a: "Yes, we ship to select countries. Shipping costs are calculated at checkout.",
+        q: "How long will it take for my order to arrive?",
+        a: "Standard delivery takes 3-7 business days depending on your location. Metro cities usually receive orders within 3-4 days.",
+      },
+    ],
+  },
+  {
+    category: "Payments",
+    questions: [
+      {
+        q: "What payment methods do you accept?",
+        a: "We accept all major Credit/Debit cards, UPI (Google Pay, PhonePe, etc.), and Net Banking via our secure Razorpay gateway.",
+      },
+      {
+        q: "Is Cash on Delivery (COD) available?",
+        a: "Yes, we offer COD on most pin codes within India for a small additional handling fee.",
       },
     ],
   },
@@ -51,11 +55,15 @@ const faqData = [
     questions: [
       {
         q: "What is your return policy?",
-        a: "We accept returns within 7 days of delivery for unworn items with tags attached.",
+        a: "We offer a 7-day return policy for unused products with original tags. Please note that a mandatory unboxing video is required for any damage or mismatch claims.",
       },
       {
-        q: "How long do refunds take?",
-        a: "Once approved, refunds are credited to your original payment method within 5-7 business days.",
+        q: "Why is an unboxing video mandatory?",
+        a: "The unboxing video serves as proof in case of items lost in transit or wrong products received. It helps us process your claims faster with our logistics partners.",
+      },
+      {
+        q: "When will I get my refund?",
+        a: "Once the return is picked up and verified, refunds are processed via Razorpay within 5-7 business days to your original payment method.",
       },
     ],
   },
@@ -63,95 +71,48 @@ const faqData = [
 
 const FAQ = () => {
   const [openIndex, setOpenIndex] = useState<string | null>(null);
-  const navigate = useNavigate();
   const [isAtTop, setIsAtTop] = useState(true);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsAtTop(window.scrollY < 50);
-    };
+    const handleScroll = () => setIsAtTop(window.scrollY < 50);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const toggleQuestion = (index: string) => {
-    setOpenIndex(openIndex === index ? null : index);
-  };
-
   return (
     <>
       <div
-        className={`fixed top-0 z-50 w-full transition-colors duration-300 ${
-          isAtTop ? "bg-white border-b border-gray-100" : "bg-transparent"
-        }`}
+        className={`fixed top-0 z-50 w-full transition-colors duration-300 ${isAtTop ? "bg-white/90 backdrop-blur-md border-b border-gray-100" : "bg-transparent"}`}
       >
         <Navbar />
       </div>
-
       <CartDrawer />
       <AuthModal />
 
-      <main className="min-h-screen bg-background pt-20">
-        <section className="relative h-[60vh] w-full overflow-hidden">
-          <button
-            onClick={() => navigate("/")}
-            className="absolute top-16 left-6 z-30 flex items-center gap-2 text-white hover:text-gray-200 transition-colors group"
-          >
-            <ArrowLeft
-              size={20}
-              className="group-hover:-translate-x-1 transition-transform"
-            />
-            <span className="uppercase tracking-widest text-xs font-medium">
-              Back to Home
-            </span>
-          </button>
-
+      <main className="min-h-screen bg-white pt-28 px-4 md:px-8 pb-20">
+        <div className="max-w-3xl mx-auto">
           <motion.div
-            className="absolute inset-0 z-0"
-            initial={{ scale: 1.1 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 2, ease: luxuryEase }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center mb-16"
           >
-            <img
-              src={faqHero}
-              alt="FAQ"
-              className="w-full h-full object-cover object-center"
-            />
+            <h1 className="font-serif text-4xl text-black mb-4">
+              How can we help?
+            </h1>
+            <p className="text-gray-500 font-sans">
+              Find answers to frequently asked questions about NovanClothing.
+            </p>
           </motion.div>
-          <div className="absolute inset-0 bg-black/50 z-10" />
-          <div className="relative z-20 h-full flex flex-col items-center justify-center text-center text-white px-6">
-            <motion.div
-              initial="hidden"
-              animate="visible"
-              variants={{ visible: { transition: { staggerChildren: 0.2 } } }}
-            >
-              <motion.h1
-                variants={fadeUp}
-                className="font-serif text-5xl md:text-7xl mb-6"
-              >
-                FAQ
-              </motion.h1>
-              <motion.p
-                variants={fadeUp}
-                className="font-body text-lg opacity-90"
-              >
-                Common questions about our products and policies.
-              </motion.p>
-            </motion.div>
-          </div>
-        </section>
 
-        <section className="container max-w-4xl mx-auto px-4 py-20">
-          <div className="space-y-20">
+          <div className="space-y-12">
             {faqData.map((category, catIndex) => (
               <motion.div
                 key={catIndex}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.8 }}
               >
-                <h3 className="font-serif text-2xl mb-8 border-b border-gray-200 pb-4">
+                <h3 className="font-serif text-xl mb-6 text-black border-b border-gray-100 pb-2">
                   {category.category}
                 </h3>
                 <div className="space-y-4">
@@ -161,22 +122,24 @@ const FAQ = () => {
                     return (
                       <div
                         key={qIndex}
-                        className="group border-b border-gray-100 last:border-0 pb-4"
+                        className={`group border rounded-xl transition-all duration-300 ${isOpen ? "border-black bg-gray-50" : "border-gray-200 bg-white hover:border-gray-400"}`}
                       >
                         <button
-                          onClick={() => toggleQuestion(uniqueId)}
-                          className="w-full flex items-center justify-between text-left py-4 focus:outline-none"
+                          onClick={() => setOpenIndex(isOpen ? null : uniqueId)}
+                          className="w-full flex items-center justify-between text-left p-5 transition-colors"
                         >
-                          <span
-                            className={`font-body text-lg ${isOpen ? "text-black font-medium" : "text-gray-600"}`}
-                          >
+                          <span className="font-sans text-sm font-semibold text-gray-900 leading-tight">
                             {item.q}
                           </span>
-                          <span
-                            className={`p-1 transition-transform ${isOpen ? "rotate-180" : ""}`}
+                          <div
+                            className={`transform transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
                           >
-                            {isOpen ? <Minus size={16} /> : <Plus size={16} />}
-                          </span>
+                            {isOpen ? (
+                              <Minus size={18} className="text-black" />
+                            ) : (
+                              <Plus size={18} className="text-gray-400" />
+                            )}
+                          </div>
                         </button>
                         <AnimatePresence>
                           {isOpen && (
@@ -186,9 +149,9 @@ const FAQ = () => {
                               exit={{ height: 0, opacity: 0 }}
                               className="overflow-hidden"
                             >
-                              <p className="pb-6 pr-8 text-gray-500 font-body leading-relaxed">
+                              <div className="p-5 pt-0 text-gray-600 text-sm leading-relaxed font-sans">
                                 {item.a}
-                              </p>
+                              </div>
                             </motion.div>
                           )}
                         </AnimatePresence>
@@ -199,7 +162,33 @@ const FAQ = () => {
               </motion.div>
             ))}
           </div>
-        </section>
+
+          {/* Still have questions? Section */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            className="mt-20 p-8 bg-black rounded-2xl text-center text-white"
+          >
+            <h3 className="font-serif text-2xl mb-2">Still have questions?</h3>
+            <p className="text-gray-400 text-sm mb-6">
+              Can't find the answer you're looking for? Reach out to our team.
+            </p>
+            <div className="flex flex-col md:flex-row gap-4 justify-center">
+              <a
+                href="mailto:Novan.clothing15@gmail.com"
+                className="bg-white text-black px-6 py-2 rounded-full text-sm font-bold hover:bg-gray-200 transition-colors"
+              >
+                Email Us
+              </a>
+              <a
+                href="https://wa.me/919958849763"
+                className="border border-white text-white px-6 py-2 rounded-full text-sm font-bold hover:bg-white hover:text-black transition-colors"
+              >
+                WhatsApp Support
+              </a>
+            </div>
+          </motion.div>
+        </div>
       </main>
       <Footer />
     </>
