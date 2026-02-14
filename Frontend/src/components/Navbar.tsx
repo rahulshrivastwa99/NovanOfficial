@@ -4,6 +4,7 @@ import { Search, User, ShoppingBag, Menu, X, Heart, LogOut } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion";
 import { useAppSelector, useAppDispatch } from "@/store";
 import { openCart } from "@/store/cartSlice";
+import { fetchWishlist } from "@/store/wishlistSlice";
 import { openAuthModal, logout, initiateLogout } from "@/store/authSlice";
 import { toast } from "sonner";
 import SearchDrawer from "./SearchDrawer";
@@ -32,6 +33,12 @@ const Navbar = () => {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    if (user) {
+        dispatch(fetchWishlist());
+    }
+  }, [user, dispatch]);
 
   const navLinks = [
     { to: "/", label: "Home" },

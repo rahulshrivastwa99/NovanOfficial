@@ -12,9 +12,10 @@ import {
   X,
   Ruler,
 } from "lucide-react";
-import { useAppDispatch } from "@/store";
+import { useAppDispatch, useAppSelector } from "@/store";
 import { addToCart, openCart } from "@/store/cartSlice";
 import { createReview, resetReviewStatus } from "@/store/productSlice";
+import { addToWishlist, removeFromWishlist } from "@/store/wishlistSlice";
 import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -57,12 +58,19 @@ const ProductDetail = () => {
   // Auth State
   const { user } = useSelector((state: RootState) => state.auth);
   const { reviewStatus, reviewError } = useSelector((state: RootState) => state.products);
+  const wishlistItems = useAppSelector((state) => state.wishlist.items);
 
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedImage, setSelectedImage] = useState(0);
   const [wishlisted, setWishlisted] = useState(false);
+
+  useEffect(() => {
+      if (product && wishlistItems) {
+          setWishlisted(wishlistItems.some(item => item._id === product._id));
+      }
+  }, [product, wishlistItems]);
   const [showSizeGuide, setShowSizeGuide] = useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
@@ -247,7 +255,17 @@ const ProductDetail = () => {
                     <ShoppingBag size={20} /> Add to Bag
                   </button>
                   <button
-                    onClick={() => setWishlisted(!wishlisted)}
+                    onClick={() => {
+                        if (!user) {
+                            toast.error("Please login to use wishlist");
+                            return;
+                        }
+                        if (wishlisted) {
+                            if (product) dispatch(removeFromWishlist(product._id));
+                        } else {
+                            if (product) dispatch(addToWishlist(product));
+                        }
+                    }}
                     className={`flex-1 border-2 flex items-center justify-center rounded-xl transition-all ${wishlisted ? "text-red-500 border-red-500 bg-red-50" : "text-muted-foreground"}`}
                   >
                     <Heart

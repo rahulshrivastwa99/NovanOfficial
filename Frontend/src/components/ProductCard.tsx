@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { addToCart, openCart } from '@/store/cartSlice';
-import { toggleWishlist } from '@/store/wishlistSlice';
+import { addToWishlist, removeFromWishlist } from '@/store/wishlistSlice';
 import { Heart } from 'lucide-react';
 import { toast } from 'sonner';
 import { Product } from '@/types';
@@ -19,10 +19,19 @@ const ProductCard = ({ product }: ProductCardProps) => {
   // Match using _id
   const isWishlisted = wishlistItems.some((item) => item._id === product._id);
 
+  const { user } = useAppSelector((state) => state.auth);
+
   const handleToggleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
-    dispatch(toggleWishlist(product));
-    toast.success(isWishlisted ? 'Removed from wishlist' : 'Added to wishlist');
+    if (!user) {
+      toast.error("Please login to use wishlist");
+      return;
+    }
+    if (isWishlisted) {
+      dispatch(removeFromWishlist(product._id));
+    } else {
+      dispatch(addToWishlist(product));
+    }
   };
 
   const handleQuickAdd = (e: React.MouseEvent) => {

@@ -12,7 +12,7 @@ import { Heart } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const Wishlist = () => {
-  const wishlistItems = useAppSelector((s) => s.wishlist.items);
+  const { items: wishlistItems, loading } = useAppSelector((s) => s.wishlist);
   const dispatch = useAppDispatch();
 
   return (
@@ -21,10 +21,14 @@ const Wishlist = () => {
       <main className="flex-grow container py-20 lg:py-24">
         <h1 className="font-serif text-3xl lg:text-4xl mb-12 text-center">My Wishlist</h1>
 
-        {wishlistItems.length > 0 ? (
+        {loading ? (
+             <div className="flex justify-center items-center py-20">
+                <div className="animate-pulse text-xl font-serif">Loading Wishlist...</div>
+             </div>
+        ) : wishlistItems.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
             {wishlistItems.map((product) => (
-              <ProductCard key={product.id} product={product} />
+              <ProductCard key={product._id} product={product} />
             ))}
           </div>
         ) : (
