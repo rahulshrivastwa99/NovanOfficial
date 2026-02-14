@@ -146,7 +146,10 @@ const AdminOrders = () => {
                       <div className="text-xs text-muted-foreground">{order.user?.email}</div>
                     </td>
                     <td className="p-5 text-sm text-muted-foreground">
-                        {new Date(order.createdAt).toLocaleDateString()}
+                        <div className="flex flex-col">
+                            <span>{new Date(order.createdAt).toLocaleDateString()}</span>
+                            <span className="text-xs text-muted-foreground">{new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        </div>
                     </td>
                     <td className="p-5 text-sm font-medium">
                       ₹{order.totalPrice.toFixed(2)}

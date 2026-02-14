@@ -128,7 +128,7 @@ const Orders = () => {
                     <div>
                       <h3 className="font-medium text-lg">Order #{order._id.slice(-6).toUpperCase()}</h3>
                       <p className="text-sm text-muted-foreground">
-                        Placed on {new Date(order.createdAt).toLocaleDateString()}
+                        Placed on {new Date(order.createdAt).toLocaleDateString()} at {new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </p>
                     </div>
                   </div>
