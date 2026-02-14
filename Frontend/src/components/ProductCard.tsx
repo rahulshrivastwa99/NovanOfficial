@@ -36,13 +36,16 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.preventDefault();
+    if (!product.sizes?.length || !product.colors?.length || !product.images?.length) return;
+
     dispatch(
       addToCart({
         productId: product._id, // Use _id here
         name: product.name,
         price: product.price,
         quantity: 1,
-        size: product.sizes[1] || product.sizes[0],
+        // Update to handle size objects -> size.size
+        size: product.sizes[0]?.size || "One Size", 
         color: product.colors[0].name,
         image: product.images[0],
       })
@@ -71,7 +74,11 @@ const ProductCard = ({ product }: ProductCardProps) => {
             <Heart size={18} className={isWishlisted ? "fill-red-500 text-red-500" : "text-foreground"} />
           </button>
           <img
-            src={hovered && product.images[1] ? product.images[1] : product.images[0]}
+            src={
+              product.images && product.images.length > 0
+                ? (hovered && product.images[1] ? product.images[1] : product.images[0])
+                : "/placeholder.png" // Fallback image
+            }
             alt={product.name}
             className="w-full h-full object-cover image-zoom"
           />

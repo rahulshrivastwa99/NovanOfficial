@@ -5,38 +5,19 @@ const productSchema = new mongoose.Schema({
   description: { type: String, required: true },
   price: { type: Number, required: true },
   category: { type: String, required: true },
-  sizes: [String],
+  sizes: [
+    {
+      size: { type: String, required: true },
+      stock: { type: Number, required: true, default: 0 }
+    }
+  ], 
   colors: [
     {
-      name: { type: String },
-      hex: { type: String }
+      name: { type: String, required: true },
+      hex: { type: String, required: true }
     }
   ],
   images: [String],
-  reviews: [
-    {
-      name: { type: String, required: true },
-      rating: { type: Number, required: true },
-      comment: { type: String, required: true },
-      user: {
-        type: mongoose.Schema.Types.ObjectId,
-        required: true,
-        ref: 'User',
-      },
-    },
-  ],
-  rating: {
-    type: Number,
-    required: true,
-    default: 0,
-  },
-  numReviews: {
-    type: Number,
-    required: true,
-    default: 0,
-  },
-  // Using 'Object' for stock allows the { S: 15, M: 20 } structure
-  stock: { type: Object, required: true }, 
   isBestSeller: { type: Boolean, default: false }
 }, { timestamps: true });
 

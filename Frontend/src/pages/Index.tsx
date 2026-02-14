@@ -46,7 +46,7 @@ const Index = () => {
 
   // Filter Logic
   const bestSellers = safeProducts
-    .filter((p: Product) => p.isBestSeller)
+    .filter((p: any) => p.isBestSeller)
     .slice(0, 8);
   const newArrivals = safeProducts.slice(0, 8);
 
