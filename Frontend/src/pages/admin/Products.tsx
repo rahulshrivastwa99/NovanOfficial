@@ -44,12 +44,12 @@ const AdminProducts = () => {
           </thead>
           <tbody>
             {products.map((product) => {
-              const totalStock = Object.values(product.stock).reduce((s, v) => s + v, 0);
+              const totalStock = product.stock ? Object.values(product.stock).reduce((s, v) => s + v, 0) : 0;
               return (
                 <tr key={product._id} className="border-b border-border last:border-0">
                   <td className="p-4">
                     <div className="flex items-center gap-3">
-                      <img src={product.images[0]} alt={product.name} className="w-12 h-12 object-cover" />
+                      <img src={product.images?.[0] || 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&q=80'} alt={product.name} className="w-12 h-12 object-cover" />
                       <span className="font-body text-sm">{product.name}</span>
                     </div>
                   </td>
