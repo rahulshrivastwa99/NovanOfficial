@@ -6,11 +6,14 @@ import { getMyOrders } from '@/store/orderSlice'; // This connects to your Backe
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import EmptyState from '@/components/EmptyState';
+import { toast } from 'sonner';
+import axios from 'axios';
 
 const Orders = () => {
   const dispatch = useAppDispatch();
   // Get the real data from Redux Store
   const { orders, loading, error } = useAppSelector((state) => state.orders);
+  const { user } = useAppSelector((state) => state.auth);
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
 
   // 1. Fetch Data on Load
@@ -22,11 +25,73 @@ const Orders = () => {
     setExpandedOrder(expandedOrder === id ? null : id);
   };
 
+  // --- RETRY PAYMENT LOGIC ---
+  const handleRetryPayment = async (order: any) => {
+    try {
+        const config = { headers: { Authorization: `Bearer ${user?.token}` } };
+        const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+
+        // 1. Create Razorpay Order
+        toast.info("Initializing Payment...");
+        const { data: razorpayOrder } = await axios.post(
+            `${backendUrl}/api/payment/create`, 
+            { amount: order.totalPrice }, 
+            config
+        );
+
+        // 2. Configure Razorpay Options
+        const options = {
+            key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+            amount: razorpayOrder.amount,
+            currency: "INR",
+            name: "Novan Clothing",
+            description: `Retry Order #${order._id}`,
+            order_id: razorpayOrder.id,
+            
+            handler: async function (response: any) {
+                try {
+                    // Verify Payment
+                    const verifyRes = await axios.post(
+                        `${backendUrl}/api/payment/verify`,
+                        {
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature: response.razorpay_signature,
+                            orderId: order._id // Pass EXISTING Order ID
+                        },
+                        config
+                    );
+
+                    if (verifyRes.data.success) {
+                        toast.success("Payment Successful!");
+                        dispatch(getMyOrders()); // Refresh Orders
+                    } else {
+                        toast.error("Payment Verification Failed");
+                    }
+                } catch (err) {
+                    console.error(err);
+                    toast.error("Payment Verification Failed");
+                }
+            },
+            theme: { color: "#000000" }
+        };
+
+        const rzp = new (window as any).Razorpay(options);
+        rzp.open();
+
+    } catch (err) {
+        console.error(err);
+        toast.error("Payment Initialization Failed");
+    }
+  };
+
   const getStatusColor = (status: string) => {
     const s = status ? status.toLowerCase() : 'processing';
     if (s === 'delivered') return 'bg-green-100 text-green-800 border-green-200';
+    if (s === 'paid') return 'bg-green-100 text-green-800 border-green-200';
     if (s === 'shipped') return 'bg-blue-100 text-blue-800 border-blue-200';
     if (s === 'cancelled') return 'bg-red-100 text-red-800 border-red-200';
+    if (s === 'payment pending') return 'bg-red-100 text-red-800 border-red-200';
     return 'bg-yellow-100 text-yellow-800 border-yellow-200';
   };
 
@@ -91,6 +156,35 @@ const Orders = () => {
                     >
                       <div className="p-6 bg-secondary/5">
                         
+                        {/* PAYMENT PENDING WARNING & PAY BUTTON */}
+                        {!order.isPaid && (
+                            <div className={`p-4 rounded-md mb-6 flex flex-col sm:flex-row justify-between items-center gap-4 border ${
+                                order.paymentMethod === 'COD' 
+                                    ? 'bg-blue-50 border-blue-200' 
+                                    : 'bg-red-50 border-red-200'
+                            }`}>
+                                <div className={`text-sm ${
+                                    order.paymentMethod === 'COD' ? 'text-blue-700' : 'text-red-700'
+                                }`}>
+                                    <span className="font-bold block">
+                                        {order.paymentMethod === 'COD' ? 'Pay Online & Save Time' : 'Payment Pending'}
+                                    </span>
+                                    {order.paymentMethod === 'COD' 
+                                        ? "This order is Cash on Delivery. You can pay online now for a contactless delivery."
+                                        : "This order is saved but payment was not completed."
+                                    }
+                                </div>
+                                <button 
+                                    onClick={() => handleRetryPayment(order)}
+                                    className={`${
+                                        order.paymentMethod === 'COD' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-red-600 hover:bg-red-700'
+                                    } text-white px-6 py-2 rounded-sm transition-colors text-sm font-medium w-full sm:w-auto shadow-sm`}
+                                >
+                                    Pay Now
+                                </button>
+                            </div>
+                        )}
+
                         {/* Check if Tracking Info exists */}
                         {order.trackingInfo && order.trackingInfo.id && (
                           <div className="mt-4 p-4 bg-blue-50 border border-blue-100 rounded-sm">

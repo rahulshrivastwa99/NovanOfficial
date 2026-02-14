@@ -24,6 +24,7 @@ const About = lazy(() => import("./pages/About"));
 const Contact = lazy(() => import("./pages/Contact"));
 const Wishlist = lazy(() => import("./pages/Wishlist"));
 const Orders = lazy(() => import("./pages/Orders"));
+const Success = lazy(() => import("./pages/Success"));
 const AdminLayout = lazy(() => import("./components/AdminLayout"));
 const AdminDashboard = lazy(() => import("./pages/admin/Dashboard"));
 const AdminProducts = lazy(() => import("./pages/admin/Products"));
@@ -75,6 +76,7 @@ const App = () => {
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/wishlist" element={<Wishlist />} />
                 <Route path="/orders" element={<Orders />} />
+                <Route path="/success" element={<Success />} />
 
                 {/* Support Routes */}
                 <Route path="/privacy" element={<PrivacyPolicy />} />

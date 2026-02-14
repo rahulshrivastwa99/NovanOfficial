@@ -17,6 +17,13 @@ export interface Order {
   status?: string;
   user?: any;
   createdAt?: string;
+  paidAt?: string;
+  paymentResult?: {
+    id: string;
+    status: string;
+    update_time: string;
+    email_address: string;
+  };
   trackingInfo?: {
     id: string;
     courier: string;

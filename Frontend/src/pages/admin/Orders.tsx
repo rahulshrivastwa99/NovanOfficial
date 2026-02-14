@@ -123,7 +123,8 @@ const AdminOrders = () => {
                 <th className="p-5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Customer</th>
                 <th className="p-5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Date</th>
                 <th className="p-5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Total</th>
-                <th className="p-5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Status</th>
+                <th className="p-5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Payment Status</th>
+                <th className="p-5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Delivery Status</th>
                 <th className="p-5 text-xs font-medium text-muted-foreground uppercase tracking-wider text-right">Action</th>
               </tr>
             </thead>
@@ -149,6 +150,14 @@ const AdminOrders = () => {
                     </td>
                     <td className="p-5 text-sm font-medium">
                       ₹{order.totalPrice.toFixed(2)}
+                    </td>
+                    <td className="p-5">
+                       <div className="flex flex-col gap-1">
+                          <span className={`text-xs font-bold ${order.isPaid ? 'text-green-600' : 'text-orange-500'}`}>
+                             {order.isPaid ? 'PAID' : 'PENDING'}
+                          </span>
+                          <span className="text-[10px] text-muted-foreground uppercase">{order.paymentMethod}</span>
+                       </div>
                     </td>
                     <td className="p-5">
                       <span
