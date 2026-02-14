@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -78,7 +78,7 @@ const ProductDetail = () => {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
 
-  const fetchProduct = async () => {
+  const fetchProduct = useCallback(async () => {
     try {
       const { data } = await axios.get(`${BACKEND_URL}/api/products/${id}`);
       setProduct(data);
@@ -87,11 +87,11 @@ const ProductDetail = () => {
       console.error("Error fetching product", error);
       setLoading(false);
     }
-  };
+  }, [id]);
 
   useEffect(() => {
     fetchProduct();
-  }, [id]);
+  }, [fetchProduct]);
 
   useEffect(() => {
     if (reviewStatus === 'succeeded') {
@@ -105,8 +105,8 @@ const ProductDetail = () => {
       toast.error(reviewError || 'Failed to submit review');
       dispatch(resetReviewStatus());
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reviewStatus, reviewError, dispatch]);
-
   const handleReviewSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (rating === 0) {

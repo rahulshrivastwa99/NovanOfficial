@@ -3,6 +3,15 @@ import axios from "axios";
 import { RootState } from "./index";
 
 // You might need to adjust this interface based on your actual Product type
+export interface Review {
+  _id: string;
+  name: string;
+  rating: number;
+  comment: string;
+  user: string;
+  createdAt: string;
+}
+
 export interface Product {
   _id: string;
   name: string;
@@ -13,7 +22,7 @@ export interface Product {
   sizes: string[];
   colors: { name: string; hex: string }[];
   stock: Record<string, number>;
-  reviews: any[];
+  reviews: Review[];
   rating: number;
   numReviews: number;
   user?: string;
@@ -76,8 +85,10 @@ export const fetchProducts = createAsyncThunk(
         `${import.meta.env.VITE_BACKEND_URL}/api/products?${queryParams.toString()}`,
       );
       return response.data; // { products, page, pages, count }
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || error.message);
+    } catch (error) {
+       
+      const err = error as any;
+      return rejectWithValue(err.response?.data?.message || err.message);
     }
   },
 );
@@ -105,8 +116,10 @@ export const createProduct = createAsyncThunk(
         config,
       );
       return data; // Returns the newly created product
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || error.message);
+    } catch (error) {
+       
+      const err = error as any;
+      return rejectWithValue(err.response?.data?.message || err.message);
     }
   },
 );
@@ -134,8 +147,10 @@ export const createReview = createAsyncThunk(
         review,
         config
       );
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || error.message);
+    } catch (error) {
+       
+      const err = error as any;
+      return rejectWithValue(err.response?.data?.message || err.message);
     }
   }
 );
