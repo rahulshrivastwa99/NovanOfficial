@@ -80,16 +80,15 @@ const AddProduct = () => {
     formData.append('price', price);
     formData.append('category', category);
     
-    // Complex data (Arrays/Objects) must be stringified for FormData
-    formData.append('sizes', JSON.stringify(validSizes));
+    // Construct sizes array of objects: [{ size: 'S', stock: 10 }, ...]
+    const sizesArray = validSizes.map(size => ({
+        size: size,
+        stock: Number(sizeStock[size])
+    }));
+
+    formData.append('sizes', JSON.stringify(sizesArray));
     
-    const stockMap: Record<string, number> = {};
-    validSizes.forEach(size => {
-        stockMap[size] = Number(sizeStock[size]);
-    });
-    formData.append('stock', JSON.stringify(stockMap));
-    
-    // Default Color (You can extend this logic later if you want color selection)
+    // Default Color
     formData.append('colors', JSON.stringify([{ name: 'Standard', hex: '#000000' }]));
 
     // Append every image file

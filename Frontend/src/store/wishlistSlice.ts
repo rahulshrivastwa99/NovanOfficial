@@ -31,8 +31,9 @@ export const fetchWishlist = createAsyncThunk(
           Authorization: `Bearer ${auth.user.token}`,
         },
       };
+      const url = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
-      const { data } = await axios.get('http://localhost:5000/api/wishlist', config);
+      const { data } = await axios.get(`${url}/api/wishlist`, config);
       return data;
     } catch (error: any) {
       return rejectWithValue(
@@ -59,9 +60,10 @@ export const addToWishlist = createAsyncThunk(
           Authorization: `Bearer ${auth.user.token}`,
         },
       };
+      const url = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
       const { data } = await axios.post(
-        'http://localhost:5000/api/wishlist/add',
+        `${url}/api/wishlist/add`,
         { productId: product._id },
         config
       );
@@ -93,9 +95,10 @@ export const removeFromWishlist = createAsyncThunk(
           Authorization: `Bearer ${auth.user.token}`,
         },
       };
+      const url = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
       const { data } = await axios.post(
-        'http://localhost:5000/api/wishlist/remove',
+        `${url}/api/wishlist/remove`,
         { productId },
         config
       );

@@ -236,15 +236,33 @@ const ProductDetail = () => {
                   </button>
                 </div>
                 <div className="flex flex-wrap gap-3">
-                  {["S", "M", "L", "XL", "XXL"].map((size) => (
+                  {["S", "M", "L", "XL", "XXL"].map((sizeName) => {
+                    const sizeVariant = product.sizes.find((s: any) => s.size === sizeName);
+                    const isOutOfStock = !sizeVariant || sizeVariant.stock <= 0;
+
+                    return (
                     <button
-                      key={size}
-                      onClick={() => setSelectedSize(size)}
-                      className={`w-14 h-12 flex items-center justify-center border-2 rounded-xl text-xs font-bold transition-all ${selectedSize === size ? "bg-foreground text-background border-foreground" : "hover:border-foreground border-border text-muted-foreground"}`}
+                      key={sizeName}
+                      onClick={() => !isOutOfStock && setSelectedSize(sizeName)}
+                      disabled={isOutOfStock}
+                      title={isOutOfStock ? "Out of Stock" : `${sizeVariant?.stock} left`}
+                      className={`w-14 h-12 flex items-center justify-center border-2 rounded-xl text-xs font-bold transition-all relative
+                        ${selectedSize === sizeName 
+                            ? "bg-foreground text-background border-foreground" 
+                            : isOutOfStock
+                                ? "border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50"
+                                : "hover:border-foreground border-border text-muted-foreground"
+                        }
+                      `}
                     >
-                      {size}
+                      {sizeName}
+                      {isOutOfStock && (
+                          <span className="absolute inset-0 flex items-center justify-center">
+                              <div className="w-full h-[1px] bg-gray-300 -rotate-45"></div>
+                          </span>
+                      )}
                     </button>
-                  ))}
+                  )})}
                 </div>
 
                 <div className="flex gap-4 pt-4">

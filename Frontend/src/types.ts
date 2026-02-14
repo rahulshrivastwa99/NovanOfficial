@@ -4,10 +4,10 @@ export interface Product {
   price: number;
   description: string;
   category: 'men' | 'women' | 'accessories';
-  sizes: string[];
+  sizes: { size: string; stock: number }[];
   colors: { name: string; hex: string }[];
   images: string[];
-  stock: Record<string, number>;
+  // stock: Record<string, number>; // Removed in favor of sizes array
   reviews: {
     _id: string;
     name: string;
