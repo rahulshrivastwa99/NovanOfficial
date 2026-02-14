@@ -7,11 +7,36 @@ const getProducts = async (req, res) => {
   const pageSize = 12;
   const page = Number(req.query.pageNumber) || 1;
 
+  let keywordStr = req.query.keyword || '';
+  let minPrice = Number(req.query.minPrice) || 0;
+  let maxPrice = Number(req.query.maxPrice) || 0;
+
+  // --- SMART SEARCH PARSING ---
+  // Regex patterns for price
+  const underRegex = /(?:under|below|less than)\s+(\d+)/i;
+  const aboveRegex = /(?:above|over|more than)\s+(\d+)/i;
+
+  // Check for "under 1000"
+  const underMatch = keywordStr.match(underRegex);
+  if (underMatch) {
+    maxPrice = Number(underMatch[1]);
+    // Remove the price phrase from keyword so we only search the product name
+    keywordStr = keywordStr.replace(underRegex, '').trim();
+  }
+
+  // Check for "above 500"
+  const aboveMatch = keywordStr.match(aboveRegex);
+  if (aboveMatch) {
+    minPrice = Number(aboveMatch[1]);
+    keywordStr = keywordStr.replace(aboveRegex, '').trim();
+  }
+  // ---------------------------
+
   // Search by name
-  const keyword = req.query.keyword
+  const keyword = keywordStr
     ? {
         name: {
-          $regex: req.query.keyword,
+          $regex: keywordStr,
           $options: 'i',
         },
       }
@@ -25,25 +50,70 @@ const getProducts = async (req, res) => {
 
   // Filter by Price Range
   const priceFilter = {};
-  if (req.query.minPrice) {
-    priceFilter.$gte = Number(req.query.minPrice);
+  if (minPrice > 0) {
+    priceFilter.$gte = minPrice;
   }
-  if (req.query.maxPrice) {
-    priceFilter.$lte = Number(req.query.maxPrice);
+  if (maxPrice > 0) {
+    priceFilter.$lte = maxPrice;
   }
   const price =
     Object.keys(priceFilter).length > 0 ? { price: priceFilter } : {};
 
-  // Combined Query
-  const count = await Product.countDocuments({ ...keyword, ...category, ...price });
+  // 1. Initial Strict Search
+  const strictKeyword = keywordStr
+    ? {
+        name: {
+          $regex: keywordStr,
+          $options: 'i',
+        },
+      }
+    : {};
 
-  // Add sorting (optional, newest first by default)
-  const products = await Product.find({ ...keyword, ...category, ...price })
+  let query = { ...strictKeyword, ...category, ...price };
+  let count = await Product.countDocuments(query);
+  let products = [];
+  let isFallback = false;
+
+  // 2. Relaxed Search (if strict search returns 0)
+  if (count === 0 && keywordStr) {
+    const words = keywordStr.split(/\s+/).filter(w => w.length > 2); // Split into words, ignore short ones
+    if (words.length > 0) {
+      const relaxedQuery = {
+        ...category,
+        ...price,
+        $or: words.map(w => ({ name: { $regex: w, $options: 'i' } }))
+      };
+      
+      count = await Product.countDocuments(relaxedQuery);
+      if (count > 0) {
+        query = relaxedQuery;
+        isFallback = true;
+      }
+    }
+  }
+
+  // 3. Ultimate Fallback (if still 0, just show all/popular/latest)
+  // Only do this if we are on page 1, to prevent weird pagination issues
+  if (count === 0 && page === 1) {
+       // Clear filters to show *something*
+       query = {}; 
+       count = await Product.countDocuments(query);
+       isFallback = true;
+  }
+
+  products = await Product.find(query)
     .sort({ createdAt: -1 }) 
     .limit(pageSize)
     .skip(pageSize * (page - 1));
 
-  res.json({ products, page, pages: Math.ceil(count / pageSize), count });
+  res.json({ 
+      products, 
+      page, 
+      pages: Math.ceil(count / pageSize), 
+      count,
+      isFallback,
+      message: isFallback ? (products.length > 0 ? "No exact matches found. Showing relevant results." : "No results found.") : null
+  });
 };
 
 // @desc    Fetch single product
