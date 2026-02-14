@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
@@ -24,15 +24,22 @@ const categories = [
   },
 ];
 
+  /* import { useState } from "react"; */ // Don't forget to update imports if needed, but Index already imports React hooks?
+  // Checking file imports... imports "useEffect", need to add "useState"
+  
 const Index = () => {
   const dispatch = useAppDispatch();
-  const { items: products, status } = useAppSelector((state) => state.products);
+  // Get pagination info from store
+  const { items: products, status, page: reduxPage, pages } = useAppSelector((state) => state.products);
+  
+  // Local state to trigger updates (or we can just rely on reduxPage if we sync it)
+  // But let's use a local state to drive the effect
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
-    if (status === "idle") {
-      dispatch(fetchProducts());
-    }
-  }, [status, dispatch]);
+    // Always fetch when page changes
+    dispatch(fetchProducts({ pageNumber: page }));
+  }, [page, dispatch]);
 
   // Safety check to prevent crashes
   const safeProducts = Array.isArray(products) ? products : [];
@@ -144,6 +151,51 @@ const Index = () => {
           ) : (
             <div className="text-center py-10 text-muted-foreground">
               <p>New arrivals coming soon.</p>
+            </div>
+          )}
+        </section>
+
+        {/* All Collection with Pagination */}
+        <section className="container pb-20 lg:pb-32">
+           <h2 className="font-serif text-2xl lg:text-3xl mb-12 text-center">Our Collection</h2>
+           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8">
+              {safeProducts.map((p: any) => (
+                <ProductCard key={p._id || p.id} product={p} />
+              ))}
+           </div>
+
+           {/* Pagination */}
+           {pages > 1 && (
+            <div className="flex justify-center mt-12 gap-2">
+              <button
+                disabled={page === 1}
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                className="p-2 border border-border rounded-md disabled:opacity-50 hover:bg-secondary/50 transition-colors"
+                aria-label="Previous Page"
+              >
+                <ArrowRight size={16} className="rotate-180" />
+              </button>
+              {[...Array(pages).keys()].map((x) => (
+                <button
+                  key={x + 1}
+                  onClick={() => setPage(x + 1)}
+                  className={`w-8 h-8 flex items-center justify-center rounded-md text-sm transition-colors ${
+                    page === x + 1
+                      ? "bg-primary text-primary-foreground font-medium"
+                      : "hover:bg-secondary/50 border border-border"
+                  }`}
+                >
+                  {x + 1}
+                </button>
+              ))}
+              <button
+                disabled={page === pages}
+                onClick={() => setPage(p => Math.min(pages, p + 1))}
+                className="p-2 border border-border rounded-md disabled:opacity-50 hover:bg-secondary/50 transition-colors"
+                aria-label="Next Page"
+              >
+                <ArrowRight size={16} />
+              </button>
             </div>
           )}
         </section>
