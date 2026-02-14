@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion, Variants } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
@@ -8,7 +10,6 @@ import privacyHero from "@/assets/category-accessories.jpg";
 
 const luxuryEase = [0.22, 1, 0.36, 1];
 
-// FIX: Added default value (i = 0)
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 30 },
   visible: (i = 0) => ({
@@ -19,42 +20,68 @@ const fadeUp: Variants = {
 };
 
 const PrivacyPolicy = () => {
+  const navigate = useNavigate();
+  const [isAtTop, setIsAtTop] = useState(true);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsAtTop(window.scrollY < 50);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   const sections = [
     {
-      title: "1. Data Collection Principles",
+      title: "1. Data Collection",
       content:
-        "At Novan, we believe privacy is the ultimate luxury. We collect only the personal information necessary to provide our bespoke services, including name, contact details, and payment information. This data is gathered strictly when you make a purchase, create an account, or subscribe to our newsletter.",
+        "We collect personal information necessary to provide our services, including name, contact details, and shipping address. This data is gathered when you make a purchase.",
     },
     {
-      title: "2. Usage of Information",
+      title: "2. Payment Security",
       content:
-        "Your information allows us to process orders, manage your account, and personalize your experience. We do not sell, rent, or trade your personal information with third parties for their marketing purposes. Any data sharing is strictly limited to trusted partners essential for service delivery.",
+        "We do not store your credit card details. All transactions are processed through Razorpay using industry-standard SSL encryption.",
     },
     {
-      title: "3. Digital Security",
+      title: "3. Usage of Information",
       content:
-        "We implement rigorous security measures to protect your personal data against unauthorized access, alteration, or destruction. Our platform utilizes industry-standard encryption (SSL) for all sensitive data transmissions, ensuring your financial details remain secure.",
+        "Your information is used to process orders and improve your experience. We do not sell your personal data to third parties.",
     },
     {
-      title: "4. Cookie Policy",
+      title: "4. Cookies",
       content:
-        "We use cookies to enhance your browsing experience, analyze site traffic, and personalize content. You have the option to accept or decline cookies through your browser settings, though this may limit your ability to use certain features of the Novan platform.",
-    },
-    {
-      title: "5. Your Rights",
-      content:
-        "You retain full rights to your personal data. You may request access to, correction of, or deletion of your personal information at any time. To exercise these rights, please contact our dedicated data protection team at privacy@novan.com.",
+        "We use cookies to analyze site traffic. You can choose to decline cookies through your browser settings.",
     },
   ];
 
   return (
     <>
-      <Navbar />
+      <div
+        className={`fixed top-0 z-50 w-full transition-colors duration-300 ${
+          isAtTop ? "bg-white border-b border-gray-100" : "bg-transparent"
+        }`}
+      >
+        <Navbar />
+      </div>
+
       <CartDrawer />
       <AuthModal />
 
-      <main className="min-h-screen bg-background">
-        <section className="relative h-[85vh] w-full overflow-hidden">
+      <main className="min-h-screen bg-background pt-20">
+        <section className="relative h-[60vh] w-full overflow-hidden">
+          <button
+            onClick={() => navigate("/")}
+            className="absolute top-16 left-6 z-30 flex items-center gap-2 text-white hover:text-gray-200 transition-colors group"
+          >
+            <ArrowLeft
+              size={20}
+              className="group-hover:-translate-x-1 transition-transform"
+            />
+            <span className="uppercase tracking-widest text-xs font-medium">
+              Back to Home
+            </span>
+          </button>
+
           <motion.div
             className="absolute inset-0 z-0"
             initial={{ scale: 1.1 }}
@@ -63,70 +90,50 @@ const PrivacyPolicy = () => {
           >
             <img
               src={privacyHero}
-              alt="Privacy Background"
+              alt="Privacy"
               className="w-full h-full object-cover object-center"
             />
           </motion.div>
-          <div className="absolute inset-0 bg-black/40 z-10" />
-
+          <div className="absolute inset-0 bg-black/50 z-10" />
           <div className="relative z-20 h-full flex flex-col items-center justify-center text-center text-white px-6">
             <motion.div
               initial="hidden"
               animate="visible"
-              variants={{ visible: { transition: { staggerChildren: 0.15 } } }}
+              variants={{ visible: { transition: { staggerChildren: 0.2 } } }}
             >
-              <motion.div variants={fadeUp}>
-                <p className="uppercase tracking-[0.3em] text-xs lg:text-sm mb-6 font-medium text-white/80">
-                  Data Protection
-                </p>
-              </motion.div>
               <motion.h1
                 variants={fadeUp}
-                className="font-serif text-5xl md:text-7xl lg:text-8xl mb-8 leading-none drop-shadow-lg"
+                className="font-serif text-5xl md:text-7xl mb-6"
               >
                 Privacy Policy
               </motion.h1>
-              <motion.div
-                variants={fadeUp}
-                className="w-24 h-[1px] bg-white/70 mx-auto mb-8"
-              />
               <motion.p
                 variants={fadeUp}
-                className="font-body text-lg lg:text-xl max-w-xl mx-auto opacity-90 leading-relaxed font-light drop-shadow-md text-white/90"
+                className="font-body text-lg opacity-90"
               >
-                Our commitment to protecting your digital footprint with the
-                same care we apply to our garments.
+                Protecting your data.
               </motion.p>
             </motion.div>
           </div>
         </section>
 
-        <section className="container max-w-4xl mx-auto px-4 md:px-6 py-20 lg:py-32">
-          <div className="space-y-20">
+        <section className="container max-w-4xl mx-auto px-4 py-20">
+          <div className="space-y-16">
             {sections.map((section, index) => (
               <motion.div
                 key={index}
-                initial={{ opacity: 0, y: 40 }}
+                initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{
-                  duration: 0.8,
-                  delay: index * 0.1,
-                  ease: luxuryEase,
-                }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
                 className="group"
               >
-                <h3 className="font-serif text-2xl md:text-3xl mb-6 text-foreground pl-6 border-l-2 border-foreground/30 group-hover:border-foreground transition-colors duration-500">
+                <h3 className="font-serif text-2xl mb-4 pl-6 border-l-2 border-gray-300 group-hover:border-black transition-colors">
                   {section.title}
                 </h3>
-                <div className="pl-6 md:pl-8">
-                  <p className="font-body text-muted-foreground leading-8 text-lg">
-                    {section.content}
-                  </p>
-                </div>
-                {index !== sections.length - 1 && (
-                  <div className="h-[1px] bg-border mt-16 w-full opacity-60" />
-                )}
+                <p className="font-body text-gray-600 leading-relaxed text-lg pl-6">
+                  {section.content}
+                </p>
               </motion.div>
             ))}
           </div>

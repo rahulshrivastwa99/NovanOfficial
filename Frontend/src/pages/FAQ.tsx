@@ -1,7 +1,7 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { Plus, Minus } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence, Variants } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft, Plus, Minus } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
@@ -10,9 +10,9 @@ import faqHero from "@/assets/category-women.jpg";
 
 const luxuryEase = [0.22, 1, 0.36, 1];
 
-const fadeUp = {
+const fadeUp: Variants = {
   hidden: { opacity: 0, y: 30 },
-  visible: (i: number) => ({
+  visible: (i = 0) => ({
     opacity: 1,
     y: 0,
     transition: { duration: 1.2, delay: i * 0.15, ease: luxuryEase },
@@ -25,11 +25,11 @@ const faqData = [
     questions: [
       {
         q: "Do I need an account to place an order?",
-        a: "No, you can shop as a guest. However, creating an account allows you to track your orders, save your shipping details for faster checkout, and access your purchase history.",
+        a: "No, you can shop as a guest. However, creating an account allows you to track your orders.",
       },
       {
-        q: "Can I modify my order after placing it?",
-        a: "We process orders quickly. You have a 2-hour window after placing your order to request changes or cancellations. Please contact support immediately.",
+        q: "Can I cancel my order?",
+        a: "You may request to cancel your order within 24 hours of placement, provided it has not yet been shipped.",
       },
     ],
   },
@@ -38,24 +38,24 @@ const faqData = [
     questions: [
       {
         q: "How long will it take to receive my order?",
-        a: "Domestic orders typically arrive within 3-5 business days. International shipping can take between 7-14 business days.",
+        a: "Domestic orders (India) typically arrive within 3-7 business days. International timelines vary between 10-15 days.",
       },
       {
         q: "Do you ship internationally?",
-        a: "Yes, NOVAN ships to over 100 countries worldwide. Shipping costs are calculated at checkout.",
+        a: "Yes, we ship to select countries. Shipping costs are calculated at checkout.",
       },
     ],
   },
   {
-    category: "Returns & Exchanges",
+    category: "Returns & Refunds",
     questions: [
       {
         q: "What is your return policy?",
-        a: "We accept returns within 30 days of delivery. Items must be unworn, unwashed, and have original tags attached.",
+        a: "We accept returns within 7 days of delivery for unworn items with tags attached.",
       },
       {
-        q: "How long do refunds take to process?",
-        a: "Refunds are processed within 3-5 business days of receipt and typically appear on your statement within 5-10 business days.",
+        q: "How long do refunds take?",
+        a: "Once approved, refunds are credited to your original payment method within 5-7 business days.",
       },
     ],
   },
@@ -63,6 +63,16 @@ const faqData = [
 
 const FAQ = () => {
   const [openIndex, setOpenIndex] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const [isAtTop, setIsAtTop] = useState(true);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsAtTop(window.scrollY < 50);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const toggleQuestion = (index: string) => {
     setOpenIndex(openIndex === index ? null : index);
@@ -70,13 +80,32 @@ const FAQ = () => {
 
   return (
     <>
-      <Navbar />
+      <div
+        className={`fixed top-0 z-50 w-full transition-colors duration-300 ${
+          isAtTop ? "bg-white border-b border-gray-100" : "bg-transparent"
+        }`}
+      >
+        <Navbar />
+      </div>
+
       <CartDrawer />
       <AuthModal />
 
-      <main className="min-h-screen bg-background">
-        {/* --- FULL WIDTH HERO --- */}
-        <section className="relative h-[85vh] w-full overflow-hidden">
+      <main className="min-h-screen bg-background pt-20">
+        <section className="relative h-[60vh] w-full overflow-hidden">
+          <button
+            onClick={() => navigate("/")}
+            className="absolute top-16 left-6 z-30 flex items-center gap-2 text-white hover:text-gray-200 transition-colors group"
+          >
+            <ArrowLeft
+              size={20}
+              className="group-hover:-translate-x-1 transition-transform"
+            />
+            <span className="uppercase tracking-widest text-xs font-medium">
+              Back to Home
+            </span>
+          </button>
+
           <motion.div
             className="absolute inset-0 z-0"
             initial={{ scale: 1.1 }}
@@ -85,105 +114,79 @@ const FAQ = () => {
           >
             <img
               src={faqHero}
-              alt="FAQ Background"
+              alt="FAQ"
               className="w-full h-full object-cover object-center"
             />
           </motion.div>
-          <div className="absolute inset-0 bg-black/40 z-10" />
-
+          <div className="absolute inset-0 bg-black/50 z-10" />
           <div className="relative z-20 h-full flex flex-col items-center justify-center text-center text-white px-6">
             <motion.div
               initial="hidden"
               animate="visible"
-              variants={{
-                visible: { transition: { staggerChildren: 0.2 } },
-              }}
+              variants={{ visible: { transition: { staggerChildren: 0.2 } } }}
             >
-              <motion.div variants={fadeUp}>
-                <p className="uppercase tracking-[0.3em] text-xs lg:text-sm mb-6 font-medium text-white/80">
-                  Support Center
-                </p>
-              </motion.div>
-
               <motion.h1
                 variants={fadeUp}
-                className="font-serif text-5xl md:text-7xl lg:text-8xl mb-8 leading-none drop-shadow-lg"
+                className="font-serif text-5xl md:text-7xl mb-6"
               >
-                Frequently <br className="hidden md:block" />
-                Asked
+                FAQ
               </motion.h1>
-
-              <motion.div
-                variants={fadeUp}
-                className="w-24 h-[1px] bg-white/70 mx-auto mb-8"
-              />
-
               <motion.p
                 variants={fadeUp}
-                className="font-body text-lg lg:text-xl max-w-xl mx-auto opacity-90 leading-relaxed font-light drop-shadow-md text-white/90"
+                className="font-body text-lg opacity-90"
               >
-                Find answers to common questions about our products and
-                policies.
+                Common questions about our products and policies.
               </motion.p>
             </motion.div>
           </div>
         </section>
 
-        {/* Content Section */}
-        <section className="container max-w-4xl mx-auto px-4 md:px-6 py-20 lg:py-32">
+        <section className="container max-w-4xl mx-auto px-4 py-20">
           <div className="space-y-20">
             {faqData.map((category, catIndex) => (
               <motion.div
                 key={catIndex}
                 initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{
-                  duration: 0.8,
-                  delay: catIndex * 0.1,
-                  ease: luxuryEase,
-                }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8 }}
               >
-                <h3 className="font-serif text-2xl mb-8 border-b border-border pb-4">
+                <h3 className="font-serif text-2xl mb-8 border-b border-gray-200 pb-4">
                   {category.category}
                 </h3>
-
                 <div className="space-y-4">
                   {category.questions.map((item, qIndex) => {
                     const uniqueId = `${catIndex}-${qIndex}`;
                     const isOpen = openIndex === uniqueId;
-
                     return (
                       <div
                         key={qIndex}
-                        className="group border-b border-border last:border-0 pb-4"
+                        className="group border-b border-gray-100 last:border-0 pb-4"
                       >
                         <button
                           onClick={() => toggleQuestion(uniqueId)}
                           className="w-full flex items-center justify-between text-left py-4 focus:outline-none"
                         >
                           <span
-                            className={`font-body text-lg transition-colors duration-300 ${isOpen ? "text-foreground font-medium" : "text-foreground/80"}`}
+                            className={`font-body text-lg ${isOpen ? "text-black font-medium" : "text-gray-600"}`}
                           >
                             {item.q}
                           </span>
                           <span
-                            className={`p-1 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
+                            className={`p-1 transition-transform ${isOpen ? "rotate-180" : ""}`}
                           >
                             {isOpen ? <Minus size={16} /> : <Plus size={16} />}
                           </span>
                         </button>
-
                         <AnimatePresence>
                           {isOpen && (
                             <motion.div
                               initial={{ height: 0, opacity: 0 }}
                               animate={{ height: "auto", opacity: 1 }}
                               exit={{ height: 0, opacity: 0 }}
-                              transition={{ duration: 0.3, ease: "easeInOut" }}
                               className="overflow-hidden"
                             >
-                              <p className="pb-6 pr-8 text-muted-foreground font-body leading-relaxed">
+                              <p className="pb-6 pr-8 text-gray-500 font-body leading-relaxed">
                                 {item.a}
                               </p>
                             </motion.div>
@@ -195,20 +198,9 @@ const FAQ = () => {
                 </div>
               </motion.div>
             ))}
-
-            <div className="text-center pt-12">
-              <p className="text-muted-foreground mb-4">Still need help?</p>
-              <Link
-                to="/contact"
-                className="luxury-button border-b border-foreground pb-1 hover:text-muted-foreground transition-colors"
-              >
-                Contact Support
-              </Link>
-            </div>
           </div>
         </section>
       </main>
-
       <Footer />
     </>
   );
