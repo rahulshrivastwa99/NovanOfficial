@@ -11,6 +11,10 @@ import {
   CheckCircle2,
   X,
   Ruler,
+  FileText,
+  Plus,
+  Minus,
+  RefreshCcw,
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { addToCart, openCart } from "@/store/cartSlice";
@@ -74,6 +78,10 @@ const ProductDetail = () => {
   const [showSizeGuide, setShowSizeGuide] = useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
+  const [isDescOpen, setIsDescOpen] = useState(false);
+  const [isShippingOpen, setIsShippingOpen] = useState(false);
+  const [isReturnsOpen, setIsReturnsOpen] = useState(false);
+  
   // Review Form State
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
@@ -161,7 +169,7 @@ const ProductDetail = () => {
   return (
     <>
       <Navbar />
-      <main className="pt-24 pb-20 min-h-screen bg-background">
+      <main className="pt-32 pb-20 min-h-screen bg-background">
         <div className="container max-w-7xl px-4 md:px-6">
           <Link
             to="/shop"
@@ -213,7 +221,7 @@ const ProductDetail = () => {
                   <span className="text-sm text-muted-foreground line-through">
                     ₹{(product.price * 2).toLocaleString()}
                   </span>
-                  <div className="bg-[#00FF9D] text-black text-[10px] font-black px-3 py-1 rounded-full uppercase">
+                  <div className="bg-foreground text-background text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
                     50% OFF
                   </div>
                 </div>
@@ -268,7 +276,7 @@ const ProductDetail = () => {
                 <div className="flex gap-4 pt-4">
                   <button
                     onClick={handleAddToCart}
-                    className="flex-[5] bg-[#00FF9D] text-black font-black h-16 uppercase tracking-widest text-xs hover:scale-[1.02] transition-all rounded-xl shadow-lg flex items-center justify-center gap-3"
+                    className="flex-[5] bg-foreground text-background font-bold h-16 uppercase tracking-widest text-xs hover:bg-foreground/90 transition-all rounded-xl shadow-lg flex items-center justify-center gap-3"
                   >
                     <ShoppingBag size={20} /> Add to Bag
                   </button>
@@ -294,26 +302,198 @@ const ProductDetail = () => {
                 </div>
               </div>
 
-              {/* TRUST BADGES */}
-              <div className="grid grid-cols-3 gap-4 p-6 bg-secondary/30 rounded-2xl">
-                <div className="flex flex-col items-center text-center gap-2">
-                  <CreditCard size={24} className="opacity-80" />
-                  <span className="text-[9px] uppercase font-black">
-                    COD Available
-                  </span>
+              {/* KEY HIGHLIGHTS */}
+              <div className="pt-8 border-t border-border">
+                <h3 className="font-bold text-sm uppercase tracking-widest mb-6">Key Highlights</h3>
+                <div className="grid grid-cols-2 gap-y-6 gap-x-4">
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Product Category</p>
+                    <p className="font-medium text-sm">Topwear</p>
+                  </div>
+                   <div>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Product Type</p>
+                    <p className="font-medium text-sm">Oversized Tshirt</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Fit</p>
+                    <p className="font-medium text-sm">Oversized Fit</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Closure</p>
+                    <p className="font-medium text-sm">No Closure</p>
+                  </div>
+                   <div>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Length</p>
+                    <p className="font-medium text-sm">Regular</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Fabric</p>
+                    <p className="font-medium text-sm">100% Cotton</p>
+                  </div>
                 </div>
-                <div className="flex flex-col items-center text-center gap-2 border-x border-border">
-                  <Truck size={24} className="opacity-80" />
-                  <span className="text-[9px] uppercase font-black">
-                    Free Shipping
-                  </span>
-                </div>
-                <div className="flex flex-col items-center text-center gap-2">
-                  <RotateCcw size={24} className="opacity-80" />
-                  <span className="text-[9px] uppercase font-black">
-                    7 Day Returns
-                  </span>
-                </div>
+              </div>
+
+              {/* PRODUCT INFORMATION ACCORDION */}
+              <div className="pt-8 border-t border-border space-y-4">
+                 <h3 className="font-bold text-sm uppercase tracking-widest mb-2">Product Information</h3>
+                 
+                 {/* Item 1: Description (Table) */}
+                 <div className="border-b border-border pb-4">
+                    <button 
+                        onClick={() => setIsDescOpen(!isDescOpen)}
+                        className="flex items-center justify-between w-full text-left group"
+                    >
+                        <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-md bg-purple-50 flex items-center justify-center text-purple-600">
+                                <FileText size={16} />
+                            </div>
+                            <div>
+                                <h4 className="font-medium text-sm">Product Description</h4>
+                                <p className="text-[10px] text-muted-foreground">Manufacture, Care and Fit</p>
+                            </div>
+                        </div>
+                        {isDescOpen ? (
+                           <Minus size={16} className="opacity-50 group-hover:opacity-100 transition-opacity" />
+                        ) : (
+                           <Plus size={16} className="opacity-50 group-hover:opacity-100 transition-opacity" />
+                        )}
+                    </button>
+                    <AnimatePresence>
+                        {isDescOpen && (
+                            <motion.div 
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: "auto", opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                className="overflow-hidden"
+                            >
+                                <div className="pt-4 pl-11">
+                                    <table className="w-full text-xs text-left border border-gray-200">
+                                        <tbody className="divide-y divide-gray-200">
+                                            {[
+                                                { label: "Made of", value: "100% Cotton" },
+                                                { label: "Neck Type", value: "Round Neck" },
+                                                { label: "Fit Type", value: "Oversized Fit" },
+                                                { label: "Color", value: product.colors?.[0]?.name || "Standard" },
+                                                { label: "Pattern", value: "Details" },
+                                                { label: "Sleeve Type", value: "Half Sleeve" },
+                                                { label: "Care Instruction", value: "Machine washable" },
+                                                { label: "Available Sizes", value: product.sizes.map(s => s.size).join(", ") },
+                                                { label: "SKU", value: `NVN_${product._id.slice(-6).toUpperCase()}` },
+                                                { label: "Country of Origin", value: "India" },
+                                                { label: "Description", value: product.description },
+                                            ].map((row, i) => (
+                                                <tr key={i} className="divide-x divide-gray-200">
+                                                    <td className="px-3 py-2 font-bold w-1/3 bg-gray-50">{row.label}</td>
+                                                    <td className="px-3 py-2 text-muted-foreground">{row.value}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                 </div>
+
+                 {/* Item 2: Shipping */}
+                 <div className="border-b border-border pb-4">
+                    <button 
+                        onClick={() => setIsShippingOpen(!isShippingOpen)}
+                        className="flex items-center justify-between w-full text-left group"
+                    >
+                        <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-md bg-green-50 flex items-center justify-center text-green-600">
+                                <Truck size={16} />
+                            </div>
+                            <div>
+                                <h4 className="font-medium text-sm">Shipping Info</h4>
+                                <p className="text-[10px] text-muted-foreground">We Offer free shipping across India</p>
+                            </div>
+                        </div>
+                         {isShippingOpen ? (
+                           <Minus size={16} className="opacity-50 group-hover:opacity-100 transition-opacity" />
+                        ) : (
+                           <Plus size={16} className="opacity-50 group-hover:opacity-100 transition-opacity" />
+                        )}
+                    </button>
+                    <AnimatePresence>
+                        {isShippingOpen && (
+                            <motion.div 
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: "auto", opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                className="overflow-hidden"
+                            >
+                                <div className="pt-4 text-xs text-muted-foreground leading-relaxed pl-11 space-y-3">
+                                    <div>
+                                        <h5 className="font-bold text-foreground">Shipping Info</h5>
+                                        <p>We offer free shipping across India.</p>
+                                    </div>
+                                    <div>
+                                        <h5 className="font-bold text-foreground">1-2 Days Dispatch</h5>
+                                        <p>We dispatch orders within 1-2 days.</p>
+                                    </div>
+                                    <div>
+                                        <h5 className="font-bold text-foreground">2-5 Days Delivery</h5>
+                                        <p>We usually take 2-5 working days depending on your location.<br/>Metros 2-3 days<br/>Rest of India 3-5 days</p>
+                                    </div>
+                                    <div>
+                                        <h5 className="font-bold text-foreground">Customer Support</h5>
+                                        <p>support@novanofficial.com</p>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                 </div>
+
+                 {/* Item 3: Returns */}
+                 <div className="border-b border-border pb-4">
+                    <button 
+                        onClick={() => setIsReturnsOpen(!isReturnsOpen)}
+                        className="flex items-center justify-between w-full text-left group"
+                    >
+                        <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-md bg-orange-50 flex items-center justify-center text-orange-600">
+                                <RefreshCcw size={16} />
+                            </div>
+                            <div>
+                                <h4 className="font-medium text-sm">7 Days Returns & Exchange</h4>
+                                <p className="text-[10px] text-muted-foreground">Know about return & exchange policy</p>
+                            </div>
+                        </div>
+                        {isReturnsOpen ? (
+                           <Minus size={16} className="opacity-50 group-hover:opacity-100 transition-opacity" />
+                        ) : (
+                           <Plus size={16} className="opacity-50 group-hover:opacity-100 transition-opacity" />
+                        )}
+                    </button>
+                    <AnimatePresence>
+                         {isReturnsOpen && (
+                            <motion.div 
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: "auto", opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                className="overflow-hidden"
+                            >
+                                <div className="pt-4 text-xs text-muted-foreground leading-relaxed pl-11 space-y-3">
+                                    <p>Items purchased from Novan are eligible for return/exchange, if returned within 7 days of delivery.</p>
+                                    
+                                    <div>
+                                        <h5 className="font-bold text-foreground">Free Exchanges</h5>
+                                        <p>We accept exchanges free of cost. This means you wont be charged extra to exchange the product(s). It's on us! We want your experience to be hassle-free.</p>
+                                    </div>
+
+                                    <div>
+                                        <h5 className="font-bold text-foreground">Easy Returns</h5>
+                                        <p className="mb-1">For Prepaid Orders - The full amount is refunded into your initial payment mode (bank account, credit card, etc.)</p>
+                                        <p>For Cash on Delivery Orders - The order amount will be refunded to your bank account. You can provide your bank/upi detail. COD charges are non-refundable.</p>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                 </div>
               </div>
             </div>
           </div>

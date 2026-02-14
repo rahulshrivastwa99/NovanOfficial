@@ -38,6 +38,7 @@ const TermsAndConditions = lazy(() => import("./pages/TermsAndConditions"));
 const RefundCancellation = lazy(() => import("./pages/RefundCancellation"));
 const FAQ = lazy(() => import("./pages/FAQ"));
 const ShippingReturns = lazy(() => import("./pages/ShippingReturns"));
+const ReturnPolicy = lazy(() => import("./pages/ReturnPolicy"));
 
 const queryClient = new QueryClient();
 
@@ -84,6 +85,7 @@ const App = () => {
                 <Route path="/refund" element={<RefundCancellation />} />
                 <Route path="/faq" element={<FAQ />} />
                 <Route path="/shipping" element={<ShippingReturns />} />
+                <Route path="/return-policy" element={<ReturnPolicy />} />
 
                 <Route path="/admin" element={<AdminLayout />}>
                   <Route path="dashboard" element={<AdminDashboard />} />

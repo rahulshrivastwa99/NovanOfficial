@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Package, ChevronDown, ChevronUp, Loader2, CheckCircle, Clock, Truck } from 'lucide-react';
+import { Package, ChevronDown, ChevronUp, Loader2, CheckCircle, Clock, Truck, RefreshCcw, X as XIcon } from 'lucide-react';
 import { useAppSelector, useAppDispatch } from '@/store';
 import { getMyOrders } from '@/store/orderSlice'; // This connects to your Backend API
 import Navbar from '@/components/Navbar';
@@ -9,6 +9,8 @@ import EmptyState from '@/components/EmptyState';
 import { toast } from 'sonner';
 import axios from 'axios';
 
+import LoginRequired from '@/components/LoginRequired';
+
 const Orders = () => {
   const dispatch = useAppDispatch();
   // Get the real data from Redux Store
@@ -16,13 +18,56 @@ const Orders = () => {
   const { user } = useAppSelector((state) => state.auth);
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
 
+  // Return Modal State
+  const [isReturnModalOpen, setIsReturnModalOpen] = useState(false);
+  const [selectedOrderForReturn, setSelectedOrderForReturn] = useState<any>(null);
+  const [returnType, setReturnType] = useState<'Return' | 'Exchange'>('Return');
+  const [returnReason, setReturnReason] = useState('');
+  const [isSubmittingReturn, setIsSubmittingReturn] = useState(false);
+
   // 1. Fetch Data on Load
   useEffect(() => {
-    dispatch(getMyOrders());
-  }, [dispatch]);
+    if (user) dispatch(getMyOrders());
+  }, [dispatch, user]);
+
+  if (!user) return <LoginRequired />;
 
   const toggleOrder = (id: string) => {
     setExpandedOrder(expandedOrder === id ? null : id);
+  };
+
+  const openReturnModal = (order: any) => {
+    setSelectedOrderForReturn(order);
+    setReturnType('Return');
+    setReturnReason('');
+    setIsReturnModalOpen(true);
+  };
+
+  const handleReturnSubmit = async () => {
+    if (!returnReason) {
+        toast.error("Please select a reason");
+        return;
+    }
+    
+    setIsSubmittingReturn(true);
+    try {
+        const config = { headers: { Authorization: `Bearer ${user?.token}` } };
+        const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+        
+        await axios.post(
+            `${backendUrl}/api/orders/${selectedOrderForReturn._id}/return`,
+            { returnType, returnReason },
+            config
+        );
+
+        toast.success("Return request submitted successfully");
+        setIsReturnModalOpen(false);
+        dispatch(getMyOrders()); // Refresh UI
+    } catch (error: any) {
+        toast.error(error.response?.data?.message || "Failed to submit request");
+    } finally {
+        setIsSubmittingReturn(false);
+    }
   };
 
   // --- RETRY PAYMENT LOGIC ---
@@ -98,7 +143,7 @@ const Orders = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50/30">
       <Navbar />
-      <main className="flex-grow container py-20 lg:py-24">
+      <main className="flex-grow container pt-28 pb-20 lg:pt-32 lg:pb-24">
         <h1 className="font-serif text-3xl lg:text-4xl mb-2 text-center">My Orders</h1>
         <p className="text-muted-foreground text-center mb-12">Track and manage your recent purchases</p>
 
@@ -251,6 +296,24 @@ const Orders = () => {
                                 <div className="mt-2 text-lg font-serif font-bold">
                                     Total: ₹{order.totalPrice.toFixed(2)}
                                 </div>
+
+                                {/* RETURN ACTION */}
+                                {order.isDelivered && (!order.returnStatus || order.returnStatus === 'None') && (
+                                    <button 
+                                        onClick={() => openReturnModal(order)}
+                                        className="mt-4 w-full bg-white border border-foreground text-foreground px-4 py-2 rounded-sm text-xs font-bold uppercase tracking-widest hover:bg-gray-50 transition-colors"
+                                    >
+                                        Return / Exchange
+                                    </button>
+                                )}
+                                {order.returnStatus && order.returnStatus !== 'None' && (
+                                     <div className="mt-4 bg-gray-100 p-2 text-center rounded-sm">
+                                        <span className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                                            {order.returnType} Status: <span className="text-foreground">{order.returnStatus}</span>
+                                        </span>
+                                     </div>
+                                )}
+
                             </div>
                         </div>
                       </div>
@@ -271,6 +334,90 @@ const Orders = () => {
         )}
       </main>
       <Footer />
+
+      {/* RETURN MODAL */}
+      <AnimatePresence>
+        {isReturnModalOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    className="bg-white w-full max-w-md rounded-xl p-6 shadow-2xl overflow-hidden relative"
+                >
+                    <button 
+                        onClick={() => setIsReturnModalOpen(false)}
+                        className="absolute right-4 top-4 p-2 hover:bg-gray-100 rounded-full transition-colors"
+                    >
+                        <XIcon size={20} />
+                    </button>
+
+                    <h2 className="font-serif text-2xl mb-2">Request Return/Exchange</h2>
+                    <p className="text-sm text-muted-foreground mb-6">
+                        Order #{selectedOrderForReturn?._id.slice(-6).toUpperCase()}
+                    </p>
+
+                    <div className="space-y-4">
+                        <div>
+                            <label className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2 block">I want to</label>
+                            <div className="grid grid-cols-2 gap-3">
+                                <button
+                                    onClick={() => setReturnType('Return')}
+                                    className={`py-3 px-4 rounded-lg border text-sm font-medium transition-all ${
+                                        returnType === 'Return' 
+                                            ? 'bg-foreground text-background border-foreground' 
+                                            : 'bg-white border-gray-200 hover:border-gray-300'
+                                    }`}
+                                >
+                                    Return
+                                </button>
+                                <button
+                                    onClick={() => setReturnType('Exchange')}
+                                    className={`py-3 px-4 rounded-lg border text-sm font-medium transition-all ${
+                                        returnType === 'Exchange' 
+                                            ? 'bg-foreground text-background border-foreground' 
+                                            : 'bg-white border-gray-200 hover:border-gray-300'
+                                    }`}
+                                >
+                                    Exchange
+                                </button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2 block">Reason</label>
+                            <select 
+                                value={returnReason} 
+                                onChange={(e) => setReturnReason(e.target.value)}
+                                className="w-full p-3 rounded-lg border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-black/5"
+                            >
+                                <option value="">Select a reason</option>
+                                <option value="Size Issue">Size Issue - Too Big/Small</option>
+                                <option value="Damaged Item">Damaged Item</option>
+                                <option value="Wrong Item Received">Wrong Item Received</option>
+                                <option value="Quality Not as Expected">Quality Not as Expected</option>
+                                <option value="Changed Mind">Changed Mind</option>
+                            </select>
+                        </div>
+                        
+                        <div className="pt-4">
+                            <button
+                                onClick={handleReturnSubmit}
+                                disabled={isSubmittingReturn}
+                                className="w-full bg-foreground text-background py-4 rounded-xl font-bold uppercase tracking-widest text-xs hover:bg-black/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                            >
+                                {isSubmittingReturn && <Loader2 size={16} className="animate-spin" />}
+                                Submit Request
+                            </button>
+                            <p className="text-[10px] text-center text-muted-foreground mt-3">
+                                By submitting, you agree to our <a href="/return-policy" className="underline">Return Policy</a>.
+                            </p>
+                        </div>
+                    </div>
+                </motion.div>
+            </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

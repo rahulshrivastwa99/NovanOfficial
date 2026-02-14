@@ -55,7 +55,18 @@ const orderSchema = mongoose.Schema(
     deliveredAt: { type: Date },
     status: { type: String, required: true, default: 'Processing' },
     
-    // --- REMOVED THE DUPLICATE TRACKINGINFO HERE ---
+    // --- RETURN / EXCHANGE FIELDS ---
+    returnStatus: { 
+      type: String, 
+      enum: ['None', 'Requested', 'Approved', 'Rejected', 'Completed'], 
+      default: 'None' 
+    },
+    returnType: { 
+      type: String, 
+      enum: ['Return', 'Exchange'] 
+    },
+    returnReason: { type: String },
+    // ---------------------------------
   },
   {
     timestamps: true,

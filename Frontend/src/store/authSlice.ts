@@ -16,9 +16,10 @@ interface AuthState {
   user: User | null;
   isLoggedIn: boolean;
   showAuthModal: boolean;
+  initialMode: 'login' | 'signup'; // New state
   isLoading: boolean;
   error: string | null;
-  isLoggingOut: boolean; // New state for logout transition
+  isLoggingOut: boolean;
 }
 
 // Helper to load user from storage safely
@@ -37,6 +38,7 @@ const initialState: AuthState = {
   user: savedUser,
   isLoggedIn: !!savedUser,
   showAuthModal: false,
+  initialMode: 'login', // Default
   isLoading: false,
   error: null,
   isLoggingOut: false,
@@ -82,18 +84,21 @@ const authSlice = createSlice({
       state.user = null;
       state.isLoggedIn = false;
       state.error = null;
-      state.isLoggingOut = false; // Reset transition state
+      state.isLoggingOut = false;
       localStorage.removeItem('novan-user');
     },
     initiateLogout(state) {
-      state.isLoggingOut = true; // Trigger transition
+      state.isLoggingOut = true;
     },
-    openAuthModal(state) {
+    openAuthModal(state, action: PayloadAction<{ mode?: 'login' | 'signup' } | undefined>) {
       state.showAuthModal = true;
-      state.error = null; // Clear old errors when opening
+      state.initialMode = action.payload?.mode || 'login';
+      state.error = null;
     },
     closeAuthModal(state) {
       state.showAuthModal = false;
+      // Reset mode after closing (optional, but good for consistency)
+      state.initialMode = 'login';
     },
     clearError(state) {
       state.error = null;

@@ -59,6 +59,10 @@ const getProducts = async (req, res) => {
   const price =
     Object.keys(priceFilter).length > 0 ? { price: priceFilter } : {};
 
+  // Filter by Size
+  const size = req.query.size;
+  const sizeFilter = size ? { sizes: size } : {};
+
   // 1. Initial Strict Search
   const strictKeyword = keywordStr
     ? {
@@ -69,7 +73,7 @@ const getProducts = async (req, res) => {
       }
     : {};
 
-  let query = { ...strictKeyword, ...category, ...price };
+  let query = { ...strictKeyword, ...category, ...price, ...sizeFilter };
   let count = await Product.countDocuments(query);
   let products = [];
   let isFallback = false;

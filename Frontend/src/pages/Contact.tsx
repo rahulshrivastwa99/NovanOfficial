@@ -31,7 +31,7 @@ const Contact = () => {
       <CartDrawer />
       <AuthModal />
 
-      <main className="min-h-screen bg-white pt-28 px-4 md:px-8 pb-20">
+      <main className="min-h-screen bg-white pt-32 px-4 md:px-8 pb-20">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-20">
             <div className="space-y-10">
