@@ -7,6 +7,8 @@ const connectDB = require('./config/db');
 const productRoutes = require('./routes/productRoutes');
 const authRoutes = require('./routes/authRoutes'); 
 const orderRoutes = require('./routes/orderRoutes'); 
+const wishlistRoutes = require('./routes/wishlistRoutes');
+
 
 connectDB();
 
@@ -23,6 +25,8 @@ app.get('/', (req, res) => {
 app.use('/api/products', productRoutes);
 app.use('/api/auth', authRoutes); 
 app.use('/api/orders', orderRoutes);
+app.use('/api/wishlist', wishlistRoutes);
+
 
 app.get('/', (req, res) => {
   res.send('NovanOfficial Backend API is Live...');

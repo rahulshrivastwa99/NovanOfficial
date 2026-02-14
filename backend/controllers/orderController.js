@@ -1,3 +1,4 @@
+const User = require('../models/User');
 const Order = require('../models/Order');
 const Product = require('../models/Product'); // <--- IMPORT PRODUCT MODEL
 
@@ -62,6 +63,13 @@ const addOrderItems = async (req, res) => {
     }
 
     const createdOrder = await order.save();
+
+    // 3. Remove ordered items from Wishlist
+    const orderedProductIds = orderItems.map((item) => item.product); // Assuming item.product is the ID
+    await User.findByIdAndUpdate(req.user._id, {
+      $pull: { wishlist: { $in: orderedProductIds } },
+    });
+
     res.status(201).json(createdOrder);
   }
 };
