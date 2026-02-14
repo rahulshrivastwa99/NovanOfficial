@@ -3,13 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAppSelector, useAppDispatch } from '@/store';
 import { clearCart } from '@/store/cartSlice';
-import { placeOrder, resetOrder } from '@/store/orderSlice'; // Ensure resetOrder is exported from your slice
+import { placeOrder, resetOrder } from '@/store/orderSlice';
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import CartDrawer from '@/components/CartDrawer';
 import AuthModal from '@/components/AuthModal';
 import { Loader2, ShieldCheck } from 'lucide-react';
+import axios from 'axios';
 
 const Checkout = () => {
   const dispatch = useAppDispatch();
@@ -28,16 +29,9 @@ const Checkout = () => {
   const [country, setCountry] = useState('India');
 
   // --- PRICING CALCULATIONS ---
-  // 1. Subtotal (Sum of all items)
   const itemsPrice = cart.items.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  
-  // 2. Shipping (Free over ₹5000, else ₹100)
   const shippingPrice = itemsPrice > 5000 ? 0 : 100;
-  
-  // 3. Tax (18% GST standard for clothing in India)
   const taxPrice = Number((0.18 * itemsPrice).toFixed(2));
-  
-  // 4. Grand Total
   const totalPrice = Number((itemsPrice + shippingPrice + taxPrice).toFixed(2));
 
   // Helper for Indian Currency Formatting
@@ -57,10 +51,10 @@ const Checkout = () => {
     }
   }, [user, navigate]);
 
-  // 2. Handle Success
+  // 2. Handle Success (Only for COD or manual resets)
   useEffect(() => {
     if (success) {
-      toast.success('Order placed successfully!');
+      // We handle navigation manually in the Razorpay handler, but this is a backup
       dispatch(clearCart());
       dispatch(resetOrder());
       navigate('/orders');
@@ -70,7 +64,8 @@ const Checkout = () => {
     }
   }, [success, error, dispatch, navigate]);
 
-  const handlePlaceOrder = (e: React.FormEvent) => {
+  // --- MAIN ORDER HANDLER ---
+  const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (cart.items.length === 0) {
@@ -78,30 +73,129 @@ const Checkout = () => {
       return;
     }
 
-    dispatch(
-      placeOrder({
-        orderItems: cart.items.map((item) => ({
-          name: item.name,
-          qty: item.quantity,
-          image: item.image,
-          price: item.price,
-          product: item.productId,
-          size: item.size,
-          color: item.color,
-        })),
-        shippingAddress: {
-          address,
-          city,
-          postalCode,
-          country,
-        },
-        paymentMethod,
-        itemsPrice,
-        taxPrice,
-        shippingPrice,
-        totalPrice,
-      })
-    );
+    // Common Order Data
+    const orderItemsData = cart.items.map((item) => ({
+        name: item.name,
+        qty: item.quantity,
+        image: item.image,
+        price: item.price,
+        product: item.productId,
+        size: item.size,
+        color: item.color,
+    }));
+
+    const shippingData = { address, city, postalCode, country };
+
+    // --- CASE 1: CASH ON DELIVERY (COD) ---
+    if (paymentMethod === 'COD') {
+        dispatch(placeOrder({
+            orderItems: orderItemsData,
+            shippingAddress: shippingData,
+            paymentMethod: 'COD',
+            itemsPrice,
+            taxPrice,
+            shippingPrice,
+            totalPrice,
+            isPaid: false,
+            status: 'Processing', // COD orders go straight to Processing
+        })).unwrap()
+           .then(() => {
+               dispatch(clearCart());
+               navigate('/success');
+               toast.success("Order Placed Successfully!");
+           })
+           .catch((err) => toast.error(err));
+        return;
+    }
+
+    // --- CASE 2: ONLINE PAYMENT (RAZORPAY) ---
+    try {
+        const config = { headers: { Authorization: `Bearer ${user?.token}` } };
+        const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+        
+        // 1. Create Order in Database (PENDING STATE)
+        // User requested: "Immediately save [...] with status: 'Payment Pending'"
+        const orderRes = await dispatch(placeOrder({
+            orderItems: orderItemsData,
+            shippingAddress: shippingData,
+            paymentMethod: "Razorpay",
+            itemsPrice,
+            taxPrice,
+            shippingPrice,
+            totalPrice,
+            isPaid: false,
+            status: 'Payment Pending', // Explicitly set pending status
+        })).unwrap();
+
+        const orderId = orderRes._id;
+
+        // 2. Create Razorpay Order
+        const { data: razorpayOrder } = await axios.post(
+            `${backendUrl}/api/payment/create`, 
+            { amount: totalPrice }, 
+            config
+        );
+
+        // 3. Configure Razorpay Options
+        const options = {
+            key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+            amount: razorpayOrder.amount, // Amount in paise
+            currency: "INR",
+            name: "Novan Clothing",
+            description: `Order #${orderId}`,
+            order_id: razorpayOrder.id, // Razorpay Order ID
+            
+            // 4. Handle Success Payment
+            handler: async function (response: any) {
+                try {
+                    // Verify Payment on Backend AND Update Order to Paid
+                    const verifyRes = await axios.post(
+                        `${backendUrl}/api/payment/verify`,
+                        {
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature: response.razorpay_signature,
+                            orderId: orderId // Pass DB Order ID to update it
+                        },
+                        config
+                    );
+
+                    if (verifyRes.data.success) {
+                        dispatch(clearCart());
+                        navigate('/success'); // Redirect to Success Page
+                        toast.success("Payment Successful!");
+                    } else {
+                        toast.error("Payment Verification Failed");
+                    }
+
+                } catch (err) {
+                    console.error(err);
+                    toast.error("Payment Verification Failed");
+                }
+            },
+            // 5. Handle Modal Dismissal / Failure
+            modal: {
+                ondismiss: function() {
+                    toast.info("Payment Cancelled. Order saved in 'My Orders'.");
+                    dispatch(clearCart());
+                    navigate('/orders'); // Redirect to orders to show "Payment Pending"
+                }
+            },
+            prefill: {
+                name: user?.name,
+                email: user?.email,
+                contact: "9999999999"
+            },
+            theme: { color: "#000000" }
+        };
+
+        const rzp = new (window as any).Razorpay(options);
+        rzp.open();
+
+    } catch (error) {
+        toast.error("Order Creation Failed");
+        console.error(error);
+    }
   };
 
   return (
@@ -273,7 +367,7 @@ const Checkout = () => {
                         <span className="font-serif text-xl font-bold text-foreground">{formatPrice(totalPrice)}</span>
                       </div>
                       <p className="text-[10px] text-muted-foreground text-center">
-                        Secure Checkout powered by Razorpay / Stripe
+                        Secure Checkout powered by Razorpay
                       </p>
                     </div>
 

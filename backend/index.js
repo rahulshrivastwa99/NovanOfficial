@@ -8,6 +8,7 @@ const productRoutes = require('./routes/productRoutes');
 const authRoutes = require('./routes/authRoutes'); 
 const orderRoutes = require('./routes/orderRoutes'); 
 const wishlistRoutes = require('./routes/wishlistRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
 
 
 connectDB();
@@ -26,6 +27,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/auth', authRoutes); 
 app.use('/api/orders', orderRoutes);
 app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/payment', paymentRoutes);
 
 
 app.get('/', (req, res) => {

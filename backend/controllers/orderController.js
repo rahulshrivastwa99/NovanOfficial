@@ -37,27 +37,22 @@ const addOrderItems = async (req, res) => {
     });
 
     // 2. UPDATE STOCK (Decrement Quantity)
-    // We use a loop to update each product purchased
     for (const item of orderItems) {
       const product = await Product.findById(item.product);
 
       if (product) {
-        // CASE A: Product has size-based stock (e.g. { S: 10, M: 5 })
-        if (item.size && product.stock && typeof product.stock === 'object') {
-             const currentSizeStock = product.stock[item.size] || 0;
-             if (currentSizeStock >= item.qty) {
-                 product.stock[item.size] = currentSizeStock - item.qty;
-                 // Mongoose needs to know the object changed
-                 product.markModified('stock');
-             }
-        } 
-        // CASE B: Product has simple number stock (e.g. 100)
-        else if (typeof product.stock === 'number') {
-             if (product.stock >= item.qty) {
-                 product.stock = product.stock - item.qty;
-             }
+        // Find the specific size variant
+        const sizeVariant = product.sizes.find(s => s.size === item.size);
+        
+        if (sizeVariant) {
+            if (sizeVariant.stock >= item.qty) {
+                sizeVariant.stock -= item.qty;
+            } else {
+                // Optional: Handle insufficient stock error here if needed
+                console.log(`Insufficient stock for ${product.name} size ${item.size}`);
+            }
         }
-
+        
         await product.save();
       }
     }
