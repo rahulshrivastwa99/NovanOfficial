@@ -45,20 +45,35 @@ const initialState: ProductState = {
 
 // --- ASYNC THUNKS ---
 
+// Interface for Fetch Products Parameters
+export interface FetchProductsParams {
+  keyword?: string;
+  category?: string;
+  minPrice?: string;
+  maxPrice?: string;
+  pageNumber?: number;
+}
+
 // 1. Fetch All Products (with filters/pagination)
 export const fetchProducts = createAsyncThunk(
   "products/fetchProducts",
   async (
-    keyword: any = {},
+    params: FetchProductsParams = {},
     { rejectWithValue }
   ) => {
     try {
-      // keyword might look like { keyword: 'abc', pageNumber: 1, category: 'men', ... }
       // Convert object to query string
-      const params = new URLSearchParams(keyword).toString();
+      // filter out undefined/null/empty strings if needed, but URLSearchParams handles basics
+      const queryParams = new URLSearchParams();
+
+      if (params.keyword) queryParams.append("keyword", params.keyword);
+      if (params.category && params.category !== 'all') queryParams.append("category", params.category);
+      if (params.minPrice) queryParams.append("minPrice", params.minPrice);
+      if (params.maxPrice) queryParams.append("maxPrice", params.maxPrice);
+      if (params.pageNumber) queryParams.append("pageNumber", params.pageNumber.toString());
 
       const response = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/api/products?${params}`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/products?${queryParams.toString()}`,
       );
       return response.data; // { products, page, pages, count }
     } catch (error: any) {
