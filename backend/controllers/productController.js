@@ -214,9 +214,72 @@ const createProductReview = async (req, res) => {
   }
 };
 
+// @desc    Delete a product
+// @route   DELETE /api/products/:id
+// @access  Private/Admin
+const deleteProduct = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+
+    if (product) {
+      await Product.deleteOne({ _id: product._id });
+      res.json({ message: 'Product removed' });
+    } else {
+      res.status(404).json({ message: 'Product not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Update a product
+// @route   PUT /api/products/:id
+// @access  Private/Admin
+const updateProduct = async (req, res) => {
+  const { name, price, description, category, sizes, colors, stock } = req.body;
+
+  // Handle Image Uploads (similar to create)
+  // If new images are uploaded, they are appended or replaced depending on logic.
+  // For simplicity here, we'll just add new ones if provided.
+  const newImages = req.files
+    ? req.files.map((file) => file.path || file.secure_url || file.url).filter(Boolean)
+    : [];
+
+  try {
+    const product = await Product.findById(req.params.id);
+
+    if (product) {
+      product.name = name || product.name;
+      product.price = price || product.price;
+      product.description = description || product.description;
+      product.category = category || product.category;
+      
+      if (sizes) product.sizes = JSON.parse(sizes);
+      if (colors) product.colors = JSON.parse(colors);
+      // product.stock is not used anymore in favor of sizes
+      
+      if (newImages.length > 0) {
+          // Check if we should replace or append. Let's append for now or use logic passed from front
+          product.images = [...product.images, ...newImages];
+      }
+      // If client sends 'images' as JSON string (existing images to keep), handle that logic here if needed
+      // But usually FormData sends files separately.
+
+      const updatedProduct = await product.save();
+      res.json(updatedProduct);
+    } else {
+      res.status(404).json({ message: 'Product not found' });
+    }
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
 module.exports = { 
   getProducts, 
   getProductById, 
   createProduct,
-  createProductReview 
+  createProductReview,
+  deleteProduct,
+  updateProduct
 };

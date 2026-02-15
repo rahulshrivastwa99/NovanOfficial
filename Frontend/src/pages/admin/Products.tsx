@@ -44,20 +44,37 @@ const AdminProducts = () => {
           </thead>
           <tbody>
             {products.map((product) => {
-              const totalStock = product.stock ? Object.values(product.stock).reduce((s, v) => s + v, 0) : 0;
+              // Calculate total stock from sizes array
+              const totalStock = product.sizes?.reduce((acc, curr) => acc + (curr.stock || 0), 0) || 0;
+              
+              // Create a string for the tooltip (e.g., "S: 10, M: 5")
+              const stockBreakdown = product.sizes?.map(s => `${s.size}: ${s.stock}`).join(', ') || 'No stock info';
+
               return (
-                <tr key={product._id} className="border-b border-border last:border-0">
+                <tr key={product._id} className="border-b border-border last:border-0 hover:bg-secondary/20 transition-colors group">
                   <td className="p-4">
                     <div className="flex items-center gap-3">
-                      <img src={product.images?.[0] || 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&q=80'} alt={product.name} className="w-12 h-12 object-cover" />
-                      <span className="font-body text-sm">{product.name}</span>
+                      <img src={product.images?.[0] || 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&q=80'} alt={product.name} className="w-12 h-12 object-cover rounded-sm border border-border" />
+                      <span className="font-body text-sm font-medium">{product.name}</span>
                     </div>
                   </td>
-                  <td className="p-4 font-body text-sm">₹{product.price}</td>
-                  <td className="p-4 font-body text-sm capitalize hidden lg:table-cell">{product.category}</td>
-                  <td className="p-4 font-body text-sm hidden lg:table-cell">{totalStock}</td>
+                  <td className="p-4 font-body text-sm font-medium">₹{product.price}</td>
+                  <td className="p-4 font-body text-sm capitalize hidden lg:table-cell text-muted-foreground">{product.category}</td>
+                  <td className="p-4 font-body text-sm hidden lg:table-cell relative">
+                    <div className="group/tooltip relative inline-block cursor-help">
+                        <span className={`font-medium ${totalStock === 0 ? 'text-red-500' : 'text-green-600'}`}>
+                            {totalStock}
+                        </span>
+                        {/* Tooltip */}
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max max-w-[200px] bg-black text-white text-xs p-2 rounded opacity-0 group-hover/tooltip:opacity-100 transition-opacity pointer-events-none z-10 shadow-xl">
+                            <p className="font-bold mb-1 border-b border-white/20 pb-1">Stock Breakdown</p>
+                            <p>{stockBreakdown}</p>
+                            <div className="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-black"></div>
+                        </div>
+                    </div>
+                  </td>
                   <td className="p-4">
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                        {<Link
                         to={`/admin/products/edit/${product._id}`}
                         className="p-2 hover:bg-secondary transition-colors"
