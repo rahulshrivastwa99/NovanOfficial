@@ -2,17 +2,19 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
-import categoryMen from "@/assets/category-men.jpg";
+
+// --- FIXED IMPORTS ---
+// We use 'hero.jpg' for Men because 'category-men.jpg' is missing/deleted
+import categoryMen from "@/assets/hero.jpg";
 import categoryWomen from "@/assets/category-women.jpg";
-import categoryAccessories from "@/assets/category-accessories.jpg";
+import categoryAccessories from "@/assets/hero3.jpg";
+
 import { useAppDispatch, useAppSelector } from "@/store";
 import { fetchProducts } from "@/store/productSlice";
 import ProductCard from "@/components/ProductCard";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import HeroCarousel from "@/components/HeroCarousel";
-// We import Product but will use 'any' in the map to prevent errors
-import { Product } from "@/types";
 
 const categories = [
   { label: "Men", image: categoryMen, to: "/shop?category=men" },
@@ -24,16 +26,16 @@ const categories = [
   },
 ];
 
-  /* import { useState } from "react"; */ // Don't forget to update imports if needed, but Index already imports React hooks?
-  // Checking file imports... imports "useEffect", need to add "useState"
-  
 const Index = () => {
   const dispatch = useAppDispatch();
   // Get pagination info from store
-  const { items: products, status, page: reduxPage, pages } = useAppSelector((state) => state.products);
-  
-  // Local state to trigger updates (or we can just rely on reduxPage if we sync it)
-  // But let's use a local state to drive the effect
+  const {
+    items: products,
+    status,
+    pages,
+  } = useAppSelector((state) => state.products);
+
+  // Local state to drive the effect
   const [page, setPage] = useState(1);
 
   useEffect(() => {
@@ -93,7 +95,7 @@ const Index = () => {
                   />
                   <div className="absolute inset-0 bg-foreground/20 group-hover:bg-foreground/30 transition-colors duration-500" />
                   <div className="absolute inset-0 flex items-end p-8">
-                    <h3 className="font-serif text-2xl text-primary-foreground tracking-wider">
+                    <h3 className="font-serif text-2xl text-primary-foreground tracking-wider text-white">
                       {cat.label}
                     </h3>
                   </div>
@@ -117,7 +119,6 @@ const Index = () => {
             </div>
             {bestSellers.length > 0 ? (
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8">
-                {/* FIXED: Using (p: any) here forces TypeScript to accept the data */}
                 {bestSellers.map((p: any) => (
                   <ProductCard key={p._id || p.id} product={p} />
                 ))}
@@ -143,7 +144,6 @@ const Index = () => {
           </div>
           {newArrivals.length > 0 ? (
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8">
-              {/* FIXED: Using (p: any) here forces TypeScript to accept the data */}
               {newArrivals.map((p: any) => (
                 <ProductCard key={p._id || p.id} product={p} />
               ))}
@@ -157,19 +157,21 @@ const Index = () => {
 
         {/* All Collection with Pagination */}
         <section className="container pb-12">
-           <h2 className="font-serif text-2xl lg:text-3xl mb-12 text-center">Our Collection</h2>
-           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8">
-              {safeProducts.map((p: any) => (
-                <ProductCard key={p._id || p.id} product={p} />
-              ))}
-           </div>
+          <h2 className="font-serif text-2xl lg:text-3xl mb-12 text-center">
+            Our Collection
+          </h2>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8">
+            {safeProducts.map((p: any) => (
+              <ProductCard key={p._id || p.id} product={p} />
+            ))}
+          </div>
 
-           {/* Pagination */}
-           {pages > 1 && (
+          {/* Pagination */}
+          {pages > 1 && (
             <div className="flex justify-center mt-12 gap-2">
               <button
                 disabled={page === 1}
-                onClick={() => setPage(p => Math.max(1, p - 1))}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
                 className="p-2 border border-border rounded-md disabled:opacity-50 hover:bg-secondary/50 transition-colors"
                 aria-label="Previous Page"
               >
@@ -190,7 +192,7 @@ const Index = () => {
               ))}
               <button
                 disabled={page === pages}
-                onClick={() => setPage(p => Math.min(pages, p + 1))}
+                onClick={() => setPage((p) => Math.min(pages, p + 1))}
                 className="p-2 border border-border rounded-md disabled:opacity-50 hover:bg-secondary/50 transition-colors"
                 aria-label="Next Page"
               >
@@ -200,7 +202,6 @@ const Index = () => {
           )}
         </section>
 
-        {/* Mission / Philosophy */}
         {/* Mission / Philosophy */}
         <section className="container pb-20 lg:pb-32 pt-4">
           <div className="max-w-4xl mx-auto text-center border-t border-border pt-16">
@@ -220,7 +221,8 @@ const Index = () => {
               transition={{ duration: 0.8, delay: 0.1 }}
               className="font-serif text-3xl lg:text-5xl leading-tight mb-10 text-foreground"
             >
-              "True luxury lies not in excess, but in the absence of the unnecessary. We craft timeless silhouettes for the modern soul."
+              "True luxury lies not in excess, but in the absence of the
+              unnecessary. We craft timeless silhouettes for the modern soul."
             </motion.h2>
             <motion.div
               initial={{ opacity: 0 }}

@@ -1,36 +1,47 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
-import hero1 from '@/assets/hero1.jpeg';
-import hero2 from '@/assets/hero.jpg';
-import hero3 from '@/assets/category-men.jpg';
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+
+// --- IMPORTS ---
+// 1. Import the first video
+import heroVideo from "@/assets/hero1.mp4";
+// 2. Import the middle image
+import hero2 from "@/assets/hero.jpg";
+// 3. IMPORT YOUR NEW VIDEO (hero3.mp4)
+import hero3 from "@/assets/hero3.jpg";
 
 const slides = [
   {
     id: 1,
-    image: hero1,
+    type: "video",
+    src: heroVideo,
     title: "ELEVATE YOUR STYLE",
     subtitle: "Redefining modern luxury, piece by piece",
     cta: "Explore Collection",
-    link: "/shop"
+    link: "/shop",
+    position: "object-center",
   },
   {
     id: 2,
-    image: hero2,
+    type: "image",
+    src: hero2,
     title: "ELEGANCE FOR HER",
     subtitle: "Sophisticated styles for every occasion",
     cta: "Shop Women",
-    link: "/shop?category=women"
+    link: "/shop?category=women",
+    position: "object-center",
   },
   {
     id: 3,
-    image: hero3,
+    type: "image",
+    src: hero3,
     title: "MEN'S ATELIER",
     subtitle: "Timeless cuts, redefined.",
     cta: "Shop Men",
-    link: "/shop?category=men"
-  }
+    link: "/shop?category=men",
+    position: "object-top",
+  },
 ];
 
 const HeroCarousel = () => {
@@ -39,12 +50,13 @@ const HeroCarousel = () => {
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrent((prev) => (prev + 1) % slides.length);
-    }, 5000);
+    }, 8000);
     return () => clearInterval(timer);
   }, []);
 
   const nextSlide = () => setCurrent((prev) => (prev + 1) % slides.length);
-  const prevSlide = () => setCurrent((prev) => (prev - 1 + slides.length) % slides.length);
+  const prevSlide = () =>
+    setCurrent((prev) => (prev - 1 + slides.length) % slides.length);
 
   return (
     <section className="relative h-screen overflow-hidden bg-black text-white">
@@ -57,11 +69,25 @@ const HeroCarousel = () => {
           transition={{ duration: 0.8 }}
           className="absolute inset-0"
         >
-          <img
-            src={slides[current].image}
-            alt={slides[current].title}
-            className="w-full h-full object-cover object-top opacity-80"
-          />
+          {/* Conditional Rendering: Video vs Image */}
+          {slides[current].type === "video" ? (
+            <video
+              src={slides[current].src}
+              autoPlay
+              loop
+              muted
+              playsInline
+              className={`w-full h-full object-cover opacity-90 ${slides[current].position}`}
+            />
+          ) : (
+            <img
+              src={slides[current].src}
+              alt={slides[current].title}
+              className={`w-full h-full object-cover opacity-80 ${slides[current].position}`}
+            />
+          )}
+
+          {/* Overlay Gradient */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/30" />
         </motion.div>
       </AnimatePresence>
@@ -102,30 +128,29 @@ const HeroCarousel = () => {
         </div>
       </div>
 
-      {/* Navigation Arrows */}
-      <button 
+      <button
         onClick={prevSlide}
         className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 p-4 rounded-full border border-white/20 text-white hover:bg-white hover:text-black transition-all z-20 hidden md:block backdrop-blur-sm"
       >
         <ChevronLeft size={24} />
       </button>
-      <button 
+      <button
         onClick={nextSlide}
         className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 p-4 rounded-full border border-white/20 text-white hover:bg-white hover:text-black transition-all z-20 hidden md:block backdrop-blur-sm"
       >
         <ChevronRight size={24} />
       </button>
 
-      {/* Dots */}
       <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex gap-4 z-20">
         {slides.map((_, index) => (
           <button
             key={index}
             onClick={() => setCurrent(index)}
             className={`h-1 rounded-full transition-all duration-500 ${
-              current === index ? 'bg-white w-12' : 'bg-white/30 w-6 hover:bg-white/60'
+              current === index
+                ? "bg-white w-12"
+                : "bg-white/30 w-6 hover:bg-white/60"
             }`}
-            aria-label={`Go to slide ${index + 1}`}
           />
         ))}
       </div>
