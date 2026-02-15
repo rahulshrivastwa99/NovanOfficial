@@ -14,6 +14,8 @@ import NewsletterPopup from "./components/NewsletterPopup";
 import CookieConsent from "./components/CookieConsent";
 import ScrollToTop from "./components/ScrollToTop";
 
+import AxiosInterceptor from "./components/AxiosInterceptor";
+
 // Lazy Load Pages
 const Index = lazy(() => import("./pages/Index"));
 const Shop = lazy(() => import("./pages/Shop"));
@@ -60,6 +62,7 @@ const App = () => {
           <Sonner />
           {loading && <Preloader onComplete={() => setLoading(false)} />}
           <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+            <AxiosInterceptor />
             <ScrollToTop />
             <AuthModal />
             <LogoutOverlay />

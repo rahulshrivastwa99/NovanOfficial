@@ -24,48 +24,62 @@ const addOrderItems = async (req, res) => {
     res.status(400).json({ message: 'No order items' });
     return;
   } else {
-    // 1. Create the Order
-    const order = new Order({
-      orderItems,
-      user: req.user._id,
-      shippingAddress,
-      paymentMethod,
-      itemsPrice,
-      taxPrice,
-      shippingPrice,
-      totalPrice,
-    });
+    try {
+      // 1. Create the Order
+      const order = new Order({
+        orderItems,
+        user: req.user._id,
+        shippingAddress,
+        paymentMethod,
+        itemsPrice,
+        taxPrice,
+        shippingPrice,
+        totalPrice,
+      });
 
-    // 2. UPDATE STOCK (Decrement Quantity)
-    for (const item of orderItems) {
-      const product = await Product.findById(item.product);
+      // 2. UPDATE STOCK (Decrement Quantity)
+      for (const item of orderItems) {
+        const product = await Product.findById(item.product);
 
-      if (product) {
-        // Find the specific size variant
-        const sizeVariant = product.sizes.find(s => s.size === item.size);
-        
-        if (sizeVariant) {
-            if (sizeVariant.stock >= item.qty) {
-                sizeVariant.stock -= item.qty;
-            } else {
-                // Optional: Handle insufficient stock error here if needed
-                console.log(`Insufficient stock for ${product.name} size ${item.size}`);
-            }
+        if (product) {
+          // Check if sizes exist
+          if (!product.sizes || product.sizes.length === 0) {
+             console.warn(`Product ${product.name} (ID: ${product._id}) has no sizes defined.`);
+             continue; // Skip stock update if no sizes
+          }
+
+          // Find the specific size variant
+          const sizeVariant = product.sizes.find(s => s.size === item.size);
+          
+          if (sizeVariant) {
+              if (sizeVariant.stock >= item.qty) {
+                  sizeVariant.stock -= item.qty;
+              } else {
+                  console.log(`Insufficient stock for ${product.name} size ${item.size}`);
+                  // We could throw an error here to abort the order, but for now we'll just log
+                  // throw new Error(`Insufficient stock for ${product.name}`);
+              }
+          } else {
+              console.warn(`Size ${item.size} not found for product ${product.name}`);
+          }
+          
+          await product.save();
         }
-        
-        await product.save();
       }
+
+      const createdOrder = await order.save();
+
+      // 3. Remove ordered items from Wishlist
+      const orderedProductIds = orderItems.map((item) => item.product); 
+      await User.findByIdAndUpdate(req.user._id, {
+        $pull: { wishlist: { $in: orderedProductIds } },
+      });
+
+      res.status(201).json(createdOrder);
+    } catch (error) {
+      console.error("Error in addOrderItems:", error);
+      res.status(500).json({ message: "Order creation failed", error: error.message });
     }
-
-    const createdOrder = await order.save();
-
-    // 3. Remove ordered items from Wishlist
-    const orderedProductIds = orderItems.map((item) => item.product); // Assuming item.product is the ID
-    await User.findByIdAndUpdate(req.user._id, {
-      $pull: { wishlist: { $in: orderedProductIds } },
-    });
-
-    res.status(201).json(createdOrder);
   }
 };
 
