@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -7,7 +7,6 @@ import {
   ShoppingBag,
   Truck,
   RotateCcw,
-  CreditCard,
   CheckCircle2,
   X,
   Ruler,
@@ -31,37 +30,76 @@ import { RootState } from "@/store";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
-const mockReviews = [
-  {
-    id: 1,
-    name: "Aarav Sharma",
-    rating: 5,
-    text: "Quality is top-notch! The oversized fit is exactly what I was looking for. Fabric feels premium.",
-    verified: true,
-  },
-  {
-    id: 2,
-    name: "Priya Patel",
-    rating: 4,
-    text: "Great design. The print hasn't faded even after several washes.",
-    verified: true,
-  },
-  {
-    id: 3,
-    name: "Ishaan Gupta",
-    rating: 5,
-    text: "Best streetwear brand in India. Heavy cotton feel is perfect.",
-    verified: true,
-  },
-];
+// --- REFINED COMPONENT: Satisfying Smooth Inner Zoom ---
+const ImageZoom = ({
+  src,
+  alt,
+  onClick,
+}: {
+  src: string;
+  alt: string;
+  onClick?: () => void;
+}) => {
+  const [isZoomed, setIsZoomed] = useState(false);
+  const [transformOrigin, setTransformOrigin] = useState("center center");
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const { left, top, width, height } =
+      e.currentTarget.getBoundingClientRect();
+
+    // Calculate cursor position relative to the container
+    const x = e.pageX - left - window.scrollX;
+    const y = e.pageY - top - window.scrollY;
+
+    // Calculate percentage positions with safety clamping
+    const xPercent = Math.min(Math.max((x / width) * 100, 0), 100);
+    const yPercent = Math.min(Math.max((y / height) * 100, 0), 100);
+
+    setTransformOrigin(`${xPercent}% ${yPercent}%`);
+  };
+
+  return (
+    <div
+      className="relative w-full h-full overflow-hidden rounded-2xl bg-secondary cursor-zoom-in"
+      onMouseEnter={() => setIsZoomed(true)}
+      onMouseLeave={() => {
+        setIsZoomed(false);
+        // Subtle delay before resetting origin to keep the exit transition smooth
+        setTimeout(() => setTransformOrigin("center center"), 500);
+      }}
+      onMouseMove={handleMouseMove}
+      onClick={onClick}
+    >
+      <img
+        src={src}
+        alt={alt}
+        // scale-[1.8] for a realistic zoom level
+        // duration-500 + ease-out creates that "liquid" satisfying glide
+        className={`w-full h-full object-cover transition-transform duration-500 ease-out will-change-transform ${
+          isZoomed ? "scale-[1.8]" : "scale-100"
+        }`}
+        style={{ transformOrigin: transformOrigin }}
+      />
+
+      {/* Subtle protective ring to maintain clean edges during zoom */}
+      <div
+        className={`absolute inset-0 pointer-events-none transition-opacity duration-500 ${
+          isZoomed ? "opacity-100" : "opacity-0"
+        } ring-1 ring-inset ring-black/5 rounded-2xl`}
+      />
+    </div>
+  );
+};
 
 const ProductDetail = () => {
   const { id } = useParams();
   const dispatch = useAppDispatch();
 
-  // Auth State
+  // Auth & State
   const { user } = useSelector((state: RootState) => state.auth);
-  const { reviewStatus, reviewError } = useSelector((state: RootState) => state.products);
+  const { reviewStatus, reviewError } = useSelector(
+    (state: RootState) => state.products,
+  );
   const wishlistItems = useAppSelector((state) => state.wishlist.items);
 
   const [product, setProduct] = useState<Product | null>(null);
@@ -71,18 +109,17 @@ const ProductDetail = () => {
   const [wishlisted, setWishlisted] = useState(false);
 
   useEffect(() => {
-      if (product && wishlistItems) {
-          setWishlisted(wishlistItems.some(item => item._id === product._id));
-      }
+    if (product && wishlistItems) {
+      setWishlisted(wishlistItems.some((item) => item._id === product._id));
+    }
   }, [product, wishlistItems]);
+
   const [showSizeGuide, setShowSizeGuide] = useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
-
   const [isDescOpen, setIsDescOpen] = useState(false);
   const [isShippingOpen, setIsShippingOpen] = useState(false);
   const [isReturnsOpen, setIsReturnsOpen] = useState(false);
-  
-  // Review Form State
+
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
 
@@ -102,23 +139,23 @@ const ProductDetail = () => {
   }, [fetchProduct]);
 
   useEffect(() => {
-    if (reviewStatus === 'succeeded') {
-      toast.success('Review submitted successfully');
+    if (reviewStatus === "succeeded") {
+      toast.success("Review submitted successfully");
       setRating(0);
       setComment("");
       dispatch(resetReviewStatus());
-      fetchProduct(); // Refresh reviews
+      fetchProduct();
     }
-    if (reviewStatus === 'failed') {
-      toast.error(reviewError || 'Failed to submit review');
+    if (reviewStatus === "failed") {
+      toast.error(reviewError || "Failed to submit review");
       dispatch(resetReviewStatus());
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reviewStatus, reviewError, dispatch]);
+  }, [reviewStatus, reviewError, dispatch, fetchProduct]);
+
   const handleReviewSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (rating === 0) {
-      toast.error('Please select a rating');
+      toast.error("Please select a rating");
       return;
     }
     dispatch(createReview({ productId: id!, review: { rating, comment } }));
@@ -130,6 +167,7 @@ const ProductDetail = () => {
         Loading Collection...
       </div>
     );
+
   if (!product)
     return (
       <div className="min-h-screen flex flex-col items-center justify-center space-y-4">
@@ -181,17 +219,14 @@ const ProductDetail = () => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
             {/* GALLERY SECTION */}
             <div className="lg:col-span-5 space-y-6">
-              <div
-                className="aspect-[3/4] overflow-hidden bg-secondary rounded-2xl shadow-sm cursor-zoom-in"
-                onClick={() => setIsLightboxOpen(true)}
-              >
-                <motion.img
-                  whileHover={{ scale: 1.1 }}
-                  transition={{ duration: 0.6 }}
+              <div className="aspect-[3/4] shadow-sm rounded-2xl overflow-hidden">
+                <ImageZoom
                   src={productImages[selectedImage]}
-                  className="w-full h-full object-cover"
+                  alt={product.name}
+                  onClick={() => setIsLightboxOpen(true)}
                 />
               </div>
+
               <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide justify-center">
                 {productImages.map((img, i) => (
                   <button
@@ -199,7 +234,11 @@ const ProductDetail = () => {
                     onClick={() => setSelectedImage(i)}
                     className={`relative w-16 aspect-square flex-shrink-0 rounded-xl overflow-hidden border-2 transition-all ${selectedImage === i ? "border-foreground" : "border-transparent opacity-60"}`}
                   >
-                    <img src={img} className="w-full h-full object-cover" />
+                    <img
+                      src={img}
+                      className="w-full h-full object-cover"
+                      alt=""
+                    />
                   </button>
                 ))}
               </div>
@@ -212,7 +251,10 @@ const ProductDetail = () => {
                   {product.name}
                 </h1>
                 <div className="flex items-center gap-4">
-                   <Rating value={product.rating} text={`${product.numReviews} reviews`} />
+                  <Rating
+                    value={product.rating}
+                    text={`${product.numReviews} reviews`}
+                  />
                 </div>
                 <div className="flex items-center gap-4">
                   <span className="text-3xl font-bold">
@@ -245,32 +287,31 @@ const ProductDetail = () => {
                 </div>
                 <div className="flex flex-wrap gap-3">
                   {["S", "M", "L", "XL", "XXL"].map((sizeName) => {
-                    const sizeVariant = product.sizes.find((s: any) => s.size === sizeName);
+                    const sizeVariant = product.sizes.find(
+                      (s: any) => s.size === sizeName,
+                    );
                     const isOutOfStock = !sizeVariant || sizeVariant.stock <= 0;
 
                     return (
-                    <button
-                      key={sizeName}
-                      onClick={() => !isOutOfStock && setSelectedSize(sizeName)}
-                      disabled={isOutOfStock}
-                      title={isOutOfStock ? "Out of Stock" : `${sizeVariant?.stock} left`}
-                      className={`w-14 h-12 flex items-center justify-center border-2 rounded-xl text-xs font-bold transition-all relative
-                        ${selectedSize === sizeName 
-                            ? "bg-foreground text-background border-foreground" 
-                            : isOutOfStock
-                                ? "border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50"
-                                : "hover:border-foreground border-border text-muted-foreground"
+                      <button
+                        key={sizeName}
+                        onClick={() =>
+                          !isOutOfStock && setSelectedSize(sizeName)
                         }
+                        disabled={isOutOfStock}
+                        className={`w-14 h-12 flex items-center justify-center border-2 rounded-xl text-xs font-bold transition-all relative
+                        ${selectedSize === sizeName ? "bg-foreground text-background border-foreground" : isOutOfStock ? "border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50" : "hover:border-foreground border-border text-muted-foreground"}
                       `}
-                    >
-                      {sizeName}
-                      {isOutOfStock && (
+                      >
+                        {sizeName}
+                        {isOutOfStock && (
                           <span className="absolute inset-0 flex items-center justify-center">
-                              <div className="w-full h-[1px] bg-gray-300 -rotate-45"></div>
+                            <div className="w-full h-[1px] bg-gray-300 -rotate-45"></div>
                           </span>
-                      )}
-                    </button>
-                  )})}
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
 
                 <div className="flex gap-4 pt-4">
@@ -282,15 +323,13 @@ const ProductDetail = () => {
                   </button>
                   <button
                     onClick={() => {
-                        if (!user) {
-                            toast.error("Please login to use wishlist");
-                            return;
-                        }
-                        if (wishlisted) {
-                            if (product) dispatch(removeFromWishlist(product._id));
-                        } else {
-                            if (product) dispatch(addToWishlist(product));
-                        }
+                      if (!user) {
+                        toast.error("Please login to use wishlist");
+                        return;
+                      }
+                      wishlisted
+                        ? dispatch(removeFromWishlist(product._id))
+                        : dispatch(addToWishlist(product));
                     }}
                     className={`flex-1 border-2 flex items-center justify-center rounded-xl transition-all ${wishlisted ? "text-red-500 border-red-500 bg-red-50" : "text-muted-foreground"}`}
                   >
@@ -302,198 +341,119 @@ const ProductDetail = () => {
                 </div>
               </div>
 
-              {/* KEY HIGHLIGHTS */}
-              <div className="pt-8 border-t border-border">
-                <h3 className="font-bold text-sm uppercase tracking-widest mb-6">Key Highlights</h3>
-                <div className="grid grid-cols-2 gap-y-6 gap-x-4">
-                  <div>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Product Category</p>
-                    <p className="font-medium text-sm">Topwear</p>
-                  </div>
-                   <div>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Product Type</p>
-                    <p className="font-medium text-sm">Oversized Tshirt</p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Fit</p>
-                    <p className="font-medium text-sm">Oversized Fit</p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Closure</p>
-                    <p className="font-medium text-sm">No Closure</p>
-                  </div>
-                   <div>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Length</p>
-                    <p className="font-medium text-sm">Regular</p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Fabric</p>
-                    <p className="font-medium text-sm">100% Cotton</p>
-                  </div>
-                </div>
-              </div>
-
               {/* PRODUCT INFORMATION ACCORDION */}
               <div className="pt-8 border-t border-border space-y-4">
-                 <h3 className="font-bold text-sm uppercase tracking-widest mb-2">Product Information</h3>
-                 
-                 {/* Item 1: Description (Table) */}
-                 <div className="border-b border-border pb-4">
-                    <button 
-                        onClick={() => setIsDescOpen(!isDescOpen)}
-                        className="flex items-center justify-between w-full text-left group"
-                    >
-                        <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-md bg-purple-50 flex items-center justify-center text-purple-600">
-                                <FileText size={16} />
-                            </div>
-                            <div>
-                                <h4 className="font-medium text-sm">Product Description</h4>
-                                <p className="text-[10px] text-muted-foreground">Manufacture, Care and Fit</p>
-                            </div>
-                        </div>
-                        {isDescOpen ? (
-                           <Minus size={16} className="opacity-50 group-hover:opacity-100 transition-opacity" />
-                        ) : (
-                           <Plus size={16} className="opacity-50 group-hover:opacity-100 transition-opacity" />
-                        )}
-                    </button>
-                    <AnimatePresence>
-                        {isDescOpen && (
-                            <motion.div 
-                                initial={{ height: 0, opacity: 0 }}
-                                animate={{ height: "auto", opacity: 1 }}
-                                exit={{ height: 0, opacity: 0 }}
-                                className="overflow-hidden"
-                            >
-                                <div className="pt-4 pl-11">
-                                    <table className="w-full text-xs text-left border border-gray-200">
-                                        <tbody className="divide-y divide-gray-200">
-                                            {[
-                                                { label: "Made of", value: "100% Cotton" },
-                                                { label: "Neck Type", value: "Round Neck" },
-                                                { label: "Fit Type", value: "Oversized Fit" },
-                                                { label: "Color", value: product.colors?.[0]?.name || "Standard" },
-                                                { label: "Pattern", value: "Details" },
-                                                { label: "Sleeve Type", value: "Half Sleeve" },
-                                                { label: "Care Instruction", value: "Machine washable" },
-                                                { label: "Available Sizes", value: product.sizes.map(s => s.size).join(", ") },
-                                                { label: "SKU", value: `NVN_${product._id.slice(-6).toUpperCase()}` },
-                                                { label: "Country of Origin", value: "India" },
-                                                { label: "Description", value: product.description },
-                                            ].map((row, i) => (
-                                                <tr key={i} className="divide-x divide-gray-200">
-                                                    <td className="px-3 py-2 font-bold w-1/3 bg-gray-50">{row.label}</td>
-                                                    <td className="px-3 py-2 text-muted-foreground">{row.value}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-                 </div>
+                <h3 className="font-bold text-sm uppercase tracking-widest mb-2">
+                  Product Information
+                </h3>
 
-                 {/* Item 2: Shipping */}
-                 <div className="border-b border-border pb-4">
-                    <button 
-                        onClick={() => setIsShippingOpen(!isShippingOpen)}
-                        className="flex items-center justify-between w-full text-left group"
-                    >
-                        <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-md bg-green-50 flex items-center justify-center text-green-600">
-                                <Truck size={16} />
-                            </div>
-                            <div>
-                                <h4 className="font-medium text-sm">Shipping Info</h4>
-                                <p className="text-[10px] text-muted-foreground">We Offer free shipping across India</p>
-                            </div>
+                {/* Description Accordion */}
+                <div className="border-b border-border pb-4">
+                  <button
+                    onClick={() => setIsDescOpen(!isDescOpen)}
+                    className="flex items-center justify-between w-full text-left group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-md bg-purple-50 flex items-center justify-center text-purple-600">
+                        <FileText size={16} />
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-sm">
+                          Product Description
+                        </h4>
+                        <p className="text-[10px] text-muted-foreground">
+                          Manufacture, Care and Fit
+                        </p>
+                      </div>
+                    </div>
+                    {isDescOpen ? <Minus size={16} /> : <Plus size={16} />}
+                  </button>
+                  <AnimatePresence>
+                    {isDescOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="pt-4 pl-11">
+                          <table className="w-full text-xs text-left border border-gray-200">
+                            <tbody className="divide-y divide-gray-200">
+                              {[
+                                { label: "Made of", value: "100% Cotton" },
+                                { label: "Neck Type", value: "Round Neck" },
+                                { label: "Fit Type", value: "Oversized Fit" },
+                                {
+                                  label: "Color",
+                                  value:
+                                    product.colors?.[0]?.name || "Standard",
+                                },
+                                {
+                                  label: "SKU",
+                                  value: `NVN_${product._id.slice(-6).toUpperCase()}`,
+                                },
+                                {
+                                  label: "Description",
+                                  value: product.description,
+                                },
+                              ].map((row, i) => (
+                                <tr
+                                  key={i}
+                                  className="divide-x divide-gray-200"
+                                >
+                                  <td className="px-3 py-2 font-bold w-1/3 bg-gray-50">
+                                    {row.label}
+                                  </td>
+                                  <td className="px-3 py-2 text-muted-foreground">
+                                    {row.value}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
                         </div>
-                         {isShippingOpen ? (
-                           <Minus size={16} className="opacity-50 group-hover:opacity-100 transition-opacity" />
-                        ) : (
-                           <Plus size={16} className="opacity-50 group-hover:opacity-100 transition-opacity" />
-                        )}
-                    </button>
-                    <AnimatePresence>
-                        {isShippingOpen && (
-                            <motion.div 
-                                initial={{ height: 0, opacity: 0 }}
-                                animate={{ height: "auto", opacity: 1 }}
-                                exit={{ height: 0, opacity: 0 }}
-                                className="overflow-hidden"
-                            >
-                                <div className="pt-4 text-xs text-muted-foreground leading-relaxed pl-11 space-y-3">
-                                    <div>
-                                        <h5 className="font-bold text-foreground">Shipping Info</h5>
-                                        <p>We offer free shipping across India.</p>
-                                    </div>
-                                    <div>
-                                        <h5 className="font-bold text-foreground">1-2 Days Dispatch</h5>
-                                        <p>We dispatch orders within 1-2 days.</p>
-                                    </div>
-                                    <div>
-                                        <h5 className="font-bold text-foreground">2-5 Days Delivery</h5>
-                                        <p>We usually take 2-5 working days depending on your location.<br/>Metros 2-3 days<br/>Rest of India 3-5 days</p>
-                                    </div>
-                                    <div>
-                                        <h5 className="font-bold text-foreground">Customer Support</h5>
-                                        <p>support@novanofficial.com</p>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-                 </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
 
-                 {/* Item 3: Returns */}
-                 <div className="border-b border-border pb-4">
-                    <button 
-                        onClick={() => setIsReturnsOpen(!isReturnsOpen)}
-                        className="flex items-center justify-between w-full text-left group"
-                    >
-                        <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-md bg-orange-50 flex items-center justify-center text-orange-600">
-                                <RefreshCcw size={16} />
-                            </div>
-                            <div>
-                                <h4 className="font-medium text-sm">7 Days Returns & Exchange</h4>
-                                <p className="text-[10px] text-muted-foreground">Know about return & exchange policy</p>
-                            </div>
+                {/* Shipping Info */}
+                <div className="border-b border-border pb-4">
+                  <button
+                    onClick={() => setIsShippingOpen(!isShippingOpen)}
+                    className="flex items-center justify-between w-full text-left group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-md bg-green-50 flex items-center justify-center text-green-600">
+                        <Truck size={16} />
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-sm">Shipping Info</h4>
+                        <p className="text-[10px] text-muted-foreground">
+                          Free shipping across India
+                        </p>
+                      </div>
+                    </div>
+                    {isShippingOpen ? <Minus size={16} /> : <Plus size={16} />}
+                  </button>
+                  <AnimatePresence>
+                    {isShippingOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="pt-4 text-xs text-muted-foreground leading-relaxed pl-11 space-y-3">
+                          <p>
+                            We dispatch orders within 1-2 days. Delivery usually
+                            takes 2-5 working days depending on location.
+                          </p>
                         </div>
-                        {isReturnsOpen ? (
-                           <Minus size={16} className="opacity-50 group-hover:opacity-100 transition-opacity" />
-                        ) : (
-                           <Plus size={16} className="opacity-50 group-hover:opacity-100 transition-opacity" />
-                        )}
-                    </button>
-                    <AnimatePresence>
-                         {isReturnsOpen && (
-                            <motion.div 
-                                initial={{ height: 0, opacity: 0 }}
-                                animate={{ height: "auto", opacity: 1 }}
-                                exit={{ height: 0, opacity: 0 }}
-                                className="overflow-hidden"
-                            >
-                                <div className="pt-4 text-xs text-muted-foreground leading-relaxed pl-11 space-y-3">
-                                    <p>Items purchased from Novan are eligible for return/exchange, if returned within 7 days of delivery.</p>
-                                    
-                                    <div>
-                                        <h5 className="font-bold text-foreground">Free Exchanges</h5>
-                                        <p>We accept exchanges free of cost. This means you wont be charged extra to exchange the product(s). It's on us! We want your experience to be hassle-free.</p>
-                                    </div>
-
-                                    <div>
-                                        <h5 className="font-bold text-foreground">Easy Returns</h5>
-                                        <p className="mb-1">For Prepaid Orders - The full amount is refunded into your initial payment mode (bank account, credit card, etc.)</p>
-                                        <p>For Cash on Delivery Orders - The order amount will be refunded to your bank account. You can provide your bank/upi detail. COD charges are non-refundable.</p>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-                 </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
               </div>
             </div>
           </div>
@@ -505,7 +465,7 @@ const ProductDetail = () => {
                 <h3 className="font-serif text-3xl">Customer Stories</h3>
                 <div className="flex items-center gap-4">
                   <span className="text-6xl font-serif">
-                     {product.rating > 0 ? product.rating.toFixed(1) : "0.0"}
+                    {product.rating > 0 ? product.rating.toFixed(1) : "0.0"}
                   </span>
                   <div className="space-y-1">
                     <Rating value={product.rating} color="#000000" />
@@ -514,57 +474,46 @@ const ProductDetail = () => {
                     </p>
                   </div>
                 </div>
-
-                {/* WRITE REVIEW FORM */}
                 <div className="pt-8 border-t border-border">
                   <h4 className="font-medium mb-4">Write a Review</h4>
                   {user ? (
                     <form onSubmit={handleReviewSubmit} className="space-y-4">
-                       <div className="text-sm">
-                          <label className="block mb-2 text-muted-foreground">Rating</label>
-                           <select 
-                             value={rating} 
-                             onChange={(e) => setRating(Number(e.target.value))}
-                             className="w-full p-2 border border-border rounded-md bg-transparent"
-                           >
-                              <option value="0">Select...</option>
-                              <option value="1">1 - Poor</option>
-                              <option value="2">2 - Fair</option>
-                              <option value="3">3 - Good</option>
-                              <option value="4">4 - Very Good</option>
-                              <option value="5">5 - Excellent</option>
-                           </select>
-                       </div>
-                       <div>
-                          <label className="block mb-2 text-sm text-muted-foreground">Comment</label>
-                          <textarea
-                             value={comment}
-                             onChange={(e) => setComment(e.target.value)}
-                             rows={3}
-                             className="w-full p-2 border border-border rounded-md bg-transparent text-sm"
-                             required
-                          ></textarea>
-                       </div>
-                       <button 
-                         type="submit" 
-                         disabled={reviewStatus === 'loading'}
-                         className="w-full bg-foreground text-background py-2 rounded-md text-sm font-medium hover:bg-foreground/90 transition-colors disabled:opacity-50"
-                       >
-                         {reviewStatus === 'loading' ? 'Submitting...' : 'Submit Review'}
-                       </button>
+                      <select
+                        value={rating}
+                        onChange={(e) => setRating(Number(e.target.value))}
+                        className="w-full p-2 border border-border rounded-md bg-transparent"
+                      >
+                        <option value="0">Select Rating...</option>
+                        <option value="1">1 - Poor</option>
+                        <option value="5">5 - Excellent</option>
+                      </select>
+                      <textarea
+                        value={comment}
+                        onChange={(e) => setComment(e.target.value)}
+                        rows={3}
+                        className="w-full p-2 border border-border rounded-md bg-transparent text-sm"
+                        placeholder="Your thoughts..."
+                        required
+                      />
+                      <button
+                        type="submit"
+                        disabled={reviewStatus === "loading"}
+                        className="w-full bg-foreground text-background py-2 rounded-md text-sm font-medium hover:bg-foreground/90 transition-colors"
+                      >
+                        {reviewStatus === "loading"
+                          ? "Submitting..."
+                          : "Submit Review"}
+                      </button>
                     </form>
                   ) : (
-                    <div className="bg-secondary/30 p-4 rounded-lg text-sm">
-                      Please <Link to="/auth/login" className="underline font-medium">sign in</Link> to write a review.
-                    </div>
+                    <p className="text-sm opacity-60">
+                      Please login to leave a review.
+                    </p>
                   )}
                 </div>
               </div>
 
               <div className="flex-1 space-y-10 w-full">
-                {product.reviews && product.reviews.length === 0 && (
-                   <p className="text-muted-foreground italic">No reviews yet. Be the first to review!</p>
-                )}
                 {product.reviews?.map((review) => (
                   <div
                     key={review._id}
@@ -574,9 +523,6 @@ const ProductDetail = () => {
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-bold">{review.name}</span>
                         <CheckCircle2 size={12} className="text-green-600" />
-                        <span className="text-[9px] text-green-600 uppercase font-bold tracking-tighter">
-                          Verified Buyer
-                        </span>
                       </div>
                       <span className="text-xs text-muted-foreground">
                         {review.createdAt?.substring(0, 10)}
@@ -594,7 +540,6 @@ const ProductDetail = () => {
         </div>
       </main>
 
-      {/* LIGHTBOX MODAL */}
       <AnimatePresence>
         {isLightboxOpen && (
           <motion.div
@@ -620,7 +565,6 @@ const ProductDetail = () => {
           </motion.div>
         )}
 
-        {/* SIZE GUIDE MODAL */}
         {showSizeGuide && (
           <div className="fixed inset-0 z-[1100] flex items-center justify-center p-4">
             <motion.div
@@ -648,20 +592,17 @@ const ProductDetail = () => {
                   <tr className="border-b uppercase text-[10px] opacity-60">
                     <th className="pb-4">Size</th>
                     <th className="pb-4">Chest (in)</th>
-                    <th className="pb-4">Waist (in)</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
                   {[
-                    { s: "S", c: '36-38"', w: '28-30"' },
-                    { s: "M", c: '38-40"', w: '30-32"' },
-                    { s: "L", c: '40-42"', w: '32-34"' },
-                    { s: "XL", c: '42-44"', w: '34-36"' },
+                    { s: "S", c: '36-38"' },
+                    { s: "M", c: '38-40"' },
+                    { s: "L", c: '40-42"' },
                   ].map((row, i) => (
                     <tr key={i}>
                       <td className="py-4 font-bold">{row.s}</td>
                       <td className="py-4 text-muted-foreground">{row.c}</td>
-                      <td className="py-4 text-muted-foreground">{row.w}</td>
                     </tr>
                   ))}
                 </tbody>
