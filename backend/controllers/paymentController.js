@@ -13,17 +13,37 @@ const razorpay = new Razorpay({
 const createPaymentOrder = async (req, res) => {
   const { amount } = req.body;
 
+  console.log("--- DEBUG: createPaymentOrder ---");
+  console.log("Request Amount:", amount);
+  console.log("Key ID Present:", !!process.env.RAZORPAY_KEY_ID);
+  console.log("Key Secret Present:", !!process.env.RAZORPAY_KEY_SECRET);
+
+  if (!amount) {
+      return res.status(400).json({ message: "Amount is required" });
+  }
+
+  const parsedAmount = parseFloat(amount);
+  if (isNaN(parsedAmount)) {
+      return res.status(400).json({ message: "Invalid amount format" });
+  }
+
   const options = {
-    amount: Math.round(amount * 100), // Razorpay works in paise (100 paise = 1 Rupee)
+    amount: Math.round(parsedAmount * 100), // Razorpay works in paise (100 paise = 1 Rupee)
     currency: 'INR',
     receipt: `receipt_${Date.now()}`,
   };
 
   try {
     const order = await razorpay.orders.create(options);
+    console.log("Razorpay Order Created:", order.id);
     res.json(order);
   } catch (error) {
-    res.status(500).send(error);
+    console.error("Razorpay Create Error:", error);
+    // Send detailed error to frontend
+    res.status(500).json({ 
+        message: "Razorpay Order Creation Failed", 
+        error: error.error ? error.error.description : error.message 
+    });
   }
 };
 
@@ -33,6 +53,11 @@ const createPaymentOrder = async (req, res) => {
 const verifyPayment = async (req, res) => {
   const { razorpay_order_id, razorpay_payment_id, razorpay_signature, orderId } = req.body;
 
+  console.log("--- DEBUG: verifyPayment ---");
+  console.log("OrderID (DB):", orderId);
+  console.log("Razorpay Order ID:", razorpay_order_id);
+  console.log("Razorpay Payment ID:", razorpay_payment_id);
+  
   const body = razorpay_order_id + '|' + razorpay_payment_id;
 
   const expectedSignature = crypto
@@ -41,6 +66,7 @@ const verifyPayment = async (req, res) => {
     .digest('hex');
 
   const isAuthentic = expectedSignature === razorpay_signature;
+  console.log("Signature Match:", isAuthentic);
 
   if (isAuthentic) {
     try {
@@ -61,21 +87,32 @@ const verifyPayment = async (req, res) => {
 
         // If it was COD, switch to Online since they paid now
         if (order.paymentMethod === 'COD') {
+            console.log("Switching COD order to Online");
             order.paymentMethod = 'Razorpay (Prepaid)';
         }
 
         await order.save();
         res.json({ success: true, message: 'Payment verified and Order Updated' });
       } else {
+        console.error("Order not found in DB:", orderId);
         res.status(404).json({ success: false, message: 'Order not found' });
       }
     } catch (error) {
-       console.error(error);
+       console.error("Error updating order:", error);
        res.status(500).json({ success: false, message: 'Server Error during Order Update' });
     }
   } else {
+    console.error("Signature Mismatch. Expected:", expectedSignature, "Received:", razorpay_signature);
     res.status(400).json({ success: false, message: 'Invalid signature' });
   }
 };
 
-module.exports = { createPaymentOrder, verifyPayment };
+const debugEnv = (req, res) => {
+    res.json({
+        keyIdPresent: !!process.env.RAZORPAY_KEY_ID,
+        keySecretPresent: !!process.env.RAZORPAY_KEY_SECRET,
+        keyIdPrefix: process.env.RAZORPAY_KEY_ID ? process.env.RAZORPAY_KEY_ID.substring(0, 5) : 'N/A'
+    });
+};
+
+module.exports = { createPaymentOrder, verifyPayment, debugEnv };

@@ -3,19 +3,16 @@ import { useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  ChevronDown,
-  ChevronUp,
   SlidersHorizontal,
   X,
-  Search,
   ChevronLeft,
   ChevronRight,
-  Check,
 } from "lucide-react";
 import { fetchProducts } from "@/store/productSlice";
 import ProductCard from "@/components/ProductCard";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import ShopFilters from "@/components/ShopFilters";
 import { RootState } from "@/store";
 
 const Shop = () => {
@@ -44,13 +41,6 @@ const Shop = () => {
 
   // UI States
   const [mobileFilters, setMobileFilters] = useState(false);
-  // Using a record to allow multiple sections open simultaneously for better UX
-  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
-    category: true,
-    style: true,
-    size: true,
-    price: true,
-  });
 
   // Debounce search
   const [debouncedKeyword, setDebouncedKeyword] = useState(keyword);
@@ -89,250 +79,6 @@ const Shop = () => {
     setPageNumber(1);
   }, [debouncedKeyword, category, minPrice, maxPrice, size]);
 
-  const toggleSection = (id: string) => {
-    setOpenSections((prev) => ({ ...prev, [id]: !prev[id] }));
-  };
-
-  // --- MODERN FILTER COMPONENT ---
-  const SidebarContent = () => (
-    <div className="space-y-8">
-      {/* Search Input */}
-      <div className="relative group mb-8">
-        <input
-          type="text"
-          placeholder="SEARCH T-SHIRTS..."
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
-          className="w-full bg-transparent border-b border-gray-300 py-2 pl-0 pr-8 text-sm font-sans focus:outline-none focus:border-black transition-colors uppercase placeholder:text-gray-400 placeholder:tracking-wider"
-        />
-        <Search
-          size={16}
-          className="absolute right-0 top-2 text-gray-400 group-focus-within:text-black transition-colors"
-        />
-      </div>
-
-      {/* 1. GENDER (Category) */}
-      <div className="border-b border-gray-100 pb-6">
-        <button
-          onClick={() => toggleSection("category")}
-          className="flex items-center justify-between w-full text-left group mb-2"
-        >
-          <span className="font-bold text-xs uppercase tracking-[0.15em] text-black group-hover:text-gray-600 transition-colors">
-            Gender
-          </span>
-          {openSections["category"] ? (
-            <ChevronUp size={14} />
-          ) : (
-            <ChevronDown size={14} />
-          )}
-        </button>
-        <AnimatePresence>
-          {openSections["category"] && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className="overflow-hidden"
-            >
-              <div className="pt-2 space-y-2">
-                {["all", "men", "women", "unisex"].map((cat) => (
-                  <label
-                    key={cat}
-                    className="flex items-center gap-3 cursor-pointer group/label"
-                  >
-                    <div
-                      className={`w-4 h-4 border flex items-center justify-center transition-colors ${category === cat ? "border-black bg-black" : "border-gray-300 group-hover/label:border-gray-500"}`}
-                    >
-                      {category === cat && (
-                        <Check size={10} className="text-white" />
-                      )}
-                    </div>
-                    <input
-                      type="radio"
-                      className="hidden"
-                      name="category"
-                      checked={category === cat}
-                      onChange={() => setCategory(cat)}
-                    />
-                    <span
-                      className={`text-sm font-sans tracking-wide uppercase ${category === cat ? "text-black font-medium" : "text-gray-500 group-hover/label:text-black"}`}
-                    >
-                      {cat}
-                    </span>
-                  </label>
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      {/* 2. STYLE (Using keyword logic from your original code) */}
-      <div className="border-b border-gray-100 pb-6">
-        <button
-          onClick={() => toggleSection("style")}
-          className="flex items-center justify-between w-full text-left group mb-2"
-        >
-          <span className="font-bold text-xs uppercase tracking-[0.15em] text-black group-hover:text-gray-600 transition-colors">
-            Style
-          </span>
-          {openSections["style"] ? (
-            <ChevronUp size={14} />
-          ) : (
-            <ChevronDown size={14} />
-          )}
-        </button>
-        <AnimatePresence>
-          {openSections["style"] && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className="overflow-hidden"
-            >
-              <div className="pt-2 space-y-2">
-                {[
-                  "Graphic Tees",
-                  "Solid / Plain",
-                  "Oversized",
-                  "Polos",
-                  "V-Neck",
-                ].map((style) => (
-                  <label
-                    key={style}
-                    className="flex items-center gap-3 cursor-pointer group/label"
-                  >
-                    <div
-                      className={`w-4 h-4 border flex items-center justify-center transition-colors ${keyword === style ? "border-black bg-black" : "border-gray-300 group-hover/label:border-gray-500"}`}
-                    >
-                      {keyword === style && (
-                        <Check size={10} className="text-white" />
-                      )}
-                    </div>
-                    <input
-                      type="checkbox"
-                      className="hidden"
-                      checked={keyword === style}
-                      onChange={() =>
-                        setKeyword((prev) => (prev === style ? "" : style))
-                      }
-                    />
-                    <span
-                      className={`text-sm font-sans tracking-wide ${keyword === style ? "text-black font-medium" : "text-gray-500 group-hover/label:text-black"}`}
-                    >
-                      {style}
-                    </span>
-                  </label>
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      {/* 3. SIZE */}
-      <div className="border-b border-gray-100 pb-6">
-        <button
-          onClick={() => toggleSection("size")}
-          className="flex items-center justify-between w-full text-left group mb-2"
-        >
-          <span className="font-bold text-xs uppercase tracking-[0.15em] text-black group-hover:text-gray-600 transition-colors">
-            Size
-          </span>
-          {openSections["size"] ? (
-            <ChevronUp size={14} />
-          ) : (
-            <ChevronDown size={14} />
-          )}
-        </button>
-        <AnimatePresence>
-          {openSections["size"] && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className="overflow-hidden"
-            >
-              <div className="pt-2 grid grid-cols-3 gap-2">
-                {["XS", "S", "M", "L", "XL", "XXL"].map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => setSize((prev) => (prev === s ? "" : s))}
-                    className={`border py-2 text-xs font-bold transition-all uppercase ${
-                      size === s
-                        ? "border-black bg-black text-white"
-                        : "border-gray-200 hover:border-black text-gray-600"
-                    }`}
-                  >
-                    {s}
-                  </button>
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      {/* 4. PRICE */}
-      <div className="border-b border-gray-100 pb-6">
-        <button
-          onClick={() => toggleSection("price")}
-          className="flex items-center justify-between w-full text-left group mb-2"
-        >
-          <span className="font-bold text-xs uppercase tracking-[0.15em] text-black group-hover:text-gray-600 transition-colors">
-            Price
-          </span>
-          {openSections["price"] ? (
-            <ChevronUp size={14} />
-          ) : (
-            <ChevronDown size={14} />
-          )}
-        </button>
-        <AnimatePresence>
-          {openSections["price"] && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className="overflow-hidden"
-            >
-              <div className="pt-4 flex items-center gap-4">
-                <div className="relative flex-1">
-                  <span className="absolute left-0 -top-4 text-[10px] text-gray-400 font-bold tracking-widest uppercase">
-                    Min
-                  </span>
-                  <span className="absolute left-2 top-2.5 text-xs text-gray-500">
-                    ₹
-                  </span>
-                  <input
-                    type="number"
-                    value={minPrice}
-                    onChange={(e) => setMinPrice(e.target.value)}
-                    className="w-full bg-gray-50 border border-gray-200 p-2 pl-5 text-xs font-medium focus:outline-none focus:border-black transition-colors"
-                  />
-                </div>
-                <div className="relative flex-1">
-                  <span className="absolute left-0 -top-4 text-[10px] text-gray-400 font-bold tracking-widest uppercase">
-                    Max
-                  </span>
-                  <span className="absolute left-2 top-2.5 text-xs text-gray-500">
-                    ₹
-                  </span>
-                  <input
-                    type="number"
-                    value={maxPrice}
-                    onChange={(e) => setMaxPrice(e.target.value)}
-                    className="w-full bg-gray-50 border border-gray-200 p-2 pl-5 text-xs font-medium focus:outline-none focus:border-black transition-colors"
-                  />
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    </div>
-  );
-
   return (
     <>
       <Navbar />
@@ -365,7 +111,18 @@ const Shop = () => {
             {/* --- DESKTOP SIDEBAR --- */}
             <aside className="hidden lg:block w-64 flex-shrink-0">
               <div className="sticky top-32">
-                <SidebarContent />
+                <ShopFilters 
+                  keyword={keyword}
+                  setKeyword={setKeyword}
+                  category={category}
+                  setCategory={setCategory}
+                  size={size}
+                  setSize={setSize}
+                  minPrice={minPrice}
+                  setMinPrice={setMinPrice}
+                  maxPrice={maxPrice}
+                  setMaxPrice={setMaxPrice}
+                />
               </div>
             </aside>
 
@@ -477,7 +234,18 @@ const Shop = () => {
                 </div>
 
                 <div className="flex-1 overflow-y-auto p-6">
-                  <SidebarContent />
+                  <ShopFilters 
+                    keyword={keyword}
+                    setKeyword={setKeyword}
+                    category={category}
+                    setCategory={setCategory}
+                    size={size}
+                    setSize={setSize}
+                    minPrice={minPrice}
+                    setMinPrice={setMinPrice}
+                    maxPrice={maxPrice}
+                    setMaxPrice={setMaxPrice}
+                  />
                 </div>
 
                 <div className="p-6 border-t border-gray-100 bg-white">
