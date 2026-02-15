@@ -39,6 +39,10 @@ interface ProductState {
   error: string | null;
   reviewStatus: "idle" | "loading" | "succeeded" | "failed";
   reviewError: string | null;
+  // Separate state for global search (navbar/drawer)
+  searchItems: Product[];
+  searchStatus: "idle" | "loading" | "succeeded" | "failed";
+  searchError: string | null;
 }
 
 const initialState: ProductState = {
@@ -50,6 +54,9 @@ const initialState: ProductState = {
   error: null,
   reviewStatus: "idle",
   reviewError: null,
+  searchItems: [],
+  searchStatus: "idle",
+  searchError: null,
 };
 
 // --- ASYNC THUNKS ---
@@ -64,7 +71,7 @@ export interface FetchProductsParams {
   size?: string;
 }
 
-// 1. Fetch All Products (with filters/pagination)
+// 1. Fetch All Products (Main Shop)
 export const fetchProducts = createAsyncThunk(
   "products/fetchProducts",
   async (
@@ -72,10 +79,7 @@ export const fetchProducts = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      // Convert object to query string
-      // filter out undefined/null/empty strings if needed, but URLSearchParams handles basics
       const queryParams = new URLSearchParams();
-
       if (params.keyword) queryParams.append("keyword", params.keyword);
       if (params.category && params.category !== 'all') queryParams.append("category", params.category);
       if (params.minPrice) queryParams.append("minPrice", params.minPrice);
@@ -86,13 +90,33 @@ export const fetchProducts = createAsyncThunk(
       const response = await axios.get(
         `${import.meta.env.VITE_BACKEND_URL}/api/products?${queryParams.toString()}`,
       );
-      return response.data; // { products, page, pages, count }
+      return response.data;
     } catch (error) {
-
       const err = error as any;
       return rejectWithValue(err.response?.data?.message || err.message);
     }
   },
+);
+
+// 1.5. Search Products (Global Search Drawer - Separate State)
+export const searchProducts = createAsyncThunk(
+  "products/searchProducts",
+  async (keyword: string, { rejectWithValue }) => {
+    try {
+      const queryParams = new URLSearchParams();
+      if (keyword) queryParams.append("keyword", keyword);
+      // We generally want just the first page of results for the drawer, or top hits
+      // If backend supports limit, we could add it. For now, default pagination is fine.
+
+      const response = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/api/products?${queryParams.toString()}`,
+      );
+      return response.data;
+    } catch (error) {
+      const err = error as any;
+      return rejectWithValue(err.response?.data?.message || err.message);
+    }
+  }
 );
 
 // 2. Create Product (Admin Only)
@@ -119,7 +143,6 @@ export const createProduct = createAsyncThunk(
       );
       return data; // Returns the newly created product
     } catch (error) {
-
       const err = error as any;
       return rejectWithValue(err.response?.data?.message || err.message);
     }
@@ -150,7 +173,6 @@ export const createReview = createAsyncThunk(
         config
       );
     } catch (error) {
-
       const err = error as any;
       return rejectWithValue(err.response?.data?.message || err.message);
     }
@@ -169,19 +191,22 @@ const productSlice = createSlice({
     resetReviewStatus: (state) => {
       state.reviewStatus = "idle";
       state.reviewError = null;
+    },
+    // Clear search results when drawer closes
+    clearSearch: (state) => {
+      state.searchItems = [];
+      state.searchStatus = "idle";
+      state.searchError = null;
     }
   },
   extraReducers: (builder) => {
     builder
-      // --- Fetch Products Cases ---
+      // --- Fetch Products Cases (Shop Page) ---
       .addCase(fetchProducts.pending, (state) => {
         state.status = "loading";
       })
       .addCase(fetchProducts.fulfilled, (state, action) => {
         state.status = "succeeded";
-        // Backend now returns { products, page, pages, count }
-        // We use 'items' for products to match existing code usage (mostly)
-        // If the backend returns an array (old behavior fallback), handle that
         if (Array.isArray(action.payload)) {
           state.items = action.payload;
           state.page = 1;
@@ -197,6 +222,24 @@ const productSlice = createSlice({
       .addCase(fetchProducts.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload as string;
+      })
+
+      // --- Search Products Cases (Drawer) ---
+      .addCase(searchProducts.pending, (state) => {
+        state.searchStatus = "loading";
+      })
+      .addCase(searchProducts.fulfilled, (state, action) => {
+        state.searchStatus = "succeeded";
+        // Handle both array and paginated response formats, though usually it's paginated now
+        if (Array.isArray(action.payload)) {
+          state.searchItems = action.payload;
+        } else {
+          state.searchItems = action.payload.products;
+        }
+      })
+      .addCase(searchProducts.rejected, (state, action) => {
+        state.searchStatus = "failed";
+        state.searchError = action.payload as string;
       })
 
       // --- Create Product Cases ---
@@ -226,5 +269,5 @@ const productSlice = createSlice({
   },
 });
 
-export const { resetProductStatus, resetReviewStatus } = productSlice.actions;
+export const { resetProductStatus, resetReviewStatus, clearSearch } = productSlice.actions;
 export default productSlice.reducer;

@@ -4,7 +4,7 @@ import { Search, X, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from './ui/button';
 import { useAppSelector, useAppDispatch } from '@/store';
-import { fetchProducts } from '@/store/productSlice';
+import { searchProducts, clearSearch } from '@/store/productSlice';
 import EmptyState from './EmptyState';
 
 interface SearchDrawerProps {
@@ -14,15 +14,32 @@ interface SearchDrawerProps {
 
 const SearchDrawer = ({ isOpen, onClose }: SearchDrawerProps) => {
   const [query, setQuery] = useState('');
+  // Debounce query
+  const [debouncedQuery, setDebouncedQuery] = useState(query);
   const inputRef = useRef<HTMLInputElement>(null);
   const dispatch = useAppDispatch();
-  const { items: products, status } = useAppSelector((state) => state.products);
+  
+  // Use separate search state
+  const { searchItems: products, searchStatus: status } = useAppSelector((state) => state.products);
 
   useEffect(() => {
-    if (isOpen && status === 'idle') {
-      dispatch(fetchProducts());
+    const handler = setTimeout(() => {
+      setDebouncedQuery(query);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [query]);
+
+  // Fetch products when debounced query changes
+  useEffect(() => {
+    if (isOpen) {
+        if(debouncedQuery) {
+            dispatch(searchProducts(debouncedQuery));
+        } else {
+            // clear results if empty
+            dispatch(clearSearch());
+        }
     }
-  }, [isOpen, status, dispatch]);
+  }, [debouncedQuery, isOpen, dispatch]);
 
   // Auto-focus input when drawer opens
   useEffect(() => {
@@ -30,17 +47,12 @@ const SearchDrawer = ({ isOpen, onClose }: SearchDrawerProps) => {
       setTimeout(() => inputRef.current?.focus(), 100);
     } else {
       setQuery(''); // Reset query on close
+      dispatch(clearSearch());
     }
-  }, [isOpen]);
+  }, [isOpen, dispatch]);
 
-  // Filter products
-  const results = query
-    ? products.filter(
-        (product) =>
-          product.name.toLowerCase().includes(query.toLowerCase()) ||
-          product.category.toLowerCase().includes(query.toLowerCase())
-      ).slice(0, 4) // Limit to 4 results
-    : [];
+  // Use products directly from store (server-side filtered)
+  const results = products.slice(0, 4); 
 
   return (
     <AnimatePresence>
@@ -72,6 +84,13 @@ const SearchDrawer = ({ isOpen, onClose }: SearchDrawerProps) => {
                   placeholder="Search for products, categories..."
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                        // Navigate to shop with query
+                        window.location.href = `/shop?keyword=${encodeURIComponent(query)}`;
+                        onClose();
+                    }
+                  }}
                   className="flex-1 bg-transparent text-2xl font-serif outline-none placeholder:text-muted-foreground/50"
                 />
                 <button
@@ -84,7 +103,16 @@ const SearchDrawer = ({ isOpen, onClose }: SearchDrawerProps) => {
 
               {/* Results Area */}
               <div className="min-h-[200px] mb-4">
-                {query && results.length > 0 ? (
+                {status === 'loading' ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 opacity-50">
+                        {[1,2,3,4].map(i => (
+                            <div key={i} className="flex flex-col gap-3">
+                                <div className="aspect-[3/4] bg-gray-100 animate-pulse" />
+                                <div className="h-4 bg-gray-100 w-2/3 animate-pulse" />
+                            </div>
+                        ))}
+                    </div>
+                ) : query && results.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {results.map((product) => (
                       <Link
@@ -128,15 +156,13 @@ const SearchDrawer = ({ isOpen, onClose }: SearchDrawerProps) => {
                 )}
               </div>
               
-              {results.length > 0 && (
-                 <div className="flex justify-center mt-6">
-                    <Link to="/shop" onClick={onClose}>
-                        <Button variant="link" className="text-muted-foreground hover:text-foreground">
-                            View all results
-                        </Button>
-                    </Link>
-                 </div>
-              )}
+              <div className="flex justify-center mt-6">
+                 <Link to={`/shop?keyword=${encodeURIComponent(query)}`} onClick={onClose}>
+                     <Button variant="link" className="text-muted-foreground hover:text-foreground">
+                         View all results
+                     </Button>
+                 </Link>
+              </div>
             </div>
           </motion.div>
         </>
@@ -144,5 +170,4 @@ const SearchDrawer = ({ isOpen, onClose }: SearchDrawerProps) => {
     </AnimatePresence>
   );
 };
-
 export default SearchDrawer;
