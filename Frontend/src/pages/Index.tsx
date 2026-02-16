@@ -5,9 +5,9 @@ import { ArrowRight } from "lucide-react";
 
 // --- FIXED IMPORTS ---
 // We use 'hero.jpg' for Men because 'category-men.jpg' is missing/deleted
-import categoryMen from "@/assets/hero.jpg";
-import categoryWomen from "@/assets/category-women.jpg";
-import categoryAccessories from "@/assets/hero3.jpg";
+import categoryMen from "@/assets/hero3.jpg";
+import categoryWomen from "@/assets/hero.jpg";
+import categoryAccessories from "@/assets/category-accessories.jpg";
 
 import { useAppDispatch, useAppSelector } from "@/store";
 import { fetchProducts } from "@/store/productSlice";
