@@ -37,7 +37,7 @@ const Navbar = () => {
 
   const announcements = [
     {
-      text: "FREE SHIPPING ON ORDERS ABOVE ₹999",
+      text: "FREE SHIPPING ON ORDERS ABOVE ₹4999",
       icon: <Truck size={13} className="text-emerald-400" />,
     },
     {
@@ -216,11 +216,13 @@ const Navbar = () => {
                 strokeWidth={1.5}
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within/search:text-foreground transition-colors"
                 onClick={() => {
-                   if(searchQuery.trim()) {
-                     navigate(`/shop?keyword=${encodeURIComponent(searchQuery.trim())}`);
-                   }
+                  if (searchQuery.trim()) {
+                    navigate(
+                      `/shop?keyword=${encodeURIComponent(searchQuery.trim())}`,
+                    );
+                  }
                 }}
-                style={{ cursor: 'pointer' }}
+                style={{ cursor: "pointer" }}
               />
               <input
                 type="text"
@@ -228,15 +230,17 @@ const Navbar = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' && searchQuery.trim()) {
-                     navigate(`/shop?keyword=${encodeURIComponent(searchQuery.trim())}`);
+                  if (e.key === "Enter" && searchQuery.trim()) {
+                    navigate(
+                      `/shop?keyword=${encodeURIComponent(searchQuery.trim())}`,
+                    );
                   }
                 }}
                 className="pl-10 pr-10 py-2 w-full text-sm bg-transparent border-none focus:ring-0 outline-none placeholder:text-muted-foreground/90 font-sans font-light tracking-wide placeholder:tracking-normal"
               />
               <button
-                className={`absolute right-3 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground transition-opacity ${searchQuery ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-                onClick={() => setSearchQuery('')}
+                className={`absolute right-3 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground transition-opacity ${searchQuery ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+                onClick={() => setSearchQuery("")}
                 aria-label="Clear search"
               >
                 <X size={14} strokeWidth={1.5} />

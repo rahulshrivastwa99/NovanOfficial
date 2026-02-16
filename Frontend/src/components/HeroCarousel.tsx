@@ -3,19 +3,18 @@ import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 
-// --- IMPORTS ---
-// 1. Import the first video
-import heroVideo from "@/assets/hero1.mp4";
-// 2. Import the middle image
-import hero2 from "@/assets/hero.jpg";
-// 3. IMPORT YOUR NEW VIDEO (hero3.mp4)
-import hero3 from "@/assets/hero3.jpg";
+// --- IMPORTS FROM SRC/ASSETS ---
+// Make sure these files exist in src/assets!
+import video1 from "@/assets/hero1.mp4";
+import video2 from "@/assets/WhatsApp Video 2026-02-16 at 7.54.59 PM.mp4";
+import image1 from "@/assets/hero.jpg";
+import image2 from "@/assets/hero3.jpg"; // Based on your screenshot, hero3 is an image
 
 const slides = [
   {
     id: 1,
     type: "video",
-    src: heroVideo,
+    src: video1,
     title: "ELEVATE YOUR STYLE",
     subtitle: "Redefining modern luxury, piece by piece",
     cta: "Explore Collection",
@@ -24,23 +23,33 @@ const slides = [
   },
   {
     id: 2,
-    type: "image",
-    src: hero2,
-    title: "ELEGANCE FOR HER",
-    subtitle: "Sophisticated styles for every occasion",
-    cta: "Shop Women",
-    link: "/shop?category=women",
+    type: "video",
+    src: video2,
+    title: "NEW ARRIVALS",
+    subtitle: "Discover the latest trends for this season",
+    cta: "Shop New",
+    link: "/shop",
     position: "object-center",
   },
   {
     id: 3,
     type: "image",
-    src: hero3,
+    src: image2,
     title: "MEN'S ATELIER",
     subtitle: "Timeless cuts, redefined.",
     cta: "Shop Men",
     link: "/shop?category=men",
     position: "object-top",
+  },
+  {
+    id: 4,
+    type: "image",
+    src: image1,
+    title: "ELEGANCE FOR HER",
+    subtitle: "Sophisticated styles for every occasion",
+    cta: "Shop Women",
+    link: "/shop?category=women",
+    position: "object-center",
   },
 ];
 
@@ -69,7 +78,6 @@ const HeroCarousel = () => {
           transition={{ duration: 0.8 }}
           className="absolute inset-0"
         >
-          {/* Conditional Rendering: Video vs Image */}
           {slides[current].type === "video" ? (
             <video
               src={slides[current].src}
@@ -77,6 +85,8 @@ const HeroCarousel = () => {
               loop
               muted
               playsInline
+              // Added key to force re-render when slide changes
+              key={slides[current].src}
               className={`w-full h-full object-cover opacity-90 ${slides[current].position}`}
             />
           ) : (
@@ -86,8 +96,6 @@ const HeroCarousel = () => {
               className={`w-full h-full object-cover opacity-80 ${slides[current].position}`}
             />
           )}
-
-          {/* Overlay Gradient */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/30" />
         </motion.div>
       </AnimatePresence>
