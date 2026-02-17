@@ -63,7 +63,7 @@ const CartItem = ({ item }: { item: any }) => {
   return (
     <div className="flex gap-4 bg-white p-3 rounded-lg border border-gray-100 shadow-sm">
       <div className="w-20 h-24 bg-gray-100 rounded-md overflow-hidden flex-shrink-0">
-        <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+        <img src={item.image} alt={item.name} crossOrigin="anonymous" className="w-full h-full object-cover" />
       </div>
       <div className="flex-1 flex flex-col justify-between py-1">
         <div>

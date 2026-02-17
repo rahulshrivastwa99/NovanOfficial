@@ -83,6 +83,7 @@ const HeroCarousel = () => {
             <img
               src={slides[current].src}
               alt={slides[current].title}
+              crossOrigin="anonymous"
               className={`w-full h-full object-cover opacity-80 ${slides[current].position}`}
             />
           )}
@@ -98,7 +99,11 @@ const HeroCarousel = () => {
             key={`title-${current}`}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+            transition={{
+              duration: 0.8,
+              delay: current === 0 ? 0 : 0.2, // No delay for first slide
+              ease: "easeOut",
+            }}
             className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter mb-6 uppercase"
           >
             {slides[current].title}
@@ -107,7 +112,7 @@ const HeroCarousel = () => {
             key={`sub-${current}`}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
+            transition={{ duration: 0.8, delay: current === 0 ? 0.1 : 0.4 }}
             className="text-lg md:text-2xl text-white/90 mb-10 font-light tracking-wide"
           >
             {slides[current].subtitle}
@@ -116,7 +121,7 @@ const HeroCarousel = () => {
             key={`cta-${current}`}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
+            transition={{ duration: 0.8, delay: current === 0 ? 0.2 : 0.6 }}
           >
             <Link
               to={slides[current].link}

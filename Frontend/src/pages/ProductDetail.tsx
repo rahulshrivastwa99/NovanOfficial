@@ -73,6 +73,7 @@ const ImageZoom = ({
       <img
         src={src}
         alt={alt}
+        crossOrigin="anonymous"
         // scale-[1.8] for a realistic zoom level
         // duration-500 + ease-out creates that "liquid" satisfying glide
         className={`w-full h-full object-cover transition-transform duration-500 ease-out will-change-transform ${
@@ -236,6 +237,7 @@ const ProductDetail = () => {
                   >
                     <img
                       src={img}
+                      crossOrigin="anonymous"
                       className="w-full h-full object-cover"
                       alt=""
                     />
@@ -559,6 +561,7 @@ const ProductDetail = () => {
                 initial={{ scale: 0.9 }}
                 animate={{ scale: 1 }}
                 src={productImages[selectedImage]}
+                crossOrigin="anonymous"
                 className="w-full h-full object-contain"
               />
             </div>
