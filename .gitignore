@@ -16,3 +16,6 @@ build/
 npm-debug.log*
 yarn-debug.log*
 bun.lockb
+
+# Build Analysis Reports
+stats.html

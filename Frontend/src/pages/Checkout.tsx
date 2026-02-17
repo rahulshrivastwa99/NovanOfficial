@@ -106,6 +106,17 @@ const Checkout = () => {
   };
 
 
+  // Helper function to load Razorpay SDK
+  const loadRazorpay = () => {
+    return new Promise((resolve) => {
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
   // --- MAIN ORDER HANDLER ---
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -175,14 +186,22 @@ const Checkout = () => {
 
         const orderId = orderRes._id;
 
-        // 2. Create Razorpay Order
+        // 2. Load Razorpay SDK Dynamically
+        const res = await loadRazorpay();
+        if (!res) {
+            toast.error("Razorpay SDK failed to load. Please check your connection.");
+            setShouldBlockNavigation(true);
+            return;
+        }
+
+        // 3. Create Razorpay Order
         const { data: razorpayOrder } = await axios.post(
             `${backendUrl}/api/payment/create`, 
             { amount: totalPrice }, 
             config
         );
 
-        // 3. Configure Razorpay Options
+        // 4. Configure Razorpay Options
         const options = {
             key: import.meta.env.VITE_RAZORPAY_KEY_ID,
             amount: razorpayOrder.amount, // Amount in paise
@@ -191,7 +210,7 @@ const Checkout = () => {
             description: `Order #${orderId}`,
             order_id: razorpayOrder.id, // Razorpay Order ID
             
-            // 4. Handle Success Payment
+            // 5. Handle Success Payment
             handler: async function (response: any) {
                 try {
                     // Verify Payment on Backend AND Update Order to Paid
@@ -220,7 +239,7 @@ const Checkout = () => {
                     setShouldBlockNavigation(true);
                 }
             },
-            // 5. Handle Modal Dismissal / Failure
+            // 6. Handle Modal Dismissal / Failure
             modal: {
                 ondismiss: function() {
                     toast.info("Payment Cancelled. Order saved in 'My Orders'.");
@@ -235,12 +254,6 @@ const Checkout = () => {
             },
             theme: { color: "#000000" }
         };
-
-        if (!(window as any).Razorpay) {
-            toast.error("Razorpay SDK failed to load. Please check your internet connection.");
-            setShouldBlockNavigation(false);
-            return;
-        }
 
         const rzp = new (window as any).Razorpay(options);
         rzp.open();
