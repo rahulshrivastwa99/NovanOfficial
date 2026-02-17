@@ -236,6 +236,12 @@ const Checkout = () => {
             theme: { color: "#000000" }
         };
 
+        if (!(window as any).Razorpay) {
+            toast.error("Razorpay SDK failed to load. Please check your internet connection.");
+            setShouldBlockNavigation(false);
+            return;
+        }
+
         const rzp = new (window as any).Razorpay(options);
         rzp.open();
 

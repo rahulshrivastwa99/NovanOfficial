@@ -75,6 +75,12 @@ const verifyPayment = async (req, res) => {
       const order = await Order.findById(orderId);
 
       if (order) {
+        // Idempotency Check: If already paid, return success immediately
+        if (order.isPaid) {
+             console.log("Order already marked as paid. Skipping update.");
+             return res.json({ success: true, message: 'Payment already verified' });
+        }
+
         order.isPaid = true;
         order.paidAt = Date.now();
         order.status = 'Paid'; // Update status to Paid
