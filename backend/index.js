@@ -13,10 +13,14 @@ const wishlistRoutes = require('./routes/wishlistRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 
 
-connectDB();
+// connectDB();
 
 const app = express();
 app.use(cors());
+// app.use(cors({
+//   origin: ["https://thelyyn.com", "http://localhost:5173"], // Yahan apni frontend ka asli URL dalo
+//   credentials: true
+// }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // Added to help with FormData parsing
 
@@ -61,8 +65,18 @@ app.get('/', (req, res) => {
   res.send('NovanOfficial Backend API is Live...');
 });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+const startServer = async () => {
+  try {
+    await connectDB(); // Pehle DB connect hoga
+    const PORT = process.env.PORT || 5000;
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  } catch (error) {
+    console.error('Database connection failed:', error);
+    process.exit(1); // Agar DB down hai toh server start nahi hoga
+  }
+};
+
+startServer();
 
 // const axios = require('axios');
 
